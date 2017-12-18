@@ -10,8 +10,8 @@ using some kind of combination of prequisites that are not compatible with our k
 - __For developers and operations__ it is mandatory to be able re-deploy a server whenever needed. To avoid high back-pressure from cold caches, cache-misses may be stored in a Redis (assuming using a `ioredis`-factory) that are preloading the cache when the server restarts.
 - Using prepared stores (such as redux), __custom class instances and native objects__ such as Date and RegExp needs a function to return values. In-memory caching provides supports for these and other non-serializable data (using JSON.stringify). Non-serializable objects are filtered out on cache-miss when using Redis persistence.
 - When the cache for a given key is cold/stale, requests asking for the same key only spawns __one__ worker (subsequent requests are queued using RxJs)
-- If a worker (promise) fails, stale data is served until the worker starts resolving again or the key is evicted using LRU-semantics
-- To avoid spamming of backend resources when a cached object is stale, there is a configurable retry-wait timer to avoid this situation.
+- If a worker (promise) fails, __stale data is served until the worker resolves__ or the key is evicted using LRU-semantics
+- To __avoid spamming of backend resources__ when a cached object is stale, there is a configurable retry-wait timer to avoid this situation.
 
 
 ## Installing
