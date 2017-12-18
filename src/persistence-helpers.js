@@ -125,7 +125,7 @@ export const scanKeys = (redisClient, cacheKeyPrefix) => {
   })
 }
 
-// credits to https://stackoverflow.com/users/3786608/bardzusny
+// credits to https://stackoverflow.com/users/128816/treznik
 // https://stackoverflow.com/questions/30579940/reliable-way-to-check-if-objects-is-serializable-in-javascript
 export const isSerializable = (obj) => {
   if (isUndefined(obj) ||
