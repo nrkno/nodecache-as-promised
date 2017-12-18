@@ -17,7 +17,7 @@ using some kind of combination of prequisites that are not compatible with our k
 
 ## Features
 - __In-memory caching__ is used as primary cache since it will always be faster than fetching data over network. An LRU-cache is enabled to constraint amount of memory used.
-- __For an editor__ in a newsroom it is important to be able to publish rapid changes without waiting for caches to expire. On demand expiry/purge is provided as a plugin depending on Redis pub/sub.
+- __For an editor__ in a newsroom it is important to be able to publish rapid changes without waiting for caches to expire. On demand expire is provided as a plugin depending on Redis pub/sub.
 - __For developers and operations__ it is mandatory to be able re-deploy a server whenever needed. To avoid high back-pressure from cold caches, cache-misses may be stored in a Redis (assuming using a `ioredis`-factory) that may preload the cache when the server restarts.
 - __Custom class instances and native objects__ such as Date, RegExp and redux stores needs a function to return values. In-memory caching provides support for these and other non-serializable data (using JSON.stringify). Non-serializable objects are filtered out on cache-miss when using Redis persistence.
 - __Worker promises__ are used to ensure that only __one__ Promise is performed when several concurrent requests are requesting data from the same key, while the cache is cold/stale (using RxJs)
