@@ -50,7 +50,7 @@ cache.get('key', {
 
 ## Plugins
 Distributed expire and persisting of cache misses to Redis are provided as
-plugins using function composition (or decorators), ie. extending the
+plugins using __function composition__ (or decorators), ie. extending the
 in-memory cache cababilities.
 
 #### Distributed expire
