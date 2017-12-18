@@ -137,7 +137,9 @@ export default (options) => {
         return
       }
       let worker = workers.get(key)
+      let cacheType = CACHE_HIT
       if (!worker) {
+        cacheType = CACHE_MISS
         worker = _createWorker({
           key,
           promise,
@@ -148,7 +150,7 @@ export default (options) => {
         workers.set(key, worker)
       }
       worker.subscribe((value) => {
-        resolve({value, cache: CACHE_MISS})
+        resolve({value, cache: cacheType})
       }, (err) => {
         // serve stale object if it exists
         obj ? resolve({...obj, cache: CACHE_STALE}) : reject(err)

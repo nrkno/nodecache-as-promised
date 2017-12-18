@@ -105,15 +105,15 @@ describe('CacheManager', () => {
       spy = sinon.spy(p)
     })
 
-    it.only('should run only one promise, while two requests asks for data from cold cache concurrently', () => {
+    it('should run only one promise, while two requests asks for data from cold cache concurrently', () => {
       return Promise.all([
         cacheInstance.get(dummyKey, {}, spy),
         cacheInstance.get(dummyKey, {}, spy)
       ]).then(([val1, val2]) => {
-        expect(val1).to.eql(val2)
+        expect(val1.value).to.eql(val2.value)
         expect(spy.callCount).to.equal(1)
-        expect(val1.cache.miss).to.equal('miss')
-        expect(val2.cache.miss).to.equal('hit')
+        expect(val1.cache).to.equal('miss')
+        expect(val2.cache).to.equal('hit')
       })
     })
   })
