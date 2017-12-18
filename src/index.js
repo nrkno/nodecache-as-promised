@@ -1,5 +1,6 @@
 /**
  * @module
+ * @description Main module for creating an in-memory cache. Extendable using redis-wrapper and redis-persistence-wrapper
  **/
 import cloneDeep from 'lodash/cloneDeep'
 import {
@@ -33,7 +34,7 @@ const CACHE_STALE = 'stale'
  **/
 
  /**
-  * @description Create new instance
+  * @description Creates a new in-memory cache.
   * @param {Object} options - an options object.
   * @param {function} options.log - logger interface. Expects standard methods: info, warn, error, debug, trace
   * @param {Object} options.initial - initial state, key/value based.

@@ -6,7 +6,7 @@
   "description": "NodeJs in-memory cache. Optional distributed capabilites using Redis pub/sub + persistence",
   "main": "lib/index.js",
   "scripts": {
-    "preversion": "echo prepublish clean, test and build and update jsdocs && rm -rf lib node_modules && npm i && npm test && npm run build && npm run generate-docs",
+    "preversion": "echo prepublish clean, test and build && rm -rf lib node_modules && npm i && npm test && npm run build",
     "bump:patch": "npm version patch -m 'Release patch %s' && npm run push",
     "bump:minor": "npm version minor -m 'Release minor %s' && npm run push",
     "bump:major": "npm version major -m 'Release major %s' && npm run push",
@@ -23,9 +23,7 @@
     "perf:nocache-cache-file": "node test/nocache-cache-file.js",
     "perf:nocache": "node test/nocache.js",
     "perf:cache": "node test/cache.js",
-    "perf:cache-cluster": "node test/cache-cluster.js",
-    "generate-docs": "rm -rf docs && jsdoc -c jsdoc.json",
-    "docs": "npm run generate-docs && ws"
+    "perf:cache-cluster": "node test/cache-cluster.js"
   },
   "repository": {
     "type": "git",
@@ -43,9 +41,7 @@
     "babel-preset-env": "1.6.1",
     "babel-preset-stage-3": "6.24.1",
     "chalk": "2.1.0",
-    "docdash": "0.4.0",
     "expect.js": "0.3.1",
-    "jsdoc": "3.5.5",
     "mocha": "4.0.1",
     "sinon": "3.2.1",
     "standard": "10.0.3"
