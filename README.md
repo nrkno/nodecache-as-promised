@@ -1,15 +1,15 @@
 # Motivation
-`doublecache-as-promised` is heavily inspired by how [Varnish](https://varnish-cache.org/) works. The module is not intended to replace Varnish (but works great in combination). Instead its intention is more fine-grained control over caching behaviour and making cached objects available in NodeJs. In general Varnish works great as an edge/burst/failover cache, in addition as a reverse proxy and loadbalancer.
+`doublecache-as-promised` is heavily inspired by how [Varnish](https://varnish-cache.org/) works. The module is not intended to replace Varnish (but works great in combination). Instead its intention is more fine-grained control over caching behaviour and making cached objects available in NodeJs. In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing.
 
-There are several cache solutions for Node on NPM, but they're often either too basic or
+There are several cache solutions on NPM, but they're often either too basic or
 using some kind of combination of prequisites that are not compatible with our kind of setup.
 
 ## Features
-- Serving cache from in-memory is always faster than fetching data over network - but due to constraints in available memory an LRU-cache is enabled avoid memory leaks.
-- For an editor in a newsroom it is important to be able to publish rapid changes which needs to be reflected in the cache. On demand expiry/purge is available as a plugin depending on using Redis pub/sub
-- For developers and operations it is mandatory to be able re-deploy a server whenever needed. To avoid high back-pressure from cold caches, cache-misses may be stored in a Redis (assuming using a `ioredis`-factory) that are preloading the cache when the server restarts.
-- Using prepared stores (such as redux), custom class instances and native objects such as Date and RegExp needs a function to return values. In-memory caching provides supports for these and other non-serializable data (using JSON.stringify). Non-serializable objects are filtered out on cache-miss when using Redis persistence.
-- When the cache for a given key is cold/stale, requests asking for the same key only spawns *one* worker (subsequent requests are queued using RxJs)
+- Serving **cache from in-memory*** is always faster than fetching data over network - but due to constraints in available memory an LRU-cache is enabled avoid memory leaks.
+- **For an editor** in a newsroom it is important to be able to publish rapid changes without waiting for caches to expire. On demand expiry/purge is available as a plugin depending on Redis pub/sub.
+- **For developers and operations** it is mandatory to be able re-deploy a server whenever needed. To avoid high back-pressure from cold caches, cache-misses may be stored in a Redis (assuming using a `ioredis`-factory) that are preloading the cache when the server restarts.
+- Using prepared stores (such as redux), **custom class instances and native objects** such as Date and RegExp needs a function to return values. In-memory caching provides supports for these and other non-serializable data (using JSON.stringify). Non-serializable objects are filtered out on cache-miss when using Redis persistence.
+- When the cache for a given key is cold/stale, requests asking for the same key only spawns **one** worker (subsequent requests are queued using RxJs)
 - If a worker (promise) fails, stale data is served until the worker starts resolving again or the key is evicted using LRU-semantics
 - To avoid spamming of backend resources when a cached object is stale, there is a configurable retry-wait timer to avoid this situation.
 
