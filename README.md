@@ -24,61 +24,95 @@ npm install @nrk/doublecache-as-promised --save
 ```js
 import inMemoryCache from '@nrk/doublecache-as-promised';
 
-const cacheInstance = inMemoryCache({
+const cache = inMemoryCache({
   initial: {
     foo: 'bar'
   },                  // initial state
   maxLength: 1000,              // object count
   maxAge: 24 * 60 * 60 * 1000   // in ms
-});
-cacheInstance.set('key', {hello: 'world'});
-cacheInstance.get('key').then(console.log);
+})
+cache.set('key', {hello: 'world'})
+cache.get('key').then(console.log)
 // {value: {hello: 'world'}, created: 123456789, cache: 'hit', TTL: 86400000}
-cacheInstance.get('foo').then(console.log);
+cache.get('foo').then(console.log)
 // {value: {foo: 'bar'}, created: 123456789, cache: 'hit', TTL: 86400000}
 ```
 
 #### Using promises
 ```js
-cacheInstance.get('key', {
+cache.get('key', {
   ttl: 60000,               // in ms
   workerTimeout: 5000,
   deltaWait: 5000
-}, Promise.resolve('hei').then(console.log);
-// {value: 'hei', created: 123456789, cache: 'miss', TTL: 60000}
+}, Promise.resolve('hello').then(console.log)
+// {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
 ```
 
-## Extras
-Optional extra functionality using **higher order functions**.
+## Plugins
+Distributed expire and persisting of cache misses to Redis are provided as
+plugins using function composition (or decorators), ie. extending the
+in-memory cache cababilities.
 
 #### Distributed expire
 ```js
-import createCacheInstance from '@nrk/doublecache-as-promised';
-import redisWrapper from '@nrk/doublecache-as-promised/lib/redis-wrapper';
-import Redis from 'io-redis';
+import inMemoryCache from '@nrk/doublecache-as-promised'
+import redisWrapper from '@nrk/doublecache-as-promised/lib/redis-wrapper'
+import Redis from 'ioredis'
 
 // server # 1 + 2
-const ci = createCacheInstance({
+const cache = inMemoryCache({
   initial: {                    // initial state
     foo: 'bar'
   },                  
   maxLength: 1000,              // object count
   maxAge: 24 * 60 * 60 * 1000   // in ms
-});
+})
 
-const redisFactory = () => new Redis(/* options */);
+const redisFactory = () => new Redis(/* options */)
 
-const cacheInstance = redisWrapper(ci, redisFactory, 'namespace');
-cacheInstance.expire(['foo']);
+const distCache = redisWrapper(cache, redisFactory, 'namespace')
+distCache.expire(['foo'])
 setTimeout(() => {
-  cacheInstance.get('foo').then(console.log);
+  distCache.get('foo').then(console.log)
   // expired in server # 1 + 2
   // {value: {foo: 'bar'}, created: 123456789, cache: 'stale', TTL: 86400000}
-}, 1000);
+}, 1000)
 ```
 
 #### Persisting cache misses
-* coming later *
+```js
+import inMemoryCache from '@nrk/doublecache-as-promised'
+import redisWrapper from '@nrk/doublecache-as-promised/lib/redis-wrapper'
+import redisPersistenceWrapper from '@nrk/doublecache-as-promised/lib/redis-persistence-wrapper'
+import Redis from 'ioredis'
 
-## Final note
-Ideally one should not make use of caches when not needing them - due to the inherent complexity it entails - but for services which require high resilience and throughput it is an easy way out of saving money on hardware, decreased response times and
+const cache = inMemoryCache({
+  initial: {                    // initial state
+    foo: 'bar'
+  },                  
+  maxLength: 1000,              // object count
+  maxAge: 24 * 60 * 60 * 1000   // in ms
+})
+
+const redisFactory = () => new Redis(/* options */)
+const distCache = redisWrapper(cache, redisFactory, 'namespace')
+
+const distPeristCache = createCacheInstance(
+  distCache,
+  redisFactory,
+  {
+    keySpace: 'myCache',        // key prefix used when storing in redis
+    expire: 60 * 60             // auto expire unused keys after xx seconds
+  }
+)
+
+distPersistCache.load()         // load previous data from redis into local cache
+
+cacheInstance.expire(['foo'])   // supports distributed expire as well, using redisWrapper
+cache.get('key', {              // will store a key in redis, using key: myCache-<timestamp><key>
+  ttl: 60000,                   // in ms
+  workerTimeout: 5000,
+  deltaWait: 5000
+}, Promise.resolve('hello').then(console.log)
+// {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
+```
