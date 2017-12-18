@@ -38,7 +38,7 @@
     "babel-cli": "6.26.0",
     "babel-core": "6.26.0",
     "babel-eslint": "7.2.3",
-    "babel-preset-env": "1.6.0",
+    "babel-preset-env": "1.6.1",
     "babel-preset-stage-3": "6.24.1",
     "chalk": "2.1.0",
     "expect.js": "0.3.1",
