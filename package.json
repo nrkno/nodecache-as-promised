@@ -23,7 +23,8 @@
     "perf:nocache-cache-file": "node test/nocache-cache-file.js",
     "perf:nocache": "node test/nocache.js",
     "perf:cache": "node test/cache.js",
-    "perf:cache-cluster": "node test/cache-cluster.js"
+    "perf:cache-cluster": "node test/cache-cluster.js",
+    "generate-docs": "jsdoc -c jsdoc.json"
   },
   "repository": {
     "type": "git",
@@ -41,7 +42,9 @@
     "babel-preset-env": "1.6.1",
     "babel-preset-stage-3": "6.24.1",
     "chalk": "2.1.0",
+    "docdash": "0.4.0",
     "expect.js": "0.3.1",
+    "jsdoc": "3.5.5",
     "mocha": "4.0.1",
     "sinon": "3.2.1",
     "standard": "10.0.3"

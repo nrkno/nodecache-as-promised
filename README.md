@@ -1,4 +1,4 @@
-# @nrk/kurator-node-cache
+# @nrk/doublecache-as-promised
 Provides an in-memory cache-wrapper around `lru-cache`, supporting stale objects and expire-methods (makes stale). Caches are filled using promises, wrapped around `rxjs/fromPromise` for queuing, retry-mechanisms and waiting in-between rejected promises.
 
 ## Installing
