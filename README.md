@@ -92,6 +92,42 @@ setTimeout(() => {
 #### Persisting cache misses
 ```js
 import inMemoryCache from '@nrk/doublecache-as-promised'
+import redisPersistenceWrapper from '@nrk/doublecache-as-promised/lib/redis-persistence-wrapper'
+import Redis from 'ioredis'
+
+const cache = inMemoryCache({
+  initial: {                    // initial state
+    foo: 'bar'
+  },                  
+  maxLength: 1000,              // object count
+  maxAge: 24 * 60 * 60 * 1000   // in ms
+})
+
+const redisFactory = () => new Redis(/* options */)
+
+const persistedCache = redisPersistenceWrapper(
+  cache,
+  redisFactory,
+  {
+    keySpace: 'myCache',        // key prefix used when storing in redis
+    expire: 60 * 60             // auto expire unused keys after xx seconds
+  }
+)
+
+persistedCache.load()         // pre-load cache using previously stored data in redis
+
+persistedCache.get('key', {              
+  ttl: 60000,                   // in ms
+  workerTimeout: 5000,
+  deltaWait: 5000
+}, Promise.resolve('hello').then(console.log)
+// will store a key in redis, using key: myCache-<timestamp><key>
+// {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
+```
+
+#### Persisting cache misses __and__ distributed expire
+```js
+import inMemoryCache from '@nrk/doublecache-as-promised'
 import redisWrapper from '@nrk/doublecache-as-promised/lib/redis-wrapper'
 import redisPersistenceWrapper from '@nrk/doublecache-as-promised/lib/redis-persistence-wrapper'
 import Redis from 'ioredis'
@@ -107,23 +143,24 @@ const cache = inMemoryCache({
 const redisFactory = () => new Redis(/* options */)
 const distCache = redisWrapper(cache, redisFactory, 'namespace')
 
-const distPeristCache = createCacheInstance(
+const distPeristedCache = createCacheInstance(
   distCache,
   redisFactory,
   {
-    keySpace: 'myCache',        // key prefix used when storing in redis
-    expire: 60 * 60             // auto expire unused keys after xx seconds
+    keySpace: 'myCache',            // key prefix used when storing in redis
+    expire: 60 * 60                 // auto expire unused keys after xx seconds
   }
 )
 
-distPersistCache.load()         // load previous data from redis into local cache
+distPeristedCache.load()            // load previous data from redis into local cache
 
-cacheInstance.expire(['foo'])   // supports distributed expire as well, using redisWrapper
-cache.get('key', {              // will store a key in redis, using key: myCache-<timestamp><key>
-  ttl: 60000,                   // in ms
+distPeristedCache.expire(['foo'])   // supports distributed expire as well, using redisWrapper
+distPeristedCache.get('key', {      // will store a key in redis, using key: myCache-<timestamp><key>
+  ttl: 60000,                       // in ms
   workerTimeout: 5000,
   deltaWait: 5000
 }, Promise.resolve('hello').then(console.log)
+// will store a key in redis, using key: myCache-<timestamp><key>
 // {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
 ```
 
