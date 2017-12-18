@@ -16,13 +16,13 @@ There are several cache solutions on NPM, but they're often either too basic or
 using some kind of combination of prequisites that are not compatible with our kind of setup.
 
 ## Features
-- Using __in-memory cache__ as this will always be faster than fetching data over network - but due to constraints in available memory an LRU-cache is enabled avoid memory leaks.
-- __For an editor__ in a newsroom it is important to be able to publish rapid changes without waiting for caches to expire. On demand expiry/purge is available as a plugin depending on Redis pub/sub.
-- __For developers and operations__ it is mandatory to be able re-deploy a server whenever needed. To avoid high back-pressure from cold caches, cache-misses may be stored in a Redis (assuming using a `ioredis`-factory) that are preloading the cache when the server restarts.
-- Using prepared stores (such as redux), __custom class instances and native objects__ such as Date and RegExp needs a function to return values. In-memory caching provides supports for these and other non-serializable data (using JSON.stringify). Non-serializable objects are filtered out on cache-miss when using Redis persistence.
-- When the cache for a given key is cold/stale, requests asking for the same key only spawns __one__ worker (subsequent requests are queued using RxJs)
-- If a worker (promise) fails, __stale data is served until the worker resolves__ or the key is evicted using LRU-semantics
-- To __avoid spamming of backend resources__ when a cached object is stale, there is a configurable retry-wait timer to avoid this situation.
+- __In-memory caching__ is used as primary cache (L1) since it will always be faster than fetching data over network. An LRU-cache is enabled to constraint amount of memory used.
+- __For an editor__ in a newsroom it is important to be able to publish rapid changes without waiting for caches to expire. On demand expiry/purge is provided as a plugin depending on Redis pub/sub.
+- __For developers and operations__ it is mandatory to be able re-deploy a server whenever needed. To avoid high back-pressure from cold caches, cache-misses may be stored in a Redis (assuming using a `ioredis`-factory) that may preload the cache when the server restarts.
+- __Custom class instances and native objects__ such as Date, RegExp and redux stores needs a function to return values. In-memory caching provides support for these and other non-serializable data (using JSON.stringify). Non-serializable objects are filtered out on cache-miss when using Redis persistence.
+- __Worker promises__ are used to ensure that only __one__ Promise is performed when several concurrent requests are requesting data from the same key, while the cache is cold/stale (using RxJs)
+- __Stale cache is returned if a worker promise rejects__, based on the previous cached object.
+- __Avoid spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
 
 ## Installing
 
