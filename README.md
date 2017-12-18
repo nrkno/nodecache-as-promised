@@ -1,3 +1,14 @@
+# @nrk/doublecache-as-promised
+
+> Fast and resilient cache for NodeJs targeting high-volume sites
+
+- [Features](#features)
+- [Installing](#installing)
+- [Basic usage](#basic-usage)
+- [Distributed capabilites](#distributed-capabilites)
+- [Local development](#local-development)
+- [Building and committing](#building-and-committing)
+
 # Motivation
 `doublecache-as-promised` is heavily inspired by how [Varnish](https://varnish-cache.org/) works. The module is not intended to replace Varnish (but works great in combination). Instead its intention is more fine-grained control over caching behaviour and making cached objects available in NodeJs. In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing.
 
@@ -12,7 +23,6 @@ using some kind of combination of prequisites that are not compatible with our k
 - When the cache for a given key is cold/stale, requests asking for the same key only spawns __one__ worker (subsequent requests are queued using RxJs)
 - If a worker (promise) fails, __stale data is served until the worker resolves__ or the key is evicted using LRU-semantics
 - To __avoid spamming of backend resources__ when a cached object is stale, there is a configurable retry-wait timer to avoid this situation.
-
 
 ## Installing
 
@@ -48,10 +58,10 @@ cache.get('key', {
 // {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
 ```
 
-## Plugins
+## Distributed capabilites
 Distributed expire and persisting of cache misses to Redis are provided as
 plugins using __function composition__ (or decorators), ie. extending the
-in-memory cache cababilities.
+in-memory cache cababilities. Thus is it possible to write your own plugins using pub/sub from rabbitMQ, persistence to file, hit/miss-ratio to external measurments systems and more.
 
 #### Distributed expire
 ```js
@@ -116,3 +126,30 @@ cache.get('key', {              // will store a key in redis, using key: myCache
 }, Promise.resolve('hello').then(console.log)
 // {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
 ```
+
+---
+
+## Local development (web)
+First clone the repo and install its dependencies:
+
+```bash
+git clone git@github.com:nrkno/doublecache-as-promised.git
+cd doublecache-as-promised
+npm install && npm run build && npm run test
+```
+
+## Building and committing
+After having applied changes, remember to build and run tests before pushing the changes upstream.
+
+```bash
+git checkout -b feature/my-changes
+# update the source code
+npm run build
+git commit -am "Add my changes"
+git push origin feature/my-changes
+# then make a PR to the master branch,
+# and assign another developer to review your code
+```
+
+> NOTE! Please also make sure to keep commits small and clean (that the commit message actually refers to the updated files).  
+> Stylistically, make sure the commit message is **Capitalized** and **starts with a verb in the present tense** (for example `Add minification support`).
