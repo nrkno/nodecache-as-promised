@@ -16,7 +16,7 @@ There are several cache solutions on NPM, but they're often either too basic or
 using some kind of combination of prequisites that are not compatible with our kind of setup.
 
 ## Features
-- Serving __cache from in-memory__ is always faster than fetching data over network - but due to constraints in available memory an LRU-cache is enabled avoid memory leaks.
+- Using __in-memory cache__ as this will always be faster than fetching data over network - but due to constraints in available memory an LRU-cache is enabled avoid memory leaks.
 - __For an editor__ in a newsroom it is important to be able to publish rapid changes without waiting for caches to expire. On demand expiry/purge is available as a plugin depending on Redis pub/sub.
 - __For developers and operations__ it is mandatory to be able re-deploy a server whenever needed. To avoid high back-pressure from cold caches, cache-misses may be stored in a Redis (assuming using a `ioredis`-factory) that are preloading the cache when the server restarts.
 - Using prepared stores (such as redux), __custom class instances and native objects__ such as Date and RegExp needs a function to return values. In-memory caching provides supports for these and other non-serializable data (using JSON.stringify). Non-serializable objects are filtered out on cache-miss when using Redis persistence.
