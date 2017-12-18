@@ -129,7 +129,7 @@ cache.get('key', {              // will store a key in redis, using key: myCache
 
 ---
 
-## Local development (web)
+## Local development
 First clone the repo and install its dependencies:
 
 ```bash
