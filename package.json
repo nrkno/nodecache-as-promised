@@ -1,0 +1,71 @@
+{
+  "name": "@nrk/kurator-node-cache",
+  "version": "4.0.1",
+  "description": "Distributed Node cache, backed by redis",
+  "main": "lib/index.js",
+  "scripts": {
+    "preversion": "echo prepublish clean and compile && rm -rf lib && npm run compile",
+    "bump:major": "kp major",
+    "bump:minor": "kp minor",
+    "bump:patch": "kp patch",
+    "bump:prerelease": "kp prerelease",
+    "prebump:prerelease": "npm run preversion",
+    "prebump:major": "npm run preversion",
+    "prebump:minor": "npm run preversion",
+    "prebump:patch": "npm run preversion",
+    "compile": "NODE_COMPILE=true babel src --out-dir lib ",
+    "watch": "NODE_COMPILE=true babel src --watch --source-maps --out-dir lib",
+    "lint": "npm run lint:js",
+    "lint:js": "standard",
+    "test:unit": "mocha src/**/_spec/*.spec.js* --compilers js:babel-core/register --reporter progress",
+    "test:watch": "mocha src/**/_spec/*.spec.js* --compilers js:babel-core/register -w --reporter progress",
+    "test": "npm run test:unit",
+    "test:perf": "npm run compile && npm run perf:nocache ; npm run perf:nocache-cache-file ; npm run perf:cache ; npm run perf:cache-cluster",
+    "perf:nocache-cache-file": "node test/nocache-cache-file.js",
+    "perf:nocache": "node test/nocache.js",
+    "perf:cache": "node test/cache.js",
+    "perf:cache-cluster": "node test/cache-cluster.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@stash.nrk.no:7999/kur/kurator-node-cache.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "4.17.4",
+    "lru-cache": "4.1.1",
+    "rxjs": "5.4.3"
+  },
+  "devDependencies": {
+    "@nrk/kurator-npm-publish": "1.2.1",
+    "babel-cli": "6.26.0",
+    "babel-core": "6.26.0",
+    "babel-eslint": "7.2.3",
+    "babel-preset-env": "1.6.0",
+    "babel-preset-stage-3": "6.24.1",
+    "chalk": "2.1.0",
+    "eslint": "3.19.0",
+    "eslint-config-nrk": "5.1.0",
+    "eslint-plugin-mocha": "4.11.0",
+    "eslint-plugin-promise": "1.3.1",
+    "expect.js": "0.3.1",
+    "mocha": "3.5.0",
+    "sinon": "3.2.1",
+    "standard": "10.0.3"
+  },
+  "standard": {
+    "globals": [
+      "describe",
+      "it",
+      "before",
+      "after",
+      "beforeEach",
+      "afterEach"
+    ]
+  },
+  "engines": {
+    "node": "^8.7.0",
+    "npm": "^5.4.0"
+  }
+}
