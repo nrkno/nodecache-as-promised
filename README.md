@@ -31,6 +31,7 @@ npm install @nrk/doublecache-as-promised --save
 ```
 
 ## Basic usage
+*Note! These examples are written using ES2015 syntax.*
 ```js
 import inMemoryCache from '@nrk/doublecache-as-promised';
 
