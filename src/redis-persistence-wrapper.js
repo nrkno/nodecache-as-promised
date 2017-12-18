@@ -1,3 +1,6 @@
+/**
+ * @module
+ **/
 import {
   syncCacheWithRedis,
   scanKeys,

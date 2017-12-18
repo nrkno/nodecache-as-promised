@@ -1,3 +1,6 @@
+/**
+ * @module
+ **/
 import {
   buildKey,
   existsAndNotStale,

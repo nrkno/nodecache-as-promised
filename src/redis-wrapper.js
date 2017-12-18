@@ -1,3 +1,6 @@
+/**
+ * @module
+ **/
 import os from 'os'
 
 const EXPIRE_MESSAGE_TYPE = 'EXPIRE_MESSAGE_TYPE'

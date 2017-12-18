@@ -1,3 +1,6 @@
+/**
+ * @module
+ **/
 import isUndefined from 'lodash/isUndefined'
 import isNull from 'lodash/isNull'
 import isBoolean from 'lodash/isBoolean'

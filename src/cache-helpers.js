@@ -1,3 +1,6 @@
+/**
+ * @module
+ **/
 import {Observable} from 'rxjs/Observable'
 import 'rxjs/add/observable/fromPromise'
 import 'rxjs/add/operator/timeout'

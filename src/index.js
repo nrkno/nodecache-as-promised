@@ -1,3 +1,6 @@
+/**
+ * @module
+ **/
 import cloneDeep from 'lodash/cloneDeep'
 import {
   existsAndNotStale,
