@@ -10,7 +10,7 @@
 - [Building and committing](#building-and-committing)
 
 # Motivation
-`doublecache-as-promised` is heavily inspired by how [Varnish](https://varnish-cache.org/) works. The module is not intended to replace Varnish (but works great in combination). Instead its intention is more fine-grained control over caching behaviour and making cached objects available in NodeJs. In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing.
+`doublecache-as-promised` is heavily inspired by how [Varnish](https://varnish-cache.org/) works. This module is not intended to replace Varnish (but works great in combination). Instead its intention is to give more fine-grained control over caching behaviour and making cached objects available in NodeJs. In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing.
 
 There are several cache solutions on NPM, but they're often either too basic or
 using some kind of combination of prequisites that are not compatible with our kind of setup.
