@@ -4,25 +4,24 @@
 
 - [Features](#features)
 - [Installing](#installing)
-- [Basic usage](#basic-usage)
+- [Basic usage](#examples)
 - [Distributed capabilites](#distributed-capabilites)
 - [Local development](#local-development)
 - [Building and committing](#building-and-committing)
 
 # Motivation
-`doublecache-as-promised` is heavily inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing. But there are times when NodeJs must do some heavy lifting without consuming to many resources and short response times (eg. with a short cache window in Varnish). This module's intention is to give more fine-grained control over caching behaviour and making parsed cached objects available in NodeJs.
+`doublecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing. But there are times when NodeJs must do some heavy lifting without consuming to many resources responding quickly (eg. with a short cache window in Varnish around ~1s). This module's intention is to give you a fairly simple, yet powerful application cache, with fine-grained control over caching behaviour.
 
-There are several cache solutions on NPM, but they're often either too basic or
-using some kind of combination of prequisites that are not compatible with our kind of setup.
+There exists several other cache solutions on NPM though, but they're often too basic or too attached to a combination of prequisites that does not fit all needs.
 
 ## Features
-- __In-memory cache__ is used as primary store since it will always be faster than parsing and fetching data over network. An LRU-cache is enabled to constraint amount of memory used.
-- __For an editor__ in a newsroom it is important to be able to publish rapid changes without waiting for caches to expire. On demand expire is provided as a plugin depending on Redis pub/sub.
-- __For developers and operations__ it is mandatory to be able re-deploy a server whenever needed. To avoid high back-pressure on backend resources due to cold caches, cache-misses may be stored in a Redis using a provided plugin that may preload the cache when the server restarts (depending on a `ioredis`-factory)
-- __Custom class instances and native objects__ such as Date, RegExp and redux stores needs a function to return values. In-memory caching provides support for these and other non-serializable data (using JSON.stringify). Non-serializable objects are filtered out on cache-miss when using Redis persistence.
-- __Worker promises__ are used to ensure that only __one__ Promise is performed when several concurrent requests are requesting data from the same key, while the cache is cold/stale (using RxJs)
-- __Stale cache is returned if a worker promise rejects__, based on the previous cached object.
-- __Avoid spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
+- __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data over network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
+- __Persistent cache__ is used as secondary storage to avoid high back-pressure on backend resources when caches are cleared after server restarts. This is achieved storing cache-misses in Redis depending on a [ioredis](https://www.npmjs.com/package/ioredis)-factory
+- __Caches are filled using (worker) promises__ since cached objects often are depending on async operations. (RxJs)[https://www.npmjs.com/package/rxjs] is used to queue concurrent requests for the same key; thus ensuring that only __one__ worker is performed when cached content is missing/stale.
+- __Caching of custom class instances, functions and native objects__ such as Date, RegExp and redux stores are supported through in-memory caching. Non-serializable (using JSON.stringify) objects are filtered out in persistent caches though.
+- __On demand expiry__ is supported using Redis pub/sub, so that new content may be available published before cache-TTL is reached.
+- __Grace mode__ is used if a worker promise fails (eg. caused by failing backends), ie.  stale cache is returned instead.
+- __Avoidance of spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
 
 ## Installing
 
@@ -30,39 +29,64 @@ using some kind of combination of prequisites that are not compatible with our k
 npm install @nrk/doublecache-as-promised --save
 ```
 
-## Basic usage
+# Examples
 *Note! These examples are written using ES2015 syntax.*
+
+## Basic usage
+```js
+import inMemoryCache from '@nrk/doublecache-as-promised'
+const cache = inMemoryCache({ /* options */})
+
+// imiplicit set cache on miss, or use cached value
+cache.get('key', {/* options */}, Promise.resolve({hello: 'world'}))
+  .then((data) => {
+    console.log(data)
+    // {
+    //   value: {
+    //     hello: 'world'
+    //   },
+    //   created: 123456789,
+    //   cache: 'miss',
+    //   TTL: 86400000
+    // }
+  })
+```
+
+## Basic usage with options
 ```js
 import inMemoryCache from '@nrk/doublecache-as-promised';
 
 const cache = inMemoryCache({
-  initial: {
+  initial: {                    // initial state
     foo: 'bar'
-  },                  // initial state
-  maxLength: 1000,              // object count
-  maxAge: 24 * 60 * 60 * 1000   // in ms
+  },                            
+  maxLength: 1000,              // LRU max object count
+  maxAge: 24 * 60 * 60 * 1000   // LRU max age in ms
 })
+// set/overwrite cache key
 cache.set('key', {hello: 'world'})
-cache.get('key').then(console.log)
-// {value: {hello: 'world'}, created: 123456789, cache: 'hit', TTL: 86400000}
-cache.get('foo').then(console.log)
-// {value: {foo: 'bar'}, created: 123456789, cache: 'hit', TTL: 86400000}
-```
-
-#### Using promises
-```js
-cache.get('key', {
-  ttl: 60000,               // in ms
-  workerTimeout: 5000,
-  deltaWait: 5000
-}, Promise.resolve('hello').then(console.log)
-// {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
+// imiplicit set cache on miss, or use cached value
+cache.get('anotherkey', {
+  ttl: 60 * 1000,               // TTL for cached object, in ms
+  workerTimeout: 5 * 1000,      // worker timeout, in ms
+  deltaWait: 5 * 1000           // wait time, if worker fails
+}, Promise.resolve({hello: 'world'}))
+  .then((data) => {
+    console.log(data)
+    // {
+    //   value: {
+    //     hello: 'world'
+    //   },
+    //   created: 123456789,
+    //   cache: 'miss',
+    //   TTL: 86400000
+    // }
+  })
 ```
 
 ## Distributed capabilites
 Distributed expire and persisting of cache misses to Redis are provided as
-plugins using __function composition__ (or decorators), ie. extending the
-in-memory cache cababilities. Thus is it possible to write your own plugins using pub/sub from rabbitMQ, persistence to file, hit/miss-ratio to external measurments systems and more.
+plugins using __function composition__, ie. wrapping the in-memory cache with a factory that intercepts function calls. It should therefore be easy to write your own plugins using pub/sub from rabbitMQ, zeroMQ, persisting to a NAS, hit/miss-ratio to external measurments systems and more.
 
 #### Distributed expire
 ```js
@@ -70,80 +94,52 @@ import inMemoryCache from '@nrk/doublecache-as-promised'
 import redisWrapper from '@nrk/doublecache-as-promised/lib/redis-wrapper'
 import Redis from 'ioredis'
 
-// server # 1 + 2
-const cache = inMemoryCache({
-  initial: {                    // initial state
-    foo: 'bar'
-  },                  
-  maxLength: 1000,              // object count
-  maxAge: 24 * 60 * 60 * 1000   // in ms
-})
-
+// a factory function that returns a redisClient
 const redisFactory = () => new Redis(/* options */)
-
+const cache = inMemoryCache({initial: {fooKey: 'bar'}})
 const distCache = redisWrapper(cache, redisFactory, 'namespace')
-distCache.expire(['foo'])
+// publish to redis (using wildcard)
+distCache.expire(['foo*'])
 setTimeout(() => {
-  distCache.get('foo').then(console.log)
+  distCache.get('fooKey').then(console.log)
   // expired in server # 1 + 2
-  // {value: {foo: 'bar'}, created: 123456789, cache: 'stale', TTL: 86400000}
+  // {value: {fooKey: 'bar'}, created: 123456789, cache: 'stale', TTL: 86400000}
 }, 1000)
 ```
 
 #### Persisting cache misses
 ```js
 import inMemoryCache from '@nrk/doublecache-as-promised'
-import redisPersistenceWrapper from '@nrk/doublecache-as-promised/lib/redis-persistence-wrapper'
+import persistenceWrapper from '@nrk/doublecache-as-promised/lib/redis-persistence-wrapper'
 import Redis from 'ioredis'
 
-const cache = inMemoryCache({
-  initial: {                    // initial state
-    foo: 'bar'
-  },                  
-  maxLength: 1000,              // object count
-  maxAge: 24 * 60 * 60 * 1000   // in ms
-})
-
+const cache = inMemoryCache({/* options */})
 const redisFactory = () => new Redis(/* options */)
-
-const persistedCache = redisPersistenceWrapper(
+const persistedCache = persistenceWrapper(
   cache,
   redisFactory,
   {
     keySpace: 'myCache',        // key prefix used when storing in redis
-    expire: 60 * 60             // auto expire unused keys after xx seconds
+    // TODO: erstatt med auto setting av denne verdien
+    expire: 60                 // auto expire unused keys after xx seconds
   }
 )
 
-persistedCache.load()         // pre-load cache using previously stored data in redis
-
-persistedCache.get('key', {              
-  ttl: 60000,                   // in ms
-  workerTimeout: 5000,
-  deltaWait: 5000
-}, Promise.resolve('hello').then(console.log)
-// will store a key in redis, using key: myCache-<timestamp><key>
-// {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
+persistedCache.get('key', {/* options */}, Promise.resolve('hello'))
+// will store a key in redis, using key: myCache-<key>
+// {value: 'hello', created: 123456789, cache: 'hit', TTL: 60000}
 ```
 
 #### Persisting cache misses __and__ distributed expire
 ```js
 import inMemoryCache from '@nrk/doublecache-as-promised'
 import redisWrapper from '@nrk/doublecache-as-promised/lib/redis-wrapper'
-import redisPersistenceWrapper from '@nrk/doublecache-as-promised/lib/redis-persistence-wrapper'
+import persistenceWrapper from '@nrk/doublecache-as-promised/lib/redis-persistence-wrapper'
 import Redis from 'ioredis'
 
-const cache = inMemoryCache({
-  initial: {                    // initial state
-    foo: 'bar'
-  },                  
-  maxLength: 1000,              // object count
-  maxAge: 24 * 60 * 60 * 1000   // in ms
-})
-
 const redisFactory = () => new Redis(/* options */)
+const cache = inMemoryCache({/* options */})
 const distCache = redisWrapper(cache, redisFactory, 'namespace')
-
 const distPeristedCache = createCacheInstance(
   distCache,
   redisFactory,
@@ -153,15 +149,13 @@ const distPeristedCache = createCacheInstance(
   }
 )
 
-distPeristedCache.load()            // load previous data from redis into local cache
-
-distPeristedCache.expire(['foo'])   // supports distributed expire as well, using redisWrapper
-distPeristedCache.get('key', {      // will store a key in redis, using key: myCache-<timestamp><key>
+distPeristedCache.expire(['foo*'])  // distributed expire of all keys starting with foo
+distPeristedCache.get('key', {
   ttl: 60000,                       // in ms
   workerTimeout: 5000,
   deltaWait: 5000
 }, Promise.resolve('hello').then(console.log)
-// will store a key in redis, using key: myCache-<timestamp><key>
+// will store a key in redis, using key: myCache-<key>
 // {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
 ```
 

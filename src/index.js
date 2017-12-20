@@ -168,7 +168,7 @@ export default (options) => {
    * @param {String} key - key in cache to lookup.
    * @param {Object} config - (optional) an options object.
    * @param {number} config.ttl - ttl (in ms) before cached object becomes stale.
-   * @param {number} config.workertimeout - max time allowed to run promise.
+   * @param {number} config.workerTimeout - max time allowed to run promise.
    * @param {number} config.deltaWait - delta wait (in ms) before retrying promise, when stale.
    * @param {function} promise - (optional) function wrapper that returns a promise to fill cache object.
    * @returns {Promise} resolves/rejects when request operation finishes
