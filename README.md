@@ -25,9 +25,7 @@ There exists several other cache solutions on NPM though, but they're often too 
 
 ## Performance
 
-| Nocache        | Test-setup           |
-| ------------- |-------------|
-| ![Perftest using linear increase of tasks with no-cache](./test/linear-perftest-nocache.jpeg?raw=true)   | Testing 1-2-3. Lorem ipsum. Testing 1-2-3. Lorem ipsum. Testing 1-2-3. Lorem ipsum. Testing 1-2-3. Lorem ipsum
+| ![Perftest using linear increase of tasks with no-cache](./test/linear-perftest-nocache.jpeg?raw=true)   | Running test script `perf:nocache-cache-file -- --type=linear`. Parsing a json-file at around 47kb (file contents are cached at startup). At around 1300 iterations the event loop starts lagging, and at around 1500 iterations the process stops responding.
 |
 
 
