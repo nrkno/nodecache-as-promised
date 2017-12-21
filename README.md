@@ -30,11 +30,13 @@ Parsing a json-file at around 47kb (file contents are cached at startup).
 <p align="left">
   <img src="./test/linear-perftest-nocache.jpeg?raw=true" width="50%"/>
 </p>
+
 First image is a graph from running test script `perf:nocache-cache-file -- --type=linear`. At around 13k iterations the event loop starts lagging, and at around 15k iterations the process stops responding.
 
 <p align="left">
   <img src="./test/linear-perftest-cache.jpeg?raw=true" width="50%"/>
 </p>
+
 The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1m iterations the event loop starts lagging, and at around 3.4m iterations the process crashes when it runs out of memory.
 
 ## Installing
