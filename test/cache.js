@@ -3,6 +3,8 @@ const path = require('path')
 const readFileAsync = require('util').promisify(fs.readFile)
 const testRunner = require('./test-runner')
 const {default: createCacheInstance} = require('../lib')
+const argv = require('yargs').argv
+const type = argv.type || 'sin'
 
 const fileToParse = path.join(__dirname, 'newsfeed.json')
 
@@ -22,4 +24,4 @@ const cachePerfTest = (iterations) => {
   return Promise.all(promises).then(() => ({ used: Date.now() - now, iterations }))
 }
 
-testRunner({perfTest: cachePerfTest, fileToParse, max: 600000})
+testRunner({perfTest: cachePerfTest, fileToParse, rounds: 15, max: 2400000, type})

@@ -1,6 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 const testRunner = require('./test-runner')
+const argv = require('yargs').argv
+const type = argv.type || 'sin'
 
 const fileToParse = path.join(__dirname, 'newsfeed.json')
 
@@ -16,4 +18,4 @@ const noCachePerfTest = (iterations) => {
     .then(() => ({ used: Date.now() - now, iterations }))
 }
 
-testRunner({perfTest: noCachePerfTest, fileToParse, max: 1000})
+testRunner({perfTest: noCachePerfTest, fileToParse, rounds: 30, max: 1500, type})

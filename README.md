@@ -23,6 +23,11 @@ There exists several other cache solutions on NPM though, but they're often too 
 - __Grace mode__ is used if a worker promise fails (eg. caused by failing backends), ie.  stale cache is returned instead.
 - __Avoidance of spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
 
+## Performance
+
+![Perftest using linear increase of tasks with no-cache](./test/linear-perftest-nocache.jpg?raw=true "Linear perftest nocache")
+![Perftest using linear increase of tasks with cache](./test/linear-perftest-cache.jpg?raw=true "Linear perftest cache")
+
 ## Installing
 
 ```
