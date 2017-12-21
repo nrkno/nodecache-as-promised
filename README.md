@@ -25,9 +25,9 @@ There exists several other cache solutions on NPM though, but they're often too 
 
 ## Performance
 
-![Perftest using linear increase of tasks with no-cache](/test/linear-perftest-nocache.jpg?raw=true)
+![Perftest using linear increase of tasks with no-cache](./test/linear-perftest-nocache.jpeg?raw=true)
 
-![Perftest using linear increase of tasks with cache](/test/linear-perftest-cache.jpg?raw=true)
+![Perftest using linear increase of tasks with cache](./test/linear-perftest-cache.jpeg?raw=true)
 
 ## Installing
 
