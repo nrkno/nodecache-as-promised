@@ -90,18 +90,20 @@ plugins using __function composition__, ie. wrapping the in-memory cache with a 
 
 #### Distributed expire
 ```js
-import inMemoryCache from '@nrk/doublecache-as-promised'
-import redisWrapper from '@nrk/doublecache-as-promised/lib/redis-wrapper'
+import inMemoryCache, {distCache} from '@nrk/doublecache-as-promised'
 import Redis from 'ioredis'
 
 // a factory function that returns a redisClient
 const redisFactory = () => new Redis(/* options */)
-const cache = inMemoryCache({initial: {fooKey: 'bar'}})
-const distCache = redisWrapper(cache, redisFactory, 'namespace')
+const cache = distCache(
+  inMemoryCache({initial: {fooKey: 'bar'}}),
+  redisFactory,
+  'namespace'
+)
 // publish to redis (using wildcard)
-distCache.expire(['foo*'])
+cache.expire(['foo*'])
 setTimeout(() => {
-  distCache.get('fooKey').then(console.log)
+  cache.get('fooKey').then(console.log)
   // expired in server # 1 + 2
   // {value: {fooKey: 'bar'}, created: 123456789, cache: 'stale', TTL: 86400000}
 }, 1000)
@@ -109,14 +111,12 @@ setTimeout(() => {
 
 #### Persisting cache misses
 ```js
-import inMemoryCache from '@nrk/doublecache-as-promised'
-import persistenceWrapper from '@nrk/doublecache-as-promised/lib/redis-persistence-wrapper'
+import inMemoryCache, {persistentCache} from '@nrk/doublecache-as-promised'
 import Redis from 'ioredis'
 
-const cache = inMemoryCache({/* options */})
 const redisFactory = () => new Redis(/* options */)
-const persistedCache = persistenceWrapper(
-  cache,
+const cache = persistentCache(
+  inMemoryCache({/* options */}),
   redisFactory,
   {
     keySpace: 'myCache',        // key prefix used when storing in redis
@@ -125,23 +125,21 @@ const persistedCache = persistenceWrapper(
   }
 )
 
-persistedCache.get('key', {/* options */}, Promise.resolve('hello'))
+cache.get('key', {/* options */}, Promise.resolve('hello'))
 // will store a key in redis, using key: myCache-<key>
 // {value: 'hello', created: 123456789, cache: 'hit', TTL: 60000}
 ```
 
 #### Persisting cache misses __and__ distributed expire
 ```js
-import inMemoryCache from '@nrk/doublecache-as-promised'
-import redisWrapper from '@nrk/doublecache-as-promised/lib/redis-wrapper'
-import persistenceWrapper from '@nrk/doublecache-as-promised/lib/redis-persistence-wrapper'
+import inMemoryCache, {distCache, persistenCache} from '@nrk/doublecache-as-promised'
 import Redis from 'ioredis'
 
 const redisFactory = () => new Redis(/* options */)
-const cache = inMemoryCache({/* options */})
-const distCache = redisWrapper(cache, redisFactory, 'namespace')
-const distPeristedCache = createCacheInstance(
-  distCache,
+const imc = inMemoryCache({/* options */})
+const dc = distCache(imc, redisFactory, 'namespace')
+const cache = persistenCache(
+  dc,
   redisFactory,
   {
     keySpace: 'myCache',            // key prefix used when storing in redis
@@ -149,8 +147,8 @@ const distPeristedCache = createCacheInstance(
   }
 )
 
-distPeristedCache.expire(['foo*'])  // distributed expire of all keys starting with foo
-distPeristedCache.get('key', {
+cache.expire(['foo*'])  // distributed expire of all keys starting with foo
+cache.get('key', {
   ttl: 60000,                       // in ms
   workerTimeout: 5000,
   deltaWait: 5000

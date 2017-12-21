@@ -1,5 +1,5 @@
 /* eslint max-nested-callbacks: 0 */
-import createCacheInstance from '../'
+import inMemoryCache, {distCache, persistentCache} from '../'
 import expect from 'expect.js'
 import sinon from 'sinon'
 import {dummyLog} from '../utils/log-helper'
@@ -15,14 +15,19 @@ const preCached = {
 describe('CacheManager', () => {
   describe('instantation', () => {
     it('should create a new empty instance', () => {
-      const cacheInstance = createCacheInstance({}, {})
+      const cacheInstance = inMemoryCache({}, {})
       expect(cacheInstance).to.be.a(Object)
       expect(cacheInstance.cache.itemCount).to.equal(0)
     })
 
+    it('should have exported plugins', () => {
+      expect(distCache).to.be.a('function')
+      expect(persistentCache).to.be.a('function')
+    })
+
     it('should create a new prefilled instance with a cloned copy', () => {
       const obj = {hei: 'verden'}
-      const cacheInstance = createCacheInstance({initial: obj})
+      const cacheInstance = inMemoryCache({initial: obj})
       obj.hei = 'world'
       expect(cacheInstance).to.be.a(Object)
       expect(cacheInstance.cache.itemCount).to.equal(1)
@@ -36,7 +41,7 @@ describe('CacheManager', () => {
     let spy
 
     beforeEach(() => {
-      cacheInstance = createCacheInstance({initial: preCached})
+      cacheInstance = inMemoryCache({initial: preCached})
       const p = () => Promise.resolve()
       spy = sinon.spy(p)
     })
@@ -56,7 +61,7 @@ describe('CacheManager', () => {
     let now
 
     beforeEach(() => {
-      cacheInstance = createCacheInstance({initial: preCached})
+      cacheInstance = inMemoryCache({initial: preCached})
       const staleObj = {...cacheInstance.cache.get(dummyKey), TTL: -1000}
       cacheInstance.cache.set(dummyKey, staleObj)
       now = Date.now()
@@ -95,7 +100,7 @@ describe('CacheManager', () => {
     let now
 
     beforeEach(() => {
-      cacheInstance = createCacheInstance({initial: preCached})
+      cacheInstance = inMemoryCache({initial: preCached})
       const staleObj = {...cacheInstance.cache.get(dummyKey), TTL: -1000}
       cacheInstance.cache.set(dummyKey, staleObj)
       now = Date.now()
@@ -122,7 +127,7 @@ describe('CacheManager', () => {
     let cacheInstance
 
     beforeEach(() => {
-      cacheInstance = createCacheInstance({initial: preCached, log: dummyLog})
+      cacheInstance = inMemoryCache({initial: preCached, log: dummyLog})
       const staleObj = {...cacheInstance.cache.get(dummyKey), TTL: -1000}
       cacheInstance.cache.set(dummyKey, staleObj)
     })
@@ -189,7 +194,7 @@ describe('CacheManager', () => {
     let cacheInstance
 
     beforeEach(() => {
-      cacheInstance = createCacheInstance({initial: preCached, log: dummyLog})
+      cacheInstance = inMemoryCache({initial: preCached, log: dummyLog})
       const staleObj = {...cacheInstance.cache.get(dummyKey), TTL: -1000}
       cacheInstance.cache.set(dummyKey, staleObj)
     })
@@ -316,7 +321,7 @@ describe('CacheManager', () => {
     let cacheInstance
 
     beforeEach(() => {
-      cacheInstance = createCacheInstance({initial: {
+      cacheInstance = inMemoryCache({initial: {
         'house/1': {hei: 'verden'},
         'house/2': {hei: 'verden'},
         'guest/2': {hei: 'verden'}
@@ -340,7 +345,7 @@ describe('CacheManager', () => {
 
   describe('-> LRU capabilities', () => {
     it('should throw away first entered entry', () => {
-      const cacheInstance = createCacheInstance({initial: {
+      const cacheInstance = inMemoryCache({initial: {
         'house/1': {hei: 'verden'},
         'house/2': {hei: 'verden'},
         'guest/3': {hei: 'verden'}

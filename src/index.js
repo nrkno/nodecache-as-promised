@@ -17,6 +17,10 @@ import {
 } from './utils/debug'
 import lruCache from 'lru-cache'
 
+// export plugins for convenience
+export {default as distCache} from './dist-expire'
+export {default as persistentCache} from './persistence'
+
 const DEFAULT_CACHE_EXPIRE = 24 * 60 * 60 * 1000
 const DEFAULT_DELTA_WAIT = 10000
 const DEFAULT_MAX_LENGTH = 1000
