@@ -27,16 +27,16 @@ There exists several other cache solutions on NPM though, but they're often too 
 
 Parsing a json-file at around 47kb (file contents are cached at startup).
 
-<figure>
+<p align="left">
   <img src="./test/linear-perftest-nocache.jpeg?raw=true" align="left" width="50%"/>
-  <figcaption>
-    First image is a graph from running test script `perf:nocache-cache-file -- --type=linear`. At around 13k iterations the event loop starts lagging, and at around 15k iterations the process stops responding.
-  </figcaption>
-</figure>
+  First image is a graph from running test script `perf:nocache-cache-file -- --type=linear`. At around 13k iterations the event loop starts lagging, and at around 15k iterations the process stops responding.
+</p>
 
-<img src="./test/linear-perftest-cache.jpeg?raw=true" align="left" width="50%"/>
+<p align="left">
+  <img src="./test/linear-perftest-cache.jpeg?raw=true" align="left" width="50%"/>
 
-The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1m iterations the event loop starts lagging, and at around 3.4m iterations the process crashes when it runs out of memory.
+  The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1m iterations the event loop starts lagging, and at around 3.4m iterations the process crashes when it runs out of memory.
+</p>
 
 ## Installing
 
