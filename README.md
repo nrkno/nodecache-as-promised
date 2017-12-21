@@ -27,7 +27,7 @@ There exists several other cache solutions on NPM though, but they're often too 
 
 Parsing a json-file at around 47kb (file contents are cached at startup).
 
-| ![Perftest using linear increase of tasks with no-cache](./test/linear-perftest-nocache.jpeg?raw=true) | Output from running test script `perf:nocache-cache-file -- --type=linear`. At around 1300 iterations the event loop starts lagging, and at around 1500 iterations the process stops responding. |
+| ![Perftest using linear increase of tasks with no-cache](./test/linear-perftest-nocache.jpeg?raw=true) | Output from running test script perf:nocache-cache-file -- --type=linear. At around 1300 iterations the event loop starts lagging, and at around 1500 iterations the process stops responding. |
 
 
 
