@@ -1,11 +1,11 @@
-import createCacheManagerInstance from '../'
-import createCacheInstance from '../redis-persistence-wrapper'
+import createCacheInstance from '../'
+import createCacheManagerInstance from '../../'
 import sinon from 'sinon'
 import expect from 'expect.js'
-import {mockRedisFactory} from './mock-redis-factory'
-import {dummyLog} from './log-helper'
+import {mockRedisFactory} from '../../utils/mock-redis-factory'
+import {dummyLog} from '../../utils/log-helper'
 
-describe('redis-persist-wrapper', () => {
+describe('persistence', () => {
   describe('-> istantiation', () => {
     it('should be possible', () => {
       const cm = createCacheManagerInstance({log: dummyLog})

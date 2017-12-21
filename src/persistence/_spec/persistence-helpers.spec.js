@@ -8,8 +8,8 @@ import {
 } from '../persistence-helpers'
 import {
   mockRedisFactory
-} from './mock-redis-factory'
-import {dummyLog} from './log-helper'
+} from '../../utils/mock-redis-factory'
+import {dummyLog} from '../../utils/log-helper'
 import sinon from 'sinon'
 import expect from 'expect.js'
 

@@ -2,7 +2,7 @@
 import createCacheInstance from '../'
 import expect from 'expect.js'
 import sinon from 'sinon'
-import {dummyLog} from './log-helper'
+import {dummyLog} from '../utils/log-helper'
 
 const dummyKey = 'hei/verden'
 const cacheValue = {

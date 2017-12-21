@@ -1,13 +1,13 @@
-import createCacheManagerInstance from '../'
-import createCacheInstance from '../redis-wrapper'
+import createCacheInstance from '../'
+import createCacheManagerInstance from '../..'
 import sinon from 'sinon'
 import expect from 'expect.js'
-import {mockRedisFactory} from './mock-redis-factory'
-import {dummyLog} from './log-helper'
+import {mockRedisFactory} from '../../utils/mock-redis-factory'
+import {dummyLog} from '../../utils/log-helper'
 
 const namespace = 'desketoy8080'
 
-describe('redis-wrapper', () => {
+describe('dist-expire', () => {
   describe('-> istantiation', () => {
     it('should be possible', () => {
       const cm = createCacheManagerInstance({log: dummyLog})
@@ -22,23 +22,23 @@ describe('redis-wrapper', () => {
       const cacheInstance = createCacheInstance(cm, mockRedisFactory(), namespace)
       const p = () => Promise.resolve()
       const spy = sinon.spy(p)
-      cacheInstance.set('hei', 'verden')
-      return cacheInstance.get('hei', {}, spy).then((obj) => {
-        expect(obj.value).to.equal('verden')
+      cacheInstance.set('hello', 'world')
+      return cacheInstance.get('hello', {}, spy).then((obj) => {
+        expect(obj.value).to.equal('world')
         expect(spy.called).to.equal(false)
       })
     })
   })
 
   describe('-> distributed expire', () => {
-    const p = () => Promise.resolve('world')
+    const p = () => Promise.resolve('world2')
     const spy = sinon.spy(p)
-    const cm = createCacheManagerInstance({initial: {hei: 'verden'}, log: dummyLog})
+    const cm = createCacheManagerInstance({initial: {hello: 'world'}, log: dummyLog})
     const cacheInstance = createCacheInstance(cm, mockRedisFactory(), namespace)
-    cacheInstance.expire(['hei'])
-    expect(cacheInstance.cache.get('hei').TTL).to.equal(0)
-    return cacheInstance.get('hei', {}, spy).then((obj) => {
-      expect(obj.value).to.equal('world')
+    cacheInstance.expire(['hello'])
+    expect(cacheInstance.cache.get('hello').TTL).to.equal(0)
+    return cacheInstance.get('hello', {}, spy).then((obj) => {
+      expect(obj.value).to.equal('world2')
       expect(spy.called).to.equal(true)
     })
   })

@@ -7,7 +7,7 @@ import {
   createRegExp,
   isSerializable
 } from './persistence-helpers.js'
-import pkg from '../package.json'
+import pkg from '../../package.json'
 
 const DEFAULT_EXPIRE = 60 * 60 * 24
 

@@ -11,10 +11,10 @@ import {
   createWait,
   createRegExp,
   waitingForError
-} from './cache-helpers'
+} from './utils/cache-helpers'
 import {
   getCacheInfo
-} from './debug'
+} from './utils/debug'
 import lruCache from 'lru-cache'
 
 const DEFAULT_CACHE_EXPIRE = 24 * 60 * 60 * 1000
