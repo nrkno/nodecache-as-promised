@@ -119,9 +119,8 @@ const cache = persistentCache(
   inMemoryCache({/* options */}),
   redisFactory,
   {
-    keySpace: 'myCache',        // key prefix used when storing in redis
-    // TODO: erstatt med auto setting av denne verdien
-    expire: 60                 // auto expire unused keys after xx seconds
+    keySpace: 'myCache',   // key prefix used when storing in redis
+    grace: 60 * 60         // auto expire unused keys in Redis after TTL + grace seconds
   }
 )
 
@@ -142,8 +141,8 @@ const cache = persistenCache(
   dc,
   redisFactory,
   {
-    keySpace: 'myCache',            // key prefix used when storing in redis
-    expire: 60 * 60                 // auto expire unused keys after xx seconds
+    keySpace: 'myCache',   // key prefix used when storing in redis
+    grace: 60 * 60         // auto expire unused keys in Redis after TTL + grace seconds
   }
 )
 

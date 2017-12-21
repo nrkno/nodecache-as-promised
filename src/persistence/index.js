@@ -9,7 +9,7 @@ import {
 } from './persistence-helpers.js'
 import pkg from '../../package.json'
 
-const DEFAULT_EXPIRE = 60 * 60 * 24
+const DEFAULT_GRACE = 60 * 60 * 24 * 1000
 
 /**
  * @description Create new instance
@@ -25,7 +25,7 @@ export default (cacheInstance,
   {
     doNotPersist = null,
     keySpace = pkg.name,
-    expire = DEFAULT_EXPIRE
+    grace = DEFAULT_GRACE
   } = {}
 ) => {
   const redisClient = redisFactory()
@@ -37,9 +37,10 @@ export default (cacheInstance,
       const [key] = args
       if (obj.cache === 'miss' && (!doNotPersist || !doNotPersist.test(key)) && isSerializable(obj) && !persisting[key]) {
         persisting[key] = true
-        const redisKey = `${cacheKeyPrefix}-${Date.now()}${key}`
+        const redisKey = `${cacheKeyPrefix}-${key}`
         cacheInstance.log.debug(`Persist to key "${redisKey}"`)
-        redisClient.set(redisKey, JSON.stringify(cacheInstance.cache.get(key)), 'ex', expire, (err) => {
+        const objWithMeta = cacheInstance.cache.get(key)
+        redisClient.set(redisKey, JSON.stringify(objWithMeta), 'ex', Math.round((objWithMeta.TTL + grace) / 1000), (err) => {
           if (err) {
             cacheInstance.log.warn(err)
           }
@@ -82,6 +83,8 @@ export default (cacheInstance,
   const debug = (extraOptions) => {
     return cacheInstance.debug({cacheKeyPrefix, ...extraOptions})
   }
+
+  // load()
 
   return {
     ...cacheInstance,

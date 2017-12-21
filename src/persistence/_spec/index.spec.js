@@ -1,5 +1,5 @@
-import createCacheInstance from '../'
-import createCacheManagerInstance from '../../'
+import persistentCache from '../'
+import inMemoryCache from '../../'
 import sinon from 'sinon'
 import expect from 'expect.js'
 import {mockRedisFactory} from '../../utils/mock-redis-factory'
@@ -8,8 +8,8 @@ import {dummyLog} from '../../utils/log-helper'
 describe('persistence', () => {
   describe('-> istantiation', () => {
     it('should be possible', () => {
-      const cm = createCacheManagerInstance({log: dummyLog})
-      const cacheInstance = createCacheInstance(cm, mockRedisFactory())
+      const cm = inMemoryCache({log: dummyLog})
+      const cacheInstance = persistentCache(cm, mockRedisFactory())
       expect(cacheInstance).to.be.an(Object)
     })
   })
@@ -24,15 +24,15 @@ describe('persistence', () => {
       mockFactory = mockRedisFactory({
         set: setSpy
       })
-      const cm = createCacheManagerInstance({log: dummyLog})
+      const cm = inMemoryCache({log: dummyLog})
 
-      cacheInstance = createCacheInstance(
+      cacheInstance = persistentCache(
         cm,
         mockFactory,
         {
           doNotPersist: /store/,
           keySpace: 'myCache',
-          expire: 100
+          grace: 1000
         }
       )
     })
@@ -42,7 +42,7 @@ describe('persistence', () => {
       const spy = sinon.spy(p)
       const now = Date.now()
       const key = `key${now}`
-      return cacheInstance.get(key, {}, spy).then((obj) => {
+      return cacheInstance.get(key, {ttl: 1000}, spy).then((obj) => {
         expect(spy.called).to.equal(true)
         expect(obj.value).to.equal('hei')
         expect(obj.cache).to.equal('miss')
@@ -51,7 +51,7 @@ describe('persistence', () => {
         expect(redisKey).to.contain(key)
         expect(parsed).to.have.keys(['created', 'TTL', 'value', 'cache'])
         expect(ex).to.equal('ex')
-        expect(expire).to.equal(100)
+        expect(expire).to.equal(2)
         expect(parsed.value).to.equal('hei')
       })
     })
