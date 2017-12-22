@@ -10,7 +10,7 @@
 - [Building and committing](#building-and-committing)
 
 # Motivation
-Sometimes Node.js needs to do some heavy lifting, performing CPU or network intensinve tasks and yet respond quickly on incoming requests. For repetitive tasks like Server side rendering of markup or parsing big JSON responses caching can give the application a great performance boost. The intention of `doublecache-as-promised` is to give you a fairly simple, yet powerful application cache, with fine-grained control over caching behaviour.
+Sometimes Node.js needs to do some heavy lifting, performing CPU or network intensive tasks and yet respond quickly on incoming requests. For repetitive tasks like Server side rendering of markup or parsing big JSON responses caching can give the application a great performance boost. In addition - serving stale content when a backend resource is down may save your day! The intention of `doublecache-as-promised` is to give you a fairly simple, yet powerful application cache, with fine-grained control over caching behaviour.
 
 `doublecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing. There exists several other cache solutions on NPM, but they're often too basic or too attached to a combination of perquisites that does not fit all needs of an application cache.
 
