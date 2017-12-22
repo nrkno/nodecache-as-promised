@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src/persistence/persistence-helpers.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">All files</a> / <a href="index.html">src/persistence</a> persistence-helpers.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">81.18% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>69/85</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">89.29% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>25/28</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">76% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>19/25</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">81.18% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>69/85</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @module
+ **/
+import isUndefined from 'lodash/isUndefined'
+import isNull from 'lodash/isNull'
+import isBoolean from 'lodash/isBoolean'
+import isNumber from 'lodash/isNumber'
+import isString from 'lodash/isString'
+import isArray from 'lodash/isArray'
+import isPlainObject from 'lodash/isPlainObject'
+&nbsp;
+const MAX_PAGE_SIZE = 100
+&nbsp;
+export const createRegExp = (key) =&gt; {
+  return new RegExp(`(${key}-)(\\d+)`)
+}
+&nbsp;
+export const deDup = (keys = <span class="branch-0 cbranch-no" title="branch not covered" >[], regexp) =&gt; {</span>
+  const keyMap = new Map()
+  keys.forEach((key) =&gt; {
+    const score = key.match(regexp)[2]
+    const current = key.replace(regexp, '$1')
+    if (!keyMap.has(current) || keyMap.get(current).score &lt; score) {
+      keyMap.set(current, {
+        key,
+        score
+      })
+    }
+  })
+  return Array.from(keyMap).map(([current]) =&gt; {
+    return keyMap.get(current).key
+  })
+}
+&nbsp;
+export const sortKeys = (keys, regexp) =&gt; {
+  return keys.sort((a, b) =&gt; {
+    const aKeyWithDate = a.match(regexp)[2]
+    const bKeyWithDate = b.match(regexp)[2]
+    if (aKeyWithDate &lt; bKeyWithDate) {
+      return -1
+    }
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (aKeyWithDate &gt; bKeyWithDate) {
+      return 1
+    }
+<span class="cstat-no" title="statement not covered" >    return 0</span>
+  })
+}
+&nbsp;
+export const deleteKeys = (keys, redisClient) =&gt; {
+  const p = []
+  keys.forEach((key) =&gt; {
+    p.push(new Promise((resolve, reject) =&gt; {
+      redisClient.del(key, (err, res) =&gt; {
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve(res)
+      })
+    }))
+  })
+  return Promise.all(p).then(() =&gt; {
+    return keys
+  })
+}
+&nbsp;
+export const readKeys = (keys, redisClient, log) =&gt; {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (keys.length === 0) {
+<span class="cstat-no" title="statement not covered" >    return Promise.resolve({})</span>
+  }
+  return new Promise((resolve) =&gt; {
+    const p = []
+    for (let i = 0; i &lt; keys.length; i = i + MAX_PAGE_SIZE) {
+      const keysToRead = keys.slice(i, i + MAX_PAGE_SIZE)
+      p.push(new Promise((resolve) =&gt; {
+        redisClient.mget(keysToRead, (err, results) =&gt; {
+          if (err) {
+            log.warn(`could not read keys into cache, reason: ${err}`)
+            resolve({})
+            return
+          }
+          resolve(keysToRead.reduce((acc, key, i) =&gt; {
+            try {
+              acc[key] = JSON.parse(results[i])
+            } catch (e) {
+<span class="cstat-no" title="statement not covered" >              log.warn(`could not parse value for ${key} as JSON. ${results[i]}`)</span>
+            }
+            return acc
+          }, {}))
+        })
+      }))
+    }
+    return Promise.all(p).then((results) =&gt; {
+      resolve(results.reduce((acc, next) =&gt; {
+        Object.assign(acc, next)
+        return acc
+      }, {}))
+    })
+  })
+}
+&nbsp;
+export const syncCacheWithRedis = <span class="fstat-no" title="function not covered" >({</span>keys, regexp, maxLength, redisClient, log}) =&gt; {
+  const sortedKeysByDate = <span class="cstat-no" title="statement not covered" >sortKeys(deDup(keys, regexp), regexp)</span>
+  const keysToFetch = <span class="cstat-no" title="statement not covered" >sortedKeysByDate.slice(0, maxLength)</span>
+  const keysToDelete = <span class="cstat-no" title="statement not covered" >sortedKeysByDate.slice(maxLength)</span>
+<span class="cstat-no" title="statement not covered" >  return Promise.all([</span>
+    deleteKeys(keysToDelete, redisClient),
+    readKeys(keysToFetch, redisClient, log)
+  ])
+}
+&nbsp;
+export const scanKeys = <span class="fstat-no" title="function not covered" >(r</span>edisClient, cacheKeyPrefix) =&gt; {
+  const keys = <span class="cstat-no" title="statement not covered" >[]</span>
+<span class="cstat-no" title="statement not covered" >  return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+    const stream = <span class="cstat-no" title="statement not covered" >redisClient.scanStream({</span>
+      match: `${cacheKeyPrefix}*`,
+      count: 100
+    })
+<span class="cstat-no" title="statement not covered" >    stream.on('data', (<span class="fstat-no" title="function not covered" >resultKeys) =&gt; {</span></span>
+<span class="cstat-no" title="statement not covered" >      keys.push(...resultKeys)</span>
+    })
+<span class="cstat-no" title="statement not covered" >    stream.on('end', <span class="fstat-no" title="function not covered" >() =&gt; </span>{</span>
+<span class="cstat-no" title="statement not covered" >      resolve(keys)</span>
+    })
+<span class="cstat-no" title="statement not covered" >    stream.on('error', (<span class="fstat-no" title="function not covered" >err) =&gt; {</span></span>
+<span class="cstat-no" title="statement not covered" >      reject(err)</span>
+    })
+  })
+}
+&nbsp;
+// credits to https://stackoverflow.com/users/128816/treznik
+// https://stackoverflow.com/questions/30579940/reliable-way-to-check-if-objects-is-serializable-in-javascript
+export const isSerializable = (obj) =&gt; {
+  if (isUndefined(obj) ||
+      isNull(obj) ||
+      isBoolean(obj) ||
+      isNumber(obj) ||
+      isString(obj)) {
+    return true
+  }
+&nbsp;
+  if (!isPlainObject(obj) &amp;&amp;
+      !isArray(obj)) {
+    return false
+  }
+&nbsp;
+  for (var key in obj) {
+    if (!isSerializable(obj[key])) {
+      return false
+    }
+  }
+&nbsp;
+  return true
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Fri Dec 22 2017 14:55:36 GMT+0100 (CET)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

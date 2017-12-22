@@ -7,3 +7,4 @@ node_modules
 .idea/
 logs
 lib
+.nyc_output

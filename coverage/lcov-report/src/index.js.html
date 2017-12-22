@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src/index.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">All files</a> / <a href="index.html">src</a> index.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">96.15% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>75/78</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">89.29% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>25/28</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">93.75% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>15/16</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">96.15% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>75/78</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">41x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @module
+ * @description Main module for creating an in-memory cache. Extendable using redis-wrapper and redis-persistence-wrapper
+ **/
+import cloneDeep from 'lodash/cloneDeep'
+import {
+  existsAndNotStale,
+  createEntry,
+  createObservable,
+  finishedWaiting,
+  createWait,
+  createRegExp,
+  waitingForError
+} from './utils/cache-helpers'
+import {
+  getCacheInfo
+} from './utils/debug'
+import lruCache from 'lru-cache'
+&nbsp;
+// export plugins for convenience
+import dc from './dist-expire'
+import pc from './persistence'
+&nbsp;
+export const distCache = dc
+export const persistentCache = pc
+&nbsp;
+const DEFAULT_CACHE_EXPIRE = 24 * 60 * 60 * 1000
+const DEFAULT_DELTA_WAIT = 10000
+const DEFAULT_MAX_LENGTH = 1000
+// max stale period
+const DEFAULT_MAX_AGE = 2 * DEFAULT_CACHE_EXPIRE
+&nbsp;
+const CACHE_HIT = 'hit'
+const CACHE_MISS = 'miss'
+const CACHE_STALE = 'stale'
+&nbsp;
+/**
+ * Wrapper around LRU-cache,
+ * able to set values from promises
+ * in get-operations
+ **/
+&nbsp;
+ /**
+  * @description Creates a new in-memory cache.
+  * @param {Object} options - an options object.
+  * @param {function} options.log - logger interface. Expects standard methods: info, warn, error, debug, trace
+  * @param {Object} options.initial - initial state, key/value based.
+  * @param {number} options.maxLength - max LRU-size (object count)
+  * @param {number} options.maxAge - max LRU-age (UX timestamp)
+  * @returns {Object} facade
+  * @returns {function} object.get method
+  * @returns {function} object.set method
+  * @returns {function} object.expire method
+  * @returns {function} object.debug method
+  **/
+export default (options) =&gt; {
+  const {
+    log = console,  // eslint-disable-line
+    initial = {},
+    maxLength = DEFAULT_MAX_LENGTH,
+    maxAge = DEFAULT_MAX_AGE
+  } = options
+&nbsp;
+  const workers = new Map()
+  const waiting = new Map()
+  const cache = lruCache({
+    max: maxLength,
+    maxAge
+  })
+&nbsp;
+  /**
+   * @description set value in cache
+   * @access public
+   * @param {String} key - key in cache to lookup.
+   * @param {any} value - value to store in cache
+   * @param {number} ttl - ttl (in ms) before cached object becomes stale.
+   * @returns {undefined}
+   **/
+  const set = (key, value, ttl = DEFAULT_CACHE_EXPIRE) =&gt; {
+    cache.set(key, {...createEntry(value, ttl), cache: CACHE_HIT})
+  }
+&nbsp;
+  /**
+   * @description Create/subscribe to rxJs-worker
+   * @access private
+   * @param {Object} options - an options object.
+   * @param {String} options.key - key to create worker for.
+   * @param {function} options.promise - function wrapper that returns a promise to fill cache object.
+   * @param {number} workertimeout - max time allowed to run promise.
+   * @param {number} ttl - ttl (in ms) before cached object becomes stale.
+   * @param {number} deltaWait - delta wait (in ms) before retrying promise, when stale.
+   * @returns {undefined}
+   **/
+  const _createWorker = ({key, promise, workerTimeout, ttl, deltaWait}) =&gt; {
+    const worker = createObservable(promise, workerTimeout)
+    const onNext = (value) =&gt; {
+      // update cache
+      set(key, value, ttl)
+      waiting.delete(key)
+      workers.delete(key)
+    }
+    const onError = (err) =&gt; {
+      // handle error
+      log.error(err)
+      waiting.set(key, createWait(deltaWait))
+      workers.delete(key)
+    }
+    const onComplete = () =&gt; {
+      workers.delete(key)
+    }
+    worker.subscribe(onNext, onError, onComplete)
+    return worker
+  }
+&nbsp;
+  /**
+   * @description Read from cache, check if stale, run promise (in a dedicated worker) or wait for other worker to complete
+   * @access private
+   * @param {Object} options - an options object.
+   * @param {function} options.promise - function wrapper that returns a promise to fill cache object.
+   * @param {String} options.key - key to create worker for.
+   * @param {number} workertimeout - max time allowed to run promise.
+   * @param {number} ttl - ttl (in ms) before cached object becomes stale.
+   * @param {number} deltaWait - delta wait (in ms) before retrying promise, when stale.
+   * @returns {Promise} resolves/rejects when request operation finishes
+   **/
+  const _requestFromCache = ({promise, key, workerTimeout, ttl, deltaWait}) =&gt; {
+    return new Promise((resolve, reject) =&gt; {
+      const obj = cache.get(key)
+      if (!promise) {
+        // synchronous get
+        resolve(obj ? <span class="branch-0 cbranch-no" title="branch not covered" >obj.value : null)</span>
+        return
+      } else if (existsAndNotStale(obj, waiting.get(key))) {
+        // fresh or stale + wait
+        if (obj) {
+          if (obj.created + obj.TTL &lt; Date.now()) {
+            resolve({...obj, cache: CACHE_STALE})
+            return
+          }
+          resolve(obj)
+          return
+        }
+        reject(waitingForError(key, waiting.get(key)))
+        return
+      } else <span class="missing-if-branch" title="if path not taken" >I</span>if (!obj &amp;&amp; !finishedWaiting(waiting.get(key))) {
+        // cold + wait get
+<span class="cstat-no" title="statement not covered" >        reject(waitingForError(key, waiting.get(key)))</span>
+<span class="cstat-no" title="statement not covered" >        return</span>
+      }
+      let worker = workers.get(key)
+      let cacheType = CACHE_HIT
+      if (!worker) {
+        cacheType = CACHE_MISS
+        worker = _createWorker({
+          key,
+          promise,
+          workerTimeout,
+          ttl,
+          deltaWait
+        })
+        workers.set(key, worker)
+      }
+      worker.subscribe((value) =&gt; {
+        resolve({value, cache: cacheType})
+      }, (err) =&gt; {
+        // serve stale object if it exists
+        obj ? resolve({...obj, cache: CACHE_STALE}) : reject(err)
+      })
+    })
+  }
+&nbsp;
+  /**
+   * @description get key from cache (or run promise to fill)
+   * @access public
+   * @param {String} key - key in cache to lookup.
+   * @param {Object} config - (optional) an options object.
+   * @param {number} config.ttl - ttl (in ms) before cached object becomes stale.
+   * @param {number} config.workerTimeout - max time allowed to run promise.
+   * @param {number} config.deltaWait - delta wait (in ms) before retrying promise, when stale.
+   * @param {function} promise - (optional) function wrapper that returns a promise to fill cache object.
+   * @returns {Promise} resolves/rejects when request operation finishes
+   **/
+  const get = (key, config = {}, promise) =&gt; {
+    const {
+      ttl = DEFAULT_CACHE_EXPIRE,
+      workerTimeout = 5000,
+      deltaWait = DEFAULT_DELTA_WAIT
+    } = config
+    return _requestFromCache({
+      promise,
+      key,
+      workerTimeout,
+      ttl,
+      deltaWait
+    })
+  }
+&nbsp;
+  /**
+   * @description set value in cache
+   * @access public
+   * @param {Array&lt;String&gt;} keys - array of keys to expire (supports * as wildcards, converted to .* regexp)
+   * @returns {undefined}
+   **/
+  const expire = (keys) =&gt; {
+    keys.forEach((key) =&gt; {
+      const search = createRegExp(key);
+      [...cache.keys()]
+        .filter((key) =&gt; search.test(key))
+        .forEach((key) =&gt; {
+          const obj = cache.get(key)
+          set(key, obj.value, 0)
+          waiting.delete(key)
+        })
+    })
+  }
+&nbsp;
+  const debug = <span class="fstat-no" title="function not covered" >(e</span>xtraOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{}) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    return getCacheInfo({</span>
+      maxAge,
+      maxLength,
+      ...options,
+      ...extraOptions,
+      cache,
+      waiting
+    })
+  }
+&nbsp;
+  Object.keys(initial).forEach((key) =&gt; {
+    set(key, cloneDeep(initial[key]))
+  })
+&nbsp;
+  return {
+    get,
+    set,
+    expire,
+    debug,
+    log,
+    maxLength,
+    // for testing purposes
+    cache,
+    waiting
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Fri Dec 22 2017 14:55:36 GMT+0100 (CET)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

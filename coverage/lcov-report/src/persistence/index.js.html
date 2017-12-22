@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src/persistence/index.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">All files</a> / <a href="index.html">src/persistence</a> index.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">64.71% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>22/34</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">78.57% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>11/14</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">20% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>2/10</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">64.71% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>22/34</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * @module
+ **/
+import {
+  syncCacheWithRedis,
+  scanKeys,
+  createRegExp,
+  isSerializable
+} from './persistence-helpers.js'
+import pkg from '../../package.json'
+&nbsp;
+const DEFAULT_GRACE = 60 * 60 * 24 * 1000
+&nbsp;
+/**
+ * @description Create new instance
+ * @param {Object} cacheInstance - an instance of CacheManager
+ * @param {function} redisFactory - provides a redisClient with publish/subscribe features
+ * @param {RegExp} options.doNotPersist - regexp-matching of keys that are not to peristed
+ * @param {String} options.keySpace - Prefix to use for keys in redis
+ * @param {number} options.expire - Keys stored in redis expire in seconds
+ * @returns {Object} facade
+ **/
+export default (cacheInstance,
+  redisFactory,
+  {
+    doNotPersist = null,
+    keySpace = pkg.name,
+    grace = DEFAULT_GRACE
+  } = {}
+) =&gt; {
+  const redisClient = redisFactory()
+  const cacheKeyPrefix = keySpace.replace(/https?|\/|:|\./g, '')
+  const persisting = {}
+&nbsp;
+  const get = (...args) =&gt; {
+    return cacheInstance.get(...args).then((obj) =&gt; {
+      const [key] = args
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (obj.cache === 'miss') {
+        if ((!doNotPersist || !doNotPersist.test(key)) &amp;&amp; isSerializable(obj) &amp;&amp; !persisting[key]) {
+          persisting[key] = true
+          const redisKey = `${cacheKeyPrefix}-${key}`
+          cacheInstance.log.debug(`Persist to key "${redisKey}"`)
+          const objWithMeta = cacheInstance.cache.get(key)
+          redisClient.set(redisKey, JSON.stringify(objWithMeta), 'ex', Math.round((objWithMeta.TTL + grace) / 1000), (<span class="fstat-no" title="function not covered" >err) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >            if (err) {</span>
+<span class="cstat-no" title="statement not covered" >              cacheInstance.log.warn(err)</span>
+            }
+<span class="cstat-no" title="statement not covered" >            delete persisting[key]</span>
+          })
+        } else {
+          cacheInstance.log.debug(`skipping persistence of promised object with key ${key}`)
+        }
+      }
+      return obj
+    })
+  }
+&nbsp;
+  const re = createRegExp(cacheKeyPrefix)
+&nbsp;
+  const load = <span class="fstat-no" title="function not covered" >() =&gt; </span>{
+    const then = <span class="cstat-no" title="statement not covered" >Date.now()</span>
+<span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      scanKeys(redisClient, cacheKeyPrefix).then((<span class="fstat-no" title="function not covered" >keys) =&gt; {</span></span>
+<span class="cstat-no" title="statement not covered" >        return syncCacheWithRedis({</span>
+          keys,
+          regexp: re,
+          maxLength: cacheInstance.maxLength,
+          redisClient,
+          log: cacheInstance.log
+        }).then(<span class="fstat-no" title="function not covered" >([</span>keysDeleted, mapLoaded]) =&gt; {
+<span class="cstat-no" title="statement not covered" >          return [</span>
+            keysDeleted,
+            Object.keys(mapLoaded).map((<span class="fstat-no" title="function not covered" >key) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >              cacheInstance.cache.set(key.replace(re, ''), mapLoaded[key])</span>
+<span class="cstat-no" title="statement not covered" >              return key</span>
+            })
+          ]
+        }).then(<span class="fstat-no" title="function not covered" >([</span>keysDeleted, keysLoaded]) =&gt; {
+<span class="cstat-no" title="statement not covered" >          resolve(`Deleted ${keysDeleted.length} keys, read ${keysLoaded.length} keys from redis. Used ${Date.now() - then} ms`)</span>
+        })
+      }).catch(reject)
+    })
+  }
+&nbsp;
+  const debug = (<span class="fstat-no" title="function not covered" >extraOptions) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    return cacheInstance.debug({cacheKeyPrefix, ...extraOptions})</span>
+  }
+&nbsp;
+  // load()
+&nbsp;
+  return {
+    ...cacheInstance,
+    get,
+    load,
+    debug
+  }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Fri Dec 22 2017 14:55:36 GMT+0100 (CET)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

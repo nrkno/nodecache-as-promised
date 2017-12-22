@@ -18,7 +18,8 @@
     "lint:js": "standard",
     "test:unit": "mocha --recursive ./src",
     "test:watch": "mocha -w --recursive ./src",
-    "test": "npm run test:unit",
+    "test": "npm run lint && npm run test:coverage",
+    "test:coverage": "nyc --reporter=lcov npm run test:unit",
     "test:perf": "npm run build && npm run perf:nocache ; npm run perf:nocache-cache-file ; npm run perf:cache ; npm run perf:cache-cluster",
     "perf:nocache-cache-file": "node test/nocache-cache-file.js",
     "perf:nocache": "node test/nocache.js",
@@ -43,6 +44,7 @@
     "chalk": "2.1.0",
     "expect.js": "0.3.1",
     "mocha": "4.0.1",
+    "nyc": "11.4.1",
     "sinon": "3.2.1",
     "standard": "10.0.3",
     "yargs": "10.0.3"
@@ -55,6 +57,14 @@
       "after",
       "beforeEach",
       "afterEach"
+    ]
+  },
+  "nyc": {
+    "exclude": [
+      "**/_spec/**"
+    ],
+    "include": [
+      "src/**"
     ]
   },
   "engines": {
