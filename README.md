@@ -2,12 +2,18 @@
 
 > Fast and resilient cache for NodeJs targeting high-volume sites
 
-- [Features](#features)
 - [Installing](#installing)
+- [Features](#features)
 - [Basic usage](#examples)
 - [Distributed capabilites](#distributed-capabilites)
 - [Local development](#local-development)
 - [Building and committing](#building-and-committing)
+
+## Installing
+
+```
+npm install @nrk/doublecache-as-promised --save
+```
 
 # Motivation
 Sometimes Node.js needs to do some heavy lifting, performing CPU or network intensive tasks and yet respond quickly on incoming requests. For repetitive tasks like Server side rendering of markup or parsing big JSON responses caching can give the application a great performance boost. In addition - serving stale content when a backend resource is down may save your day! The intention of `doublecache-as-promised` is to give you a fairly simple, yet powerful application cache, with fine-grained control over caching behaviour.
@@ -38,12 +44,6 @@ The image shows graph from running the test script `perf:nocache-cache-file -- -
 </p>
 
 The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1 million iterations the event loop starts lagging, and at around 3.4 million iterations the process runs out of memory and crashes. The graph has no relation to how fast JSON.parse is, but what speed is achievable by skipping it altogether (ie. `Promise`-processing)
-
-## Installing
-
-```
-npm install @nrk/doublecache-as-promised --save
-```
 
 # Examples
 *Note! These examples are written using ES2015 syntax. The lib is exported as CJS modules though, using Babel*
@@ -198,3 +198,7 @@ git push origin feature/my-changes
 
 > NOTE! Please also make sure to keep commits small and clean (that the commit message actually refers to the updated files).  
 > Stylistically, make sure the commit message is **Capitalized** and **starts with a verb in the present tense** (for example `Add minification support`).
+
+## License
+
+MIT © [NRK](https://www.nrk.no)
