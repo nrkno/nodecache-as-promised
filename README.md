@@ -10,9 +10,9 @@
 - [Building and committing](#building-and-committing)
 
 # Motivation
-`doublecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing. But there are times when NodeJs must do some heavy lifting without consuming to many resources responding quickly (eg. with a short cache window in Varnish around ~1s). This module's intention is to give you a fairly simple, yet powerful application cache, with fine-grained control over caching behaviour.
+Sometimes Node.js needs to do some heavy lifting, performing CPU or network intensinve tasks and yet respond quickly on incoming requests. For repetitive tasks like Server side rendering of markup or parsing big JSON responses caching can give the application a great performance boost. The intention of `doublecache-as-promised` is to give you a fairly simple, yet powerful application cache, with fine-grained control over caching behaviour.
 
-There exists several other cache solutions on NPM though, but they're often too basic or too attached to a combination of prequisites that does not fit all needs.
+`doublecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing. There exists several other cache solutions on NPM, but they're often too basic or too attached to a combination of perquisites that does not fit all needs of an application cache.
 
 ## Features
 - __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data over network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
@@ -25,19 +25,19 @@ There exists several other cache solutions on NPM though, but they're often too 
 
 ## Performance testing
 
-Parsing a json-file at around 47kb (file contents are cached at startup).
+Parsing a json-file at around 47kb (file contents are cached at startup). Using a Macbook pro, mid 2015, 16gb ram, i7 CPU.
 
 <p align="left">
   <img src="./test/linear-perftest-nocache.jpeg?raw=true" width="50%"/>
 </p>
 
-First image is a graph from running test script `perf:nocache-cache-file -- --type=linear`. At around 13k iterations the event loop starts lagging, and at around 15k iterations the process stops responding.
+The image shows graph from running the test script `perf:nocache-cache-file -- --type=linear`. At around 1300 iterations the event loop starts lagging, and at around 1500 iterations the process stops responding. It displays that even extremely optimized JSON.parse could be a bottleneck when fetching remote data for rendring. (`React.render` would be even slower)
 
 <p align="left">
   <img src="./test/linear-perftest-cache.jpeg?raw=true" width="50%"/>
 </p>
 
-The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1m iterations the event loop starts lagging, and at around 3.4m iterations the process runs out of memory and crashes.
+The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1 million iterations the event loop starts lagging, and at around 3.4 million iterations the process runs out of memory and crashes. The graph has no relation to how fast JSON.parse is, but what speed is achievable by skipping it altogether (ie. `Promise`-processing)
 
 ## Installing
 
