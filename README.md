@@ -46,7 +46,7 @@ The image shows graph from running the test script `perf:nocache-cache-file -- -
 The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1 million iterations the event loop starts lagging, and at around 3.4 million iterations the process runs out of memory and crashes. The graph has no relation to how fast JSON.parse is, but what speed is achievable by skipping it altogether (ie. `Promise`-processing)
 
 # Examples
-*Note! These examples are written using ES2015 syntax. The lib is exported as CJS modules though, using Babel*
+*Note! These examples are written using ES2015 syntax. The lib is exported using Babel as CJS modules*
 
 ## Basic usage
 ```js
