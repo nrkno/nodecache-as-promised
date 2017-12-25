@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">64.71% </span>
+        <span class="strong">78.57% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>22/34</span>
+        <span class='fraction'>33/42</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">76.47% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>13/17</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">50% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>6/12</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">78.57% </span>
-        <span class="quiet">Branches</span>
-        <span class='fraction'>11/14</span>
-      </div>
-      <div class='fl pad1y space-right2'>
-        <span class="strong">20% </span>
-        <span class="quiet">Functions</span>
-        <span class='fraction'>2/10</span>
-      </div>
-      <div class='fl pad1y space-right2'>
-        <span class="strong">64.71% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>22/34</span>
+        <span class='fraction'>33/42</span>
       </div>
     </div>
   </div>
@@ -140,10 +140,16 @@
 95
 96
 97
-98</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+98
+99
+100
+101
+102
+103</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -179,6 +185,7 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -198,26 +205,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -228,6 +222,22 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3x</span>
@@ -241,9 +251,10 @@
  * @module
  **/
 import {
-  syncCacheWithRedis,
-  scanKeys,
-  createRegExp,
+  loadKeys,
+  deleteKey,
+  extractKeyFromRedis,
+  getRedisKey,
   isSerializable
 } from './persistence-helpers.js'
 import pkg from '../../package.json'
@@ -259,25 +270,26 @@ const DEFAULT_GRACE = 60 * 60 * 24 * 1000
  * @param {number} options.expire - Keys stored in redis expire in seconds
  * @returns {Object} facade
  **/
-export default (cacheInstance,
-  redisFactory,
+export default (redisFactory,
   {
     doNotPersist = null,
-    keySpace = pkg.name,
-    grace = DEFAULT_GRACE
-  } = {}
-) =&gt; {
+    keySpace = '',
+    grace = DEFAULT_GRACE,
+    bootload = true
+  } = <span class="branch-0 cbranch-no" title="branch not covered" >{}</span>
+) =&gt; (cacheInstance) =&gt; {
   const redisClient = redisFactory()
-  const cacheKeyPrefix = keySpace.replace(/https?|\/|:|\./g, '')
+  const cacheKeyPrefix = `${pkg.name}-${keySpace}`
   const persisting = {}
 &nbsp;
   const get = (...args) =&gt; {
-    return cacheInstance.get(...args).then((obj) =&gt; {
+    const next = args.pop()
+    return next(...args).then((obj) =&gt; {
       const [key] = args
       <span class="missing-if-branch" title="else path not taken" >E</span>if (obj.cache === 'miss') {
         if ((!doNotPersist || !doNotPersist.test(key)) &amp;&amp; isSerializable(obj) &amp;&amp; !persisting[key]) {
           persisting[key] = true
-          const redisKey = `${cacheKeyPrefix}-${key}`
+          const redisKey = getRedisKey(cacheKeyPrefix, key)
           cacheInstance.log.debug(`Persist to key "${redisKey}"`)
           const objWithMeta = cacheInstance.cache.get(key)
           redisClient.set(redisKey, JSON.stringify(objWithMeta), 'ex', Math.round((objWithMeta.TTL + grace) / 1000), (<span class="fstat-no" title="function not covered" >err) =&gt; {</span>
@@ -294,44 +306,47 @@ export default (cacheInstance,
     })
   }
 &nbsp;
-  const re = createRegExp(cacheKeyPrefix)
-&nbsp;
-  const load = <span class="fstat-no" title="function not covered" >() =&gt; </span>{
-    const then = <span class="cstat-no" title="statement not covered" >Date.now()</span>
-<span class="cstat-no" title="statement not covered" >    return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      scanKeys(redisClient, cacheKeyPrefix).then((<span class="fstat-no" title="function not covered" >keys) =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >        return syncCacheWithRedis({</span>
-          keys,
-          regexp: re,
-          maxLength: cacheInstance.maxLength,
-          redisClient,
-          log: cacheInstance.log
-        }).then(<span class="fstat-no" title="function not covered" >([</span>keysDeleted, mapLoaded]) =&gt; {
-<span class="cstat-no" title="statement not covered" >          return [</span>
-            keysDeleted,
-            Object.keys(mapLoaded).map((<span class="fstat-no" title="function not covered" >key) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >              cacheInstance.cache.set(key.replace(re, ''), mapLoaded[key])</span>
-<span class="cstat-no" title="statement not covered" >              return key</span>
-            })
-          ]
-        }).then(<span class="fstat-no" title="function not covered" >([</span>keysDeleted, keysLoaded]) =&gt; {
-<span class="cstat-no" title="statement not covered" >          resolve(`Deleted ${keysDeleted.length} keys, read ${keysLoaded.length} keys from redis. Used ${Date.now() - then} ms`)</span>
-        })
-      }).catch(reject)
+  const load = () =&gt; {
+    const then = Date.now()
+    return new Promise((resolve, reject) =&gt; {
+      loadKeys(cacheKeyPrefix, redisClient, cacheInstance.log)
+        .then((mapLoaded) =&gt; {
+          resolve(`Read ${Object.keys(mapLoaded).length} keys from redis. Used ${Date.now() - then} ms`)
+          Object.keys(mapLoaded).map((<span class="fstat-no" title="function not covered" >key) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >            cacheInstance.cache.set(extractKeyFromRedis(cacheKeyPrefix, key), mapLoaded[key])</span>
+<span class="cstat-no" title="statement not covered" >            return key</span>
+          })
+        }).catch(reject)
     })
   }
 &nbsp;
-  const debug = (<span class="fstat-no" title="function not covered" >extraOptions) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    return cacheInstance.debug({cacheKeyPrefix, ...extraOptions})</span>
+  const debug = <span class="fstat-no" title="function not covered" >(e</span>xtraOptions, next) =&gt; {
+<span class="cstat-no" title="statement not covered" >    return next({cacheKeyPrefix, ...extraOptions})</span>
   }
 &nbsp;
-  // load()
+  const onDispose = (<span class="fstat-no" title="function not covered" >key) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    deleteKey(getRedisKey(cacheKeyPrefix, key), redisClient).then(<span class="fstat-no" title="function not covered" >() =&gt; </span>{</span>
+<span class="cstat-no" title="statement not covered" >      cacheInstance.log.debug(`deleting key ${key} from redis (evicted by lru-cache)`)</span>
+    }).catch((<span class="fstat-no" title="function not covered" >err) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      cacheInstance.log.error(err)</span>
+    })
+  }
+&nbsp;
+  cacheInstance.addDisposer(onDispose)
+&nbsp;
+  const destroy = () =&gt; {
+    cacheInstance.removeDisposer(onDispose)
+  }
+&nbsp;
+  if (bootload) {
+    load()
+  }
 &nbsp;
   return {
-    ...cacheInstance,
     get,
     load,
-    debug
+    debug,
+    destroy
   }
 }
 &nbsp;</pre></td></tr>
@@ -340,7 +355,7 @@ export default (cacheInstance,
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Fri Dec 22 2017 14:55:36 GMT+0100 (CET)
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Mon Dec 25 2017 19:49:07 GMT+0100 (CET)
 </div>
 </div>
 <script src="../../prettify.js"></script>

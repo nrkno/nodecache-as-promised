@@ -1,10 +1,10 @@
 import {
-  sortKeys,
-  deleteKeys,
+  deleteKey,
   readKeys,
-  deDup,
-  createRegExp,
-  isSerializable
+  extractKeyFromRedis,
+  getRedisKey,
+  isSerializable,
+  loadKeys
 } from '../persistence-helpers'
 import {
   mockRedisFactory
@@ -20,14 +20,63 @@ const cache = {
 }
 
 describe('persistence-helpers', () => {
-  describe('-> sortKeys', () => {
-    it('should sort keys based on regexp', () => {
-      const sortedKeys = sortKeys(Object.keys(cache), /(asdf-)(\d+)/)  // nb: matches on second group
-      expect(sortedKeys).to.eql(['asdf-100', 'asdf-123', 'asdf-345'])
+  describe('-> getRedisKey', () => {
+    it('generate key', () => {
+      const key = getRedisKey('prefix', 'key')
+      expect(key).to.equal('prefix-key')
+    })
+
+    it('generate using replace', () => {
+      const key = getRedisKey('prefix-http://localhost:8080', 'myKey')
+      expect(key).to.equal('prefix-localhost8080-myKey')
     })
   })
 
-  describe('-> deleteKeys', () => {
+  describe('-> extractKeyFromRedis', () => {
+    it('should match keys', () => {
+      const key = extractKeyFromRedis('prefix-http://localhost:8080', 'prefix-http://localhost:8080-myKey')
+      expect(key).to.equal('myKey')
+    })
+  })
+
+  describe('-> loadKeys', () => {
+    let redisClient
+    let scanStreamSpy
+    let mgetSpy
+
+    it('should load keys', () => {
+      const events = {}
+      const p = ({match, cound}) => {
+        return {
+          on: (event, cb) => {
+            if (!events[event]) {
+              events[event] = []
+            }
+            events[event].push(cb)
+          }
+        }
+      }
+      scanStreamSpy = sinon.spy(p)
+      setTimeout(() => {
+        events.data[0](['test-localhost8080-myKey'])
+        events.end[0]()
+      }, 20)
+      const y = (keysToRead, cb) => {
+        cb(null, [JSON.stringify({hei: 'verden'})])
+      }
+      mgetSpy = sinon.spy(y)
+      redisClient = mockRedisFactory({scanStream: scanStreamSpy, mget: mgetSpy})()
+      return loadKeys('test-localhost8080', redisClient, dummyLog).then((results) => {
+        expect(results).to.eql({
+          'test-localhost8080-myKey': {
+            hei: 'verden'
+          }
+        })
+      })
+    })
+  })
+
+  describe('-> deleteKey', () => {
     let redisClient
     let delSpy
 
@@ -35,9 +84,9 @@ describe('persistence-helpers', () => {
       const p = (key, cb) => cb(null, 'ok')
       delSpy = sinon.spy(p)
       redisClient = mockRedisFactory({del: delSpy})()
-      return deleteKeys(Object.keys(cache), redisClient, dummyLog).then((result) => {
+      return deleteKey('testkey', redisClient, dummyLog).then((result) => {
         expect(delSpy.called).to.equal(true)
-        expect(result.length).to.equal(3)
+        expect(result).to.equal('ok')
       })
     })
 
@@ -45,7 +94,7 @@ describe('persistence-helpers', () => {
       const p = (key, cb) => cb(new Error('not ok'), null)
       delSpy = sinon.spy(p)
       redisClient = mockRedisFactory({del: delSpy})()
-      return deleteKeys(Object.keys(cache), redisClient, dummyLog).catch((err) => {
+      return deleteKey('testkey', redisClient, dummyLog).catch((err) => {
         expect(delSpy.called).to.equal(true)
         expect(err).to.be.an(Error)
       })
@@ -75,21 +124,6 @@ describe('persistence-helpers', () => {
         expect(mgetSpy.called).to.equal(true)
         expect(err).to.be.an(Error)
       })
-    })
-  })
-
-  describe('-> deDup', () => {
-    it('should remove duplicat keys and keep most recent one', () => {
-      const keys = [
-        'desketoy8080-1234/house/2',
-        'desketoy8080-1000/house/2',
-        'desketoy8080-1000/feed/2'
-      ]
-      const deDupedKeys = deDup(keys, createRegExp('desketoy8080'))
-      expect(deDupedKeys).to.eql([
-        'desketoy8080-1234/house/2',
-        'desketoy8080-1000/feed/2'
-      ])
     })
   })
 

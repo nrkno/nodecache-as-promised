@@ -16,7 +16,7 @@ const EXPIRE_MESSAGE_TYPE = 'EXPIRE_MESSAGE_TYPE'
  * @returns {function} object.expire method
  * @returns {function} object.debug method
  **/
-export default (cacheInstance, redisFactory, namespace) => {
+export default (redisFactory, namespace) => (cacheInstance) => {
   const redisPub = redisFactory()
   const redisSubClient = redisFactory()
 
@@ -59,7 +59,7 @@ export default (cacheInstance, redisFactory, namespace) => {
    * @param {Array<String>} keys - Array of keys. Accepts * as wildcards (converted to .*)
    * @returns {undefined}
    **/
-  const expire = (keys) => {
+  const expire = (keys, next) => {
     const message = {
       type: EXPIRE_MESSAGE_TYPE,
       message: {
@@ -67,16 +67,16 @@ export default (cacheInstance, redisFactory, namespace) => {
       }
     }
     redisPub.publish(namespace, JSON.stringify(message))
+    next(keys)
   }
 
-  const debug = (extraOptions) => {
-    return cacheInstance.debug({namespace, ...extraOptions})
+  const debug = (extraOptions, next) => {
+    return next({namespace, ...extraOptions})
   }
 
   setupSubscriber(redisSubClient, namespace)
 
   return {
-    ...cacheInstance,
     expire,
     debug
   }

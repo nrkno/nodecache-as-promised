@@ -61,12 +61,19 @@ export default (options) => {
     maxAge = DEFAULT_MAX_AGE
   } = options
 
+  let disposers = []
   const workers = new Map()
   const waiting = new Map()
   const cache = lruCache({
     max: maxLength,
-    maxAge
+    maxAge,
+    dispose: (key, value) => {
+      disposers.forEach((disposer) => disposer(key, value))
+    }
   })
+
+  const addDisposer = (cb) => disposers.push(cb)
+  const removeDisposer = (cb) => (disposers = disposers.filter((disposer) => disposer && disposer !== cb))
 
   /**
    * @description set value in cache
@@ -229,15 +236,42 @@ export default (options) => {
     set(key, cloneDeep(initial[key]))
   })
 
-  return {
-    get,
-    set,
-    expire,
-    debug,
-    log,
-    maxLength,
-    // for testing purposes
-    cache,
-    waiting
+  const getFacade = () => {
+    return {
+      addDisposer,
+      removeDisposer,
+      get,
+      set,
+      expire,
+      debug,
+      log,
+      maxLength,
+      // for testing purposes
+      cache,
+      waiting
+    }
   }
+
+  const facade = getFacade()
+
+  facade.use = (middleware) => {
+    const m = middleware(getFacade())
+    Object.keys(m).forEach((key) => {
+      // Keep a reference to the original function pointer
+      const prevFacade = facade[key]
+      // overwrite the original function
+      facade[key] = (...args) => {
+        // call middlware function
+        return m[key](
+          // add next parameter
+          ...args.concat((...middlewareArgs) => {
+            // call original function with args from middleware
+            return prevFacade(...middlewareArgs)
+          })
+        )
+      }
+    })
+  }
+
+  return facade
 }

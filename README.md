@@ -101,8 +101,7 @@ cache.get('anotherkey', {
 ```
 
 ## Distributed capabilites
-Distributed expire and persisting of cache misses to Redis are provided as
-plugins using __function composition__, ie. wrapping the in-memory cache with a factory that intercepts function calls. It should therefore be easy to write your own plugins using pub/sub from rabbitMQ, zeroMQ, persisting to a NAS, hit/miss-ratio to external measurments systems and more.
+Distributed expire and persisting of cache misses to Redis are provided as middlewares, ie. wrapping the in-memory cache with a factory that intercepts function calls. It should therefore be easy to write your own middlewares using pub/sub from rabbitMQ, zeroMQ, persisting to a NAS, hit/miss-ratio to external measurments systems and more.
 
 #### Distributed expire
 ```js
@@ -111,11 +110,8 @@ import Redis from 'ioredis'
 
 // a factory function that returns a redisClient
 const redisFactory = () => new Redis(/* options */)
-const cache = distCache(
-  inMemoryCache({initial: {fooKey: 'bar'}}),
-  redisFactory,
-  'namespace'
-)
+const cache = inMemoryCache({initial: {fooKey: 'bar'}})
+cache.use(distCache(redisFactory, 'namespace'))
 // publish to redis (using wildcard)
 cache.expire(['foo*'])
 setTimeout(() => {
@@ -131,14 +127,14 @@ import inMemoryCache, {persistentCache} from '@nrk/doublecache-as-promised'
 import Redis from 'ioredis'
 
 const redisFactory = () => new Redis(/* options */)
-const cache = persistentCache(
-  inMemoryCache({/* options */}),
+const cache = inMemoryCache({/* options */})
+cache.use(persistentCache(
   redisFactory,
   {
     keySpace: 'myCache',   // key prefix used when storing in redis
     grace: 60 * 60         // auto expire unused keys in Redis after TTL + grace seconds
   }
-)
+))
 
 cache.get('key', {/* options */}, Promise.resolve('hello'))
 // will store a key in redis, using key: myCache-<key>
@@ -151,16 +147,15 @@ import inMemoryCache, {distCache, persistenCache} from '@nrk/doublecache-as-prom
 import Redis from 'ioredis'
 
 const redisFactory = () => new Redis(/* options */)
-const imc = inMemoryCache({/* options */})
-const dc = distCache(imc, redisFactory, 'namespace')
-const cache = persistenCache(
-  dc,
+const cache = inMemoryCache({/* options */})
+cache.use(distCache(redisFactory, 'namespace'))
+cache.use(persistenCache(
   redisFactory,
   {
     keySpace: 'myCache',   // key prefix used when storing in redis
     grace: 60 * 60         // auto expire unused keys in Redis after TTL + grace seconds
   }
-)
+))
 
 cache.expire(['foo*'])  // distributed expire of all keys starting with foo
 cache.get('key', {

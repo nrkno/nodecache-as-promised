@@ -3,38 +3,43 @@ import inMemoryCache from '../../'
 import sinon from 'sinon'
 import expect from 'expect.js'
 import {mockRedisFactory} from '../../utils/mock-redis-factory'
+import * as utils from '../persistence-helpers'
 import {dummyLog} from '../../utils/log-helper'
 
 describe('persistence', () => {
   describe('-> istantiation', () => {
     it('should be possible', () => {
-      const cm = inMemoryCache({log: dummyLog})
-      const cacheInstance = persistentCache(cm, mockRedisFactory())
-      expect(cacheInstance).to.be.an(Object)
+      const cache = inMemoryCache({log: dummyLog})
+      cache.use(persistentCache(mockRedisFactory(), {bootload: false}))
+      expect(cache).to.be.an(Object)
     })
   })
 
   describe('-> get (write to redis)', () => {
-    let cacheInstance
+    let cache
     let mockFactory
     let setSpy
 
     beforeEach(() => {
       setSpy = sinon.spy()
+      sinon.stub(utils, 'loadKeys').resolves({})
       mockFactory = mockRedisFactory({
         set: setSpy
       })
-      const cm = inMemoryCache({log: dummyLog})
-
-      cacheInstance = persistentCache(
-        cm,
+      cache = inMemoryCache({log: dummyLog})
+      cache.use(persistentCache(
         mockFactory,
         {
           doNotPersist: /store/,
           keySpace: 'myCache',
           grace: 1000
         }
-      )
+      ))
+    })
+
+    afterEach(() => {
+      cache.destroy()
+      utils.loadKeys.restore()
     })
 
     it('should write to redis when a cache miss occurs', () => {
@@ -42,7 +47,7 @@ describe('persistence', () => {
       const spy = sinon.spy(p)
       const now = Date.now()
       const key = `key${now}`
-      return cacheInstance.get(key, {ttl: 1000}, spy).then((obj) => {
+      return cache.get(key, {ttl: 1000}, spy).then((obj) => {
         expect(spy.called).to.equal(true)
         expect(obj.value).to.equal('hei')
         expect(obj.cache).to.equal('miss')
@@ -61,7 +66,7 @@ describe('persistence', () => {
       const spy = sinon.spy(p)
       const now = Date.now()
       const key = `/store/${now}`
-      return cacheInstance.get(key, {}, spy).then((obj) => {
+      return cache.get(key, {}, spy).then((obj) => {
         expect(spy.called).to.equal(true)
         expect(obj.value).to.equal('hei')
         expect(obj.cache).to.equal('miss')

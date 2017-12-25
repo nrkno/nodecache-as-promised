@@ -11,56 +11,23 @@ import isPlainObject from 'lodash/isPlainObject'
 
 const MAX_PAGE_SIZE = 100
 
-export const createRegExp = (key) => {
-  return new RegExp(`(${key}-)(\\d+)`)
+export const extractKeyFromRedis = (prefix, key) => {
+  return key.replace(new RegExp(`${prefix}-`), '')
 }
 
-export const deDup = (keys = [], regexp) => {
-  const keyMap = new Map()
-  keys.forEach((key) => {
-    const score = key.match(regexp)[2]
-    const current = key.replace(regexp, '$1')
-    if (!keyMap.has(current) || keyMap.get(current).score < score) {
-      keyMap.set(current, {
-        key,
-        score
-      })
-    }
-  })
-  return Array.from(keyMap).map(([current]) => {
-    return keyMap.get(current).key
-  })
+export const getRedisKey = (prefix, key) => {
+  return `${[prefix, key].join('-')}`.replace(/https?|\/|:|\./g, '')
 }
 
-export const sortKeys = (keys, regexp) => {
-  return keys.sort((a, b) => {
-    const aKeyWithDate = a.match(regexp)[2]
-    const bKeyWithDate = b.match(regexp)[2]
-    if (aKeyWithDate < bKeyWithDate) {
-      return -1
-    }
-    if (aKeyWithDate > bKeyWithDate) {
-      return 1
-    }
-    return 0
-  })
-}
-
-export const deleteKeys = (keys, redisClient) => {
-  const p = []
-  keys.forEach((key) => {
-    p.push(new Promise((resolve, reject) => {
-      redisClient.del(key, (err, res) => {
-        if (err) {
-          reject(err)
-          return
-        }
-        resolve(res)
-      })
-    }))
-  })
-  return Promise.all(p).then(() => {
-    return keys
+export const deleteKey = (key, redisClient) => {
+  return new Promise((resolve, reject) => {
+    redisClient.del(key, (err, res) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve(res)
+    })
   })
 }
 
@@ -68,48 +35,36 @@ export const readKeys = (keys, redisClient, log) => {
   if (keys.length === 0) {
     return Promise.resolve({})
   }
-  return new Promise((resolve) => {
-    const p = []
-    for (let i = 0; i < keys.length; i = i + MAX_PAGE_SIZE) {
-      const keysToRead = keys.slice(i, i + MAX_PAGE_SIZE)
-      p.push(new Promise((resolve) => {
-        redisClient.mget(keysToRead, (err, results) => {
-          if (err) {
-            log.warn(`could not read keys into cache, reason: ${err}`)
-            resolve({})
-            return
+  const p = []
+  for (let i = 0; i < keys.length; i = i + MAX_PAGE_SIZE) {
+    const keysToRead = keys.slice(i, i + MAX_PAGE_SIZE)
+    p.push(new Promise((resolve) => {
+      redisClient.mget(keysToRead, (err, results) => {
+        if (err) {
+          log.warn(`could not read keys into cache, reason: ${err}`)
+          resolve({})
+          return
+        }
+        resolve(keysToRead.reduce((acc, key, i) => {
+          try {
+            acc[key] = JSON.parse(results[i])
+          } catch (e) {
+            log.warn(`could not parse value for ${key} as JSON. ${results[i]}`)
           }
-          resolve(keysToRead.reduce((acc, key, i) => {
-            try {
-              acc[key] = JSON.parse(results[i])
-            } catch (e) {
-              log.warn(`could not parse value for ${key} as JSON. ${results[i]}`)
-            }
-            return acc
-          }, {}))
-        })
-      }))
-    }
-    return Promise.all(p).then((results) => {
-      resolve(results.reduce((acc, next) => {
-        Object.assign(acc, next)
-        return acc
-      }, {}))
-    })
+          return acc
+        }, {}))
+      })
+    }))
+  }
+  return Promise.all(p).then((results) => {
+    return results.reduce((acc, next) => {
+      Object.assign(acc, next)
+      return acc
+    }, {})
   })
 }
 
-export const syncCacheWithRedis = ({keys, regexp, maxLength, redisClient, log}) => {
-  const sortedKeysByDate = sortKeys(deDup(keys, regexp), regexp)
-  const keysToFetch = sortedKeysByDate.slice(0, maxLength)
-  const keysToDelete = sortedKeysByDate.slice(maxLength)
-  return Promise.all([
-    deleteKeys(keysToDelete, redisClient),
-    readKeys(keysToFetch, redisClient, log)
-  ])
-}
-
-export const scanKeys = (redisClient, cacheKeyPrefix) => {
+export const scanKeys = (cacheKeyPrefix, redisClient) => {
   const keys = []
   return new Promise((resolve, reject) => {
     const stream = redisClient.scanStream({
@@ -126,6 +81,13 @@ export const scanKeys = (redisClient, cacheKeyPrefix) => {
       reject(err)
     })
   })
+}
+
+export const loadKeys = (cacheKeyPrefix, redisClient, log) => {
+  return scanKeys(cacheKeyPrefix, redisClient)
+    .then((keys) => {
+      return readKeys(keys, redisClient, log)
+    })
 }
 
 // credits to https://stackoverflow.com/users/128816/treznik

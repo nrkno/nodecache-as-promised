@@ -10,20 +10,20 @@ const namespace = 'desketoy8080'
 describe('dist-expire', () => {
   describe('-> istantiation', () => {
     it('should be possible', () => {
-      const cm = inMemoryCache({log: dummyLog})
-      const cacheInstance = distCache(cm, mockRedisFactory(), namespace)
-      expect(cacheInstance).to.be.an(Object)
+      const cache = inMemoryCache({log: dummyLog})
+      cache.use(distCache(mockRedisFactory(), namespace))
+      expect(cache).to.be.an(Object)
     })
   })
 
   describe('-> inheritance', () => {
     it('should be able to use methods from extended class', () => {
-      const cm = inMemoryCache({log: dummyLog})
-      const cacheInstance = distCache(cm, mockRedisFactory(), namespace)
+      const cache = inMemoryCache({log: dummyLog})
+      cache.use(distCache(mockRedisFactory(), namespace))
       const p = () => Promise.resolve()
       const spy = sinon.spy(p)
-      cacheInstance.set('hello', 'world')
-      return cacheInstance.get('hello', {}, spy).then((obj) => {
+      cache.set('hello', 'world')
+      return cache.get('hello', {}, spy).then((obj) => {
         expect(obj.value).to.equal('world')
         expect(spy.called).to.equal(false)
       })
@@ -33,11 +33,11 @@ describe('dist-expire', () => {
   describe('-> distributed expire', () => {
     const p = () => Promise.resolve('world2')
     const spy = sinon.spy(p)
-    const cm = inMemoryCache({initial: {hello: 'world'}, log: dummyLog})
-    const cacheInstance = distCache(cm, mockRedisFactory(), namespace)
-    cacheInstance.expire(['hello'])
-    expect(cacheInstance.cache.get('hello').TTL).to.equal(0)
-    return cacheInstance.get('hello', {}, spy).then((obj) => {
+    const cache = inMemoryCache({initial: {hello: 'world'}, log: dummyLog})
+    cache.use(distCache(mockRedisFactory(), namespace))
+    cache.expire(['hello'])
+    expect(cache.cache.get('hello').TTL).to.equal(0)
+    return cache.get('hello', {}, spy).then((obj) => {
       expect(obj.value).to.equal('world2')
       expect(spy.called).to.equal(true)
     })
