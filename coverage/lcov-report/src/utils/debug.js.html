@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">15.79% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>3/19</span>
+        <span class='fraction'>19/19</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">80% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>0/5</span>
+        <span class='fraction'>4/5</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>0/5</span>
+        <span class='fraction'>5/5</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">15.79% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>3/19</span>
+        <span class='fraction'>19/19</span>
       </div>
     </div>
   </div>
-  <div class='status-line low'></div>
+  <div class='status-line high'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -106,13 +106,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -122,24 +122,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -157,41 +157,41 @@ import {
   createRegExp
 } from './cache-helpers'
 &nbsp;
-const extractProps = (<span class="fstat-no" title="function not covered" >obj) =&gt; {</span>
-  const ret = <span class="cstat-no" title="statement not covered" >{}</span>
-<span class="cstat-no" title="statement not covered" >  Object.keys(obj)</span>
-    .filter((<span class="fstat-no" title="function not covered" >key) =&gt; <span class="cstat-no" title="statement not covered" >!/^log$|^cache$|^waiting$/.test(key))</span></span>
-    .forEach((<span class="fstat-no" title="function not covered" >key) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      ret[key] = obj[key]</span>
+const extractProps = (obj) =&gt; {
+  const ret = {}
+  Object.keys(obj)
+    .filter((key) =&gt; !/^log$|^cache$|^waiting$/.test(key))
+    .forEach((key) =&gt; {
+      ret[key] = obj[key]
     })
-<span class="cstat-no" title="statement not covered" >  return ret</span>
+  return ret
 }
 &nbsp;
-export const getCacheInfo = (<span class="fstat-no" title="function not covered" >info) =&gt; {</span>
+export const getCacheInfo = (info) =&gt; {
   const {
     full,
     search = <span class="branch-0 cbranch-no" title="branch not covered" >'*',</span>
     cache,
     maxAge,
     waiting
-  } = <span class="cstat-no" title="statement not covered" >info</span>
-  const keys = <span class="cstat-no" title="statement not covered" >{</span>
+  } = info
+  const keys = {
     stale: [],
     hot: []
   }
-  const matcher = <span class="cstat-no" title="statement not covered" >createRegExp(search)</span>
-<span class="cstat-no" title="statement not covered" >  cache.forEach(<span class="fstat-no" title="function not covered" >(v</span>alue, key) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (!matcher.test(key)) {</span>
-<span class="cstat-no" title="statement not covered" >      return</span>
+  const matcher = createRegExp(search)
+  cache.forEach((value, key) =&gt; {
+    if (!matcher.test(key)) {
+      return
     }
-    const keyInfo = <span class="cstat-no" title="statement not covered" >buildKey({key, value, isWaiting: formatWait(waiting.get(key)), full})</span>
-<span class="cstat-no" title="statement not covered" >    if (existsAndNotStale(value)) {</span>
-<span class="cstat-no" title="statement not covered" >      keys.hot.push(keyInfo)</span>
+    const keyInfo = buildKey({key, value, isWaiting: formatWait(waiting.get(key)), full})
+    if (existsAndNotStale(value)) {
+      keys.hot.push(keyInfo)
     } else {
-<span class="cstat-no" title="statement not covered" >      keys.stale.push(keyInfo)</span>
+      keys.stale.push(keyInfo)
     }
   })
-<span class="cstat-no" title="statement not covered" >  return {</span>
+  return {
     now: new Date(),
     ...extractProps(info),
     maxAge: `${maxAge / (1000 * 60 * 60)}h`,
@@ -205,7 +205,7 @@ export const getCacheInfo = (<span class="fstat-no" title="function not covered"
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Dec 26 2017 08:42:56 GMT+0100 (CET)
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Tue Dec 26 2017 09:08:56 GMT+0100 (CET)
 </div>
 </div>
 <script src="../../prettify.js"></script>
