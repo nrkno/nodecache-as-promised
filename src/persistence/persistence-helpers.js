@@ -83,7 +83,7 @@ export const scanKeys = (cacheKeyPrefix, redisClient) => {
   })
 }
 
-export const loadKeys = (cacheKeyPrefix, redisClient, log) => {
+export const loadObjects = (cacheKeyPrefix, redisClient, log) => {
   return scanKeys(cacheKeyPrefix, redisClient)
     .then((keys) => {
       return readKeys(keys, redisClient, log)

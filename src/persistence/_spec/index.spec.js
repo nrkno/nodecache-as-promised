@@ -5,6 +5,7 @@ import expect from 'expect.js'
 import {mockRedisFactory} from '../../utils/mock-redis-factory'
 import * as utils from '../persistence-helpers'
 import {dummyLog} from '../../utils/log-helper'
+import pkg from '../../../package.json'
 
 describe('persistence', () => {
   describe('-> istantiation', () => {
@@ -23,14 +24,16 @@ describe('persistence', () => {
     })
   })
 
-  describe('-> get (write to redis)', () => {
+  describe('-> get (write to redis on MISS)', () => {
     let cache
     let mockFactory
     let setSpy
 
     beforeEach(() => {
       setSpy = sinon.spy()
-      sinon.stub(utils, 'loadKeys').resolves({})
+      sinon.stub(utils, 'loadObjects').resolves({
+        [`${pkg.name}-myCache-house/1`]: '{"hello": "world"}'
+      })
       mockFactory = mockRedisFactory({
         set: setSpy
       })
@@ -47,7 +50,7 @@ describe('persistence', () => {
 
     afterEach(() => {
       cache.destroy()
-      utils.loadKeys.restore()
+      utils.loadObjects.restore()
     })
 
     it('should write to redis when a cache miss occurs', () => {
@@ -79,6 +82,60 @@ describe('persistence', () => {
         expect(obj.value).to.equal('hei')
         expect(obj.cache).to.equal('miss')
         expect(setSpy.called).to.equal(false)
+      })
+    })
+  })
+
+  describe('onDispose', () => {
+    let delSpy
+    let mockFactory
+    let cache
+
+    beforeEach(() => {
+      const p = (key, cb) => {
+        if (key.indexOf('house/1') > -1) {
+          return cb(null, 'ok')
+        }
+        cb(new Error('dummyerror'), null)
+      }
+      delSpy = sinon.spy(p)
+      mockFactory = mockRedisFactory({
+        del: delSpy
+      })
+      cache = inMemoryCache({log: dummyLog, maxLength: 2})
+      cache.use(persistentCache(
+        mockFactory,
+        {
+          doNotPersist: /store/,
+          bootload: false,
+          keySpace: 'myCache',
+          grace: 1000
+        }
+      ))
+    })
+
+    afterEach(() => {
+      cache.destroy()
+    })
+
+    it('should evict key from redis when lru cache evicts key', () => {
+      cache.set('house/1', {hei: 'verden'})
+      cache.set('house/2', {hei: 'verden'})
+      cache.set('guest/3', {hei: 'verden'})
+      expect(delSpy.called).to.equal(true)
+      expect(delSpy.args[0][0]).to.equal(utils.getRedisKey(`${pkg.name}-myCache`, 'house/1'))
+    })
+
+    it('should catch error in redis.del when lru cache evicts key', (done) => {
+      const count = dummyLog.error.callCount
+      cache.set('guest/3', {hei: 'verden'})
+      cache.set('house/1', {hei: 'verden'})
+      cache.set('house/2', {hei: 'verden'})
+      expect(delSpy.called).to.equal(true)
+      expect(delSpy.args[0][0]).to.equal(utils.getRedisKey(`${pkg.name}-myCache`, 'guest/3'))
+      setTimeout(() => {
+        expect(dummyLog.error.callCount).to.equal(count + 1)
+        done()
       })
     })
   })

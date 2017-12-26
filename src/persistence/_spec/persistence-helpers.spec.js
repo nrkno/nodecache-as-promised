@@ -4,7 +4,7 @@ import {
   extractKeyFromRedis,
   getRedisKey,
   isSerializable,
-  loadKeys
+  loadObjects
 } from '../persistence-helpers'
 import {
   mockRedisFactory
@@ -39,7 +39,7 @@ describe('persistence-helpers', () => {
     })
   })
 
-  describe('-> loadKeys', () => {
+  describe('-> loadObjects', () => {
     let redisClient
     let mgetSpy
 
@@ -54,7 +54,7 @@ describe('persistence-helpers', () => {
       }
       mgetSpy = sinon.spy(y)
       redisClient = mockRedisFactory({mget: mgetSpy}, {events})()
-      return loadKeys('test-localhost8080', redisClient, dummyLog).then((results) => {
+      return loadObjects('test-localhost8080', redisClient, dummyLog).then((results) => {
         expect(results).to.eql({
           'test-localhost8080-myKey': {
             hei: 'verden'
@@ -69,7 +69,7 @@ describe('persistence-helpers', () => {
         events.error[0](new Error('dummyerror'))
       }, 100)
       redisClient = mockRedisFactory({}, {events})()
-      return loadKeys('test-localhost8080', redisClient, dummyLog).catch((err) => {
+      return loadObjects('test-localhost8080', redisClient, dummyLog).catch((err) => {
         expect(err.message).to.equal('dummyerror')
       })
     })

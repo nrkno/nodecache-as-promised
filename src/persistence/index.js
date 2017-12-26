@@ -2,7 +2,7 @@
  * @module
  **/
 import {
-  loadKeys,
+  loadObjects,
   deleteKey,
   extractKeyFromRedis,
   getRedisKey,
@@ -59,7 +59,7 @@ export default (redisFactory,
 
   const load = () => {
     const then = Date.now()
-    return loadKeys(cacheKeyPrefix, redisClient, cacheInstance.log)
+    return loadObjects(cacheKeyPrefix, redisClient, cacheInstance.log)
       .then((mapLoaded) => {
         Object.keys(mapLoaded).map((key) => {
           cacheInstance.cache.set(extractKeyFromRedis(cacheKeyPrefix, key), mapLoaded[key])
