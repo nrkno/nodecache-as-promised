@@ -13,11 +13,16 @@ import {dummyLog} from '../../utils/log-helper'
 import sinon from 'sinon'
 import expect from 'expect.js'
 
-const cache = {
-  'asdf-123': '123',
-  'asdf-345': '345',
-  'asdf-100': '567'
+const parsedCache = {
+  'asdf-123': {hello: 'world1'},
+  'asdf-345': {hello: 'world2'},
+  'asdf-100': {hello: 'world3'}
 }
+
+const redisCache = Object.keys(parsedCache).reduce((acc, key) => {
+  acc[key] = JSON.stringify(parsedCache[key])
+  return acc
+}, {})
 
 describe('persistence-helpers', () => {
   describe('-> getRedisKey', () => {
@@ -36,22 +41,10 @@ describe('persistence-helpers', () => {
 
   describe('-> loadKeys', () => {
     let redisClient
-    let scanStreamSpy
     let mgetSpy
 
     it('should load keys', () => {
       const events = {}
-      const p = ({match, cound}) => {
-        return {
-          on: (event, cb) => {
-            if (!events[event]) {
-              events[event] = []
-            }
-            events[event].push(cb)
-          }
-        }
-      }
-      scanStreamSpy = sinon.spy(p)
       setTimeout(() => {
         events.data[0](['test-localhost8080-myKey'])
         events.end[0]()
@@ -60,13 +53,24 @@ describe('persistence-helpers', () => {
         cb(null, [JSON.stringify({hei: 'verden'})])
       }
       mgetSpy = sinon.spy(y)
-      redisClient = mockRedisFactory({scanStream: scanStreamSpy, mget: mgetSpy})()
+      redisClient = mockRedisFactory({mget: mgetSpy}, {events})()
       return loadKeys('test-localhost8080', redisClient, dummyLog).then((results) => {
         expect(results).to.eql({
           'test-localhost8080-myKey': {
             hei: 'verden'
           }
         })
+      })
+    })
+
+    it('should handle errors when loading keys', () => {
+      const events = {}
+      setTimeout(() => {
+        events.error[0](new Error('dummyerror'))
+      }, 100)
+      redisClient = mockRedisFactory({}, {events})()
+      return loadKeys('test-localhost8080', redisClient, dummyLog).catch((err) => {
+        expect(err.message).to.equal('dummyerror')
       })
     })
   })
@@ -101,13 +105,33 @@ describe('persistence-helpers', () => {
     let mgetSpy
 
     it('should read multiple keys', () => {
-      const values = Object.keys(cache).map((key) => cache[key])
+      const values = Object.keys(redisCache).map((key) => redisCache[key])
       const p = (keys, cb) => cb(null, values)
       mgetSpy = sinon.spy(p)
       redisClient = mockRedisFactory({mget: mgetSpy})()
-      return readKeys(Object.keys(cache), redisClient, dummyLog).then((result) => {
+      return readKeys(Object.keys(redisCache), redisClient, dummyLog).then((result) => {
         expect(mgetSpy.called).to.equal(true)
-        expect(result).to.eql(cache)
+        expect(result).to.eql(parsedCache)
+      })
+    })
+
+    it('should resolve empty when no keys match', () => {
+      const p = (keys, cb) => cb(null, [])
+      mgetSpy = sinon.spy(p)
+      redisClient = mockRedisFactory({mget: mgetSpy})()
+      return readKeys(Object.keys([]), redisClient, dummyLog).then((result) => {
+        expect(mgetSpy.called).to.equal(false)
+        expect(result).to.eql({})
+      })
+    })
+
+    it('should skip keys with invalid json', () => {
+      const p = (keys, cb) => cb(null, ['{1}', '{"hello": "world"}'])
+      mgetSpy = sinon.spy(p)
+      redisClient = mockRedisFactory({mget: mgetSpy})()
+      return readKeys(['key1', 'key2'], redisClient, dummyLog).then((result) => {
+        expect(mgetSpy.called).to.equal(true)
+        expect(result).to.eql({key2: {hello: 'world'}})
       })
     })
 
@@ -115,7 +139,7 @@ describe('persistence-helpers', () => {
       const p = (keys, cb) => cb(new Error('not ok'), null)
       mgetSpy = sinon.spy(p)
       redisClient = mockRedisFactory({mget: mgetSpy})()
-      return readKeys(Object.keys(cache), redisClient, dummyLog).catch((err) => {
+      return readKeys(Object.keys(redisCache), redisClient, dummyLog).catch((err) => {
         expect(mgetSpy.called).to.equal(true)
         expect(err).to.be.an(Error)
       })

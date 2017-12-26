@@ -1,8 +1,9 @@
-export const mockRedisFactory = (overrideMethods = {}) => {
+export const mockRedisFactory = (overrideMethods = {}, {events = {}} = {}) => {
   let instance
   return () => {
     const cbs = {}
     const namespaces = []
+//    const events = {}
     if (instance) {
       return instance
     }
@@ -20,7 +21,18 @@ export const mockRedisFactory = (overrideMethods = {}) => {
           }
           cbs[ns].push(cb)
         })
+      },
+      scanStream: ({match, cound}) => {
+        return {
+          on: (event, cb) => {
+            if (!events[event]) {
+              events[event] = []
+            }
+            events[event].push(cb)
+          }
+        }
       }
+
     }, overrideMethods)
     return instance
   }

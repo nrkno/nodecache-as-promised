@@ -59,16 +59,14 @@ export default (redisFactory,
 
   const load = () => {
     const then = Date.now()
-    return new Promise((resolve, reject) => {
-      loadKeys(cacheKeyPrefix, redisClient, cacheInstance.log)
-        .then((mapLoaded) => {
-          Object.keys(mapLoaded).map((key) => {
-            cacheInstance.cache.set(extractKeyFromRedis(cacheKeyPrefix, key), mapLoaded[key])
-            return key
-          })
-          resolve(`Read ${Object.keys(mapLoaded).length} keys from redis. Used ${Date.now() - then} ms`)
-        }).catch(reject)
-    })
+    return loadKeys(cacheKeyPrefix, redisClient, cacheInstance.log)
+      .then((mapLoaded) => {
+        Object.keys(mapLoaded).map((key) => {
+          cacheInstance.cache.set(extractKeyFromRedis(cacheKeyPrefix, key), mapLoaded[key])
+          return key
+        })
+        cacheInstance.log.info(`Read ${Object.keys(mapLoaded).length} keys from redis. Used ${Date.now() - then} ms`)
+      })
   }
 
   const debug = (extraOptions, next) => {
@@ -90,7 +88,7 @@ export default (redisFactory,
   }
 
   if (bootload) {
-    load()
+    load().catch(cacheInstance.log.error)
   }
 
   return {

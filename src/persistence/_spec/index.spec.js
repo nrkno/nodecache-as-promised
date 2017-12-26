@@ -13,6 +13,14 @@ describe('persistence', () => {
       cache.use(persistentCache(mockRedisFactory(), {bootload: false}))
       expect(cache).to.be.an(Object)
     })
+
+    it('should print a debug of the cache with extra options', () => {
+      // more thorough testing of debug in debug.spec.js
+      const cache = inMemoryCache({initial: {hello: 'world'}})
+      cache.use(persistentCache(mockRedisFactory(), {bootload: false}))
+      const info = cache.debug({extraData: 'values'})
+      expect(info.extraData).to.equal('values')
+    })
   })
 
   describe('-> get (write to redis)', () => {

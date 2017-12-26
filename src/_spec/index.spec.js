@@ -34,6 +34,13 @@ describe('CacheManager', () => {
       expect(cacheInstance.cache.get('hei').value).to.equal('verden')
       expect(cacheInstance.cache.get('hei').cache).to.equal('hit')
     })
+
+    it('should print a debug of the cache with extra options', () => {
+      // more thorough testing of debug in debug.spec.js
+      const cacheInstance = inMemoryCache({initial: {hello: 'world'}})
+      const info = cacheInstance.debug({extraData: 'values'})
+      expect(info.extraData).to.equal('values')
+    })
   })
 
   describe('-> hot cache', () => {
@@ -344,15 +351,40 @@ describe('CacheManager', () => {
   })
 
   describe('-> LRU capabilities', () => {
-    it('should throw away first entered entry', () => {
-      const cacheInstance = inMemoryCache({initial: {
-        'house/1': {hei: 'verden'},
-        'house/2': {hei: 'verden'},
-        'guest/3': {hei: 'verden'}
-      },
-        maxLength: 2})
+    it('should throw away first entered entry on inital state', () => {
+      const cacheInstance = inMemoryCache({
+        initial: {
+          'house/1': {hei: 'verden'},
+          'house/2': {hei: 'verden'},
+          'guest/3': {hei: 'verden'}
+        },
+        maxLength: 2
+      })
       expect(cacheInstance.cache.itemCount).to.equal(2)
       expect(cacheInstance.cache.keys()).to.eql(['guest/3', 'house/2'])
+    })
+
+    it('should call dispose on set operations when LRU cache evicts object', () => {
+      const cacheInstance = inMemoryCache({maxLength: 2})
+      const spy = sinon.spy()
+      cacheInstance.addDisposer(spy)
+      cacheInstance.set('house/1', {hei: 'verden'})
+      cacheInstance.set('house/2', {hei: 'verden'})
+      cacheInstance.set('guest/3', {hei: 'verden'})
+      expect(spy.called).to.equal(true)
+      const key = spy.args[0][0]
+      const {created, ...callArgs} = spy.args[0][1]
+      expect(key).to.equal('house/1')
+      expect(callArgs).to.eql({
+        TTL: 86400000,
+        value: { hei: 'verden' },
+        cache: 'hit'
+      })
+      cacheInstance.removeDisposer(spy)
+      cacheInstance.set('guest/4', {hei: 'verden'})
+      expect(spy.callCount).to.equal(1)
+      expect(cacheInstance.cache.itemCount).to.equal(2)
+      expect(cacheInstance.cache.keys()).to.eql(['guest/4', 'guest/3'])
     })
   })
 })
