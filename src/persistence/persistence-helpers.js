@@ -16,7 +16,7 @@ export const extractKeyFromRedis = (prefix, key) => {
 }
 
 export const getRedisKey = (prefix, key) => {
-  return `${[prefix, key].join('-')}`.replace(/https?|\/|:|\./g, '')
+  return `${[prefix, key].join('-')}`
 }
 
 export const deleteKey = (key, redisClient) => {

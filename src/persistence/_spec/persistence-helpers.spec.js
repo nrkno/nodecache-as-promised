@@ -25,11 +25,6 @@ describe('persistence-helpers', () => {
       const key = getRedisKey('prefix', 'key')
       expect(key).to.equal('prefix-key')
     })
-
-    it('generate using replace', () => {
-      const key = getRedisKey('prefix-http://localhost:8080', 'myKey')
-      expect(key).to.equal('prefix-localhost8080-myKey')
-    })
   })
 
   describe('-> extractKeyFromRedis', () => {

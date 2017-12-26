@@ -62,11 +62,11 @@ export default (redisFactory,
     return new Promise((resolve, reject) => {
       loadKeys(cacheKeyPrefix, redisClient, cacheInstance.log)
         .then((mapLoaded) => {
-          resolve(`Read ${Object.keys(mapLoaded).length} keys from redis. Used ${Date.now() - then} ms`)
           Object.keys(mapLoaded).map((key) => {
             cacheInstance.cache.set(extractKeyFromRedis(cacheKeyPrefix, key), mapLoaded[key])
             return key
           })
+          resolve(`Read ${Object.keys(mapLoaded).length} keys from redis. Used ${Date.now() - then} ms`)
         }).catch(reject)
     })
   }
