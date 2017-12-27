@@ -41,15 +41,50 @@ describe('dist-expire', () => {
   })
 
   describe('-> distributed expire', () => {
-    const p = () => Promise.resolve('world2')
-    const spy = sinon.spy(p)
-    const cache = inMemoryCache({initial: {hello: 'world'}, log: dummyLog})
-    cache.use(distCache(mockRedisFactory(), namespace))
-    cache.expire(['hello'])
-    expect(cache.cache.get('hello').TTL).to.equal(0)
-    return cache.get('hello', {}, spy).then((obj) => {
-      expect(obj.value).to.equal('world2')
-      expect(spy.called).to.equal(true)
+    it('should expire content on expire', () => {
+      const p = () => Promise.resolve('world2')
+      const spy = sinon.spy(p)
+      const cache = inMemoryCache({initial: {hello: 'world'}, log: dummyLog})
+      cache.use(distCache(mockRedisFactory(), namespace))
+      cache.expire(['hello'])
+      expect(cache.cache.get('hello').TTL).to.equal(0)
+      return cache.get('hello', {}, spy).then((obj) => {
+        expect(obj.value).to.equal('world2')
+        expect(spy.called).to.equal(true)
+      })
+    })
+
+    it('should handle errors if data is non-parsable', () => {
+      const cbs = []
+      const on = (event, cb) => cbs.push(cb)
+      const onSpy = sinon.spy(on)
+      const pub = (ns, data) => {
+        cbs.forEach((cb) => cb(ns, data))
+      }
+      const sub = (ns, cb) => {
+        if (ns === namespace) {
+          return cb(null, 'ok')
+        }
+        return cb(new Error('dummyerror'), null)
+      }
+      const publishSpy = sinon.spy(pub)
+      const subscribeSpy = sinon.spy(sub)
+      const cache = inMemoryCache({initial: {hello: 'world'}, log: dummyLog})
+      const callCount = dummyLog.error.callCount
+      cache.use(distCache(mockRedisFactory({
+        on: onSpy,
+        publish: publishSpy,
+        subscribe: subscribeSpy
+      }), namespace))
+      pub('asdf', '{')
+      expect(dummyLog.error.callCount).to.equal(callCount + 1)
+      const cache2 = inMemoryCache({initial: {hello: 'world'}, log: dummyLog})
+      cache2.use(distCache(mockRedisFactory({
+        on: onSpy,
+        publish: publishSpy,
+        subscribe: subscribeSpy
+      }), 'dummy'))
+      expect(dummyLog.error.callCount).to.equal(callCount + 2)
     })
   })
 })

@@ -59,7 +59,7 @@ export default (redisFactory, namespace) => (cacheInstance) => {
    * @param {Array<String>} keys - Array of keys. Accepts * as wildcards (converted to .*)
    * @returns {undefined}
    **/
-  const expire = (keys, next) => {
+  const expire = (keys) => {
     const message = {
       type: EXPIRE_MESSAGE_TYPE,
       message: {
@@ -67,7 +67,6 @@ export default (redisFactory, namespace) => (cacheInstance) => {
       }
     }
     redisPub.publish(namespace, JSON.stringify(message))
-    next(keys)
   }
 
   const debug = (extraOptions, next) => {

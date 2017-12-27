@@ -3,7 +3,6 @@ export const mockRedisFactory = (overrideMethods = {}, {events = {}} = {}) => {
   return () => {
     const cbs = {}
     const namespaces = []
-//    const events = {}
     if (instance) {
       return instance
     }
