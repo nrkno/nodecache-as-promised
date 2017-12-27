@@ -14,7 +14,9 @@ describe('dist-expire', () => {
       cache.use(distCache(mockRedisFactory(), namespace))
       expect(cache).to.be.an(Object)
     })
+  })
 
+  describe('debug', () => {
     it('should print a debug of the cache with extra options', () => {
       // more thorough testing of debug in debug.spec.js
       const cache = inMemoryCache({initial: {hello: 'world'}})
@@ -25,7 +27,7 @@ describe('dist-expire', () => {
   })
 
   describe('-> inheritance', () => {
-    it('should be able to use methods from extended class', () => {
+    it('should be able to use methods from extended class (using middleware)', () => {
       const cache = inMemoryCache({log: dummyLog})
       cache.use(distCache(mockRedisFactory(), namespace))
       const p = () => Promise.resolve()

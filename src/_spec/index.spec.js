@@ -34,7 +34,9 @@ describe('CacheManager', () => {
       expect(cacheInstance.cache.get('hei').value).to.equal('verden')
       expect(cacheInstance.cache.get('hei').cache).to.equal('hit')
     })
+  })
 
+  describe('debug', () => {
     it('should print a debug of the cache with extra options', () => {
       // more thorough testing of debug in debug.spec.js
       const cacheInstance = inMemoryCache({initial: {hello: 'world'}})

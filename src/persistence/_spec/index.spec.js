@@ -14,7 +14,9 @@ describe('persistence', () => {
       cache.use(persistentCache(mockRedisFactory(), {bootload: false}))
       expect(cache).to.be.an(Object)
     })
+  })
 
+  describe('debug', () => {
     it('should print a debug of the cache with extra options', () => {
       // more thorough testing of debug in debug.spec.js
       const cache = inMemoryCache({initial: {hello: 'world'}})
