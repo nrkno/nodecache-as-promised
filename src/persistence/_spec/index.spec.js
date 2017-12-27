@@ -32,7 +32,13 @@ describe('persistence', () => {
     let setSpy
 
     beforeEach(() => {
-      setSpy = sinon.spy()
+      const p = (key, json, ex, ttl, cb) => {
+        if (key.indexOf('setFail') > -1) {
+          return cb(new Error('dummyerror'), null)
+        }
+        cb(null, 'ok')
+      }
+      setSpy = sinon.spy(p)
       sinon.stub(utils, 'loadObjects').resolves({
         [`${pkg.name}-myCache-house/1`]: '{"hello": "world"}'
       })
@@ -71,6 +77,26 @@ describe('persistence', () => {
         expect(ex).to.equal('ex')
         expect(expire).to.equal(2)
         expect(parsed.value).to.equal('hei')
+      })
+    })
+
+    it('should log a warning when write to redis fails (on cache miss)', () => {
+      const p = () => Promise.resolve('hei')
+      const spy = sinon.spy(p)
+      const key = 'setFail'
+      const callCount = dummyLog.warn.callCount
+      return cache.get(key, {ttl: 1000}, spy).then((obj) => {
+        expect(spy.called).to.equal(true)
+        expect(obj.value).to.equal('hei')
+        expect(obj.cache).to.equal('miss')
+        const [[redisKey, json, ex, expire]] = setSpy.args
+        const parsed = JSON.parse(json)
+        expect(redisKey).to.contain(key)
+        expect(parsed).to.have.keys(['created', 'TTL', 'value', 'cache'])
+        expect(ex).to.equal('ex')
+        expect(expire).to.equal(2)
+        expect(parsed.value).to.equal('hei')
+        expect(dummyLog.warn.callCount).to.equal(callCount + 1)
       })
     })
 
