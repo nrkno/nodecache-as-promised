@@ -104,13 +104,15 @@ When the factory is created (with or without middlewares), the following methods
 #### .get(key, config?, fnReturningPromise?)
 Get an item from the cache.
 ```js
-const value = cache.get('myKey')  // ordinary lookup
-console.log(value)
+const value = cache.get('myKey')
+  .then(({value}) => {
+    console.log(value)
+  })
 ```
 
 Get an item from the cache, or fill cache with data returned by promise using config (on cache MISS, ie. stale or cold cache)
 ```js
-cache.get('myKey', options, () => promise)  // ordinary lookup
+cache.get('myKey', options, () => promise)
   .then(({value}) => {
     console.log(value)
   })

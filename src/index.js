@@ -95,7 +95,7 @@ export default (options) => {
    * @param {function} options.promise - function wrapper that returns a promise to fill cache object.
    * @param {number} workertimeout - max time allowed to run promise.
    * @param {number} ttl - ttl (in ms) before cached object becomes stale.
-   * @param {number} deltaWait - delta wait (in ms) before retrying promise, when stale.
+   * @param {number} deltaWait - delta wait (in ms) before retrying promise.
    * @returns {undefined}
    **/
   const _createWorker = ({key, promise, workerTimeout, ttl, deltaWait}) => {
@@ -131,29 +131,27 @@ export default (options) => {
    * @returns {Promise} resolves/rejects when request operation finishes
    **/
   const _requestFromCache = ({promise, key, workerTimeout, ttl, deltaWait}) => {
-    return new Promise((resolve, reject) => {
-      const obj = cache.get(key)
-      if (!promise) {
-        // synchronous get
-        resolve(obj ? obj.value : null)
-        return
-      } else if (existsAndNotStale(obj, waiting.get(key))) {
-        // fresh or stale + wait
-        if (obj) {
-          if (obj.created + obj.TTL < Date.now()) {
-            resolve({...obj, cache: CACHE_STALE})
-            return
-          }
-          resolve(obj)
-          return
+    const obj = cache.get(key)
+    if (!promise) {
+      // return object as is, since there is no way to update data
+      return Promise.resolve(obj ? obj.value : null)
+    } else if (existsAndNotStale(obj, waiting.get(key))) {
+      // fresh or stale + wait
+      if (obj) {
+        if (obj.created + obj.TTL < Date.now()) {
+          return Promise.resolve({...obj, cache: CACHE_STALE})
         }
-        reject(waitingForError(key, waiting.get(key)))
-        return
-      } else if (!obj && !finishedWaiting(waiting.get(key))) {
-        // cold + wait get
-        reject(waitingForError(key, waiting.get(key)))
-        return
+        return Promise.resolve(obj)
+      } else if (!promise) {
+        return Promise.resolve(null)
       }
+      return Promise.reject(waitingForError(key, waiting.get(key)))
+    } else if (!obj && !finishedWaiting(waiting.get(key))) {
+      // cold + wait get
+      return Promise.reject(waitingForError(key, waiting.get(key)))
+    }
+
+    return new Promise((resolve, reject) => {
       let worker = workers.get(key)
       let cacheType = CACHE_HIT
       if (!worker) {
