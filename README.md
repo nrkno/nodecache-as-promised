@@ -4,8 +4,7 @@
 
 - [Installing](#installing)
 - [Features](#features)
-- [Factories](#factories)
-- [API](#api)
+- [APIs](#apis)
 - [Examples](#examples)
 - [Distributed capabilites](#distributed-capabilites)
 - [Local development](#local-development)
@@ -30,6 +29,7 @@ Sometimes Node.js needs to do some heavy lifting, performing CPU or network inte
 - __On demand expiry__ is supported using Redis pub/sub, so that new content may be available published before cache-TTL is reached.
 - __Grace mode__ is used if a worker promise fails (eg. caused by failing backends), ie.  stale cache is returned instead.
 - __Avoidance of spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
+- __Bake your extensions__ using middlewares
 
 ## Performance testing
 
@@ -47,7 +47,7 @@ The image shows graph from running the test script `perf:nocache-cache-file -- -
 
 The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1 million iterations the event loop starts lagging, and at around 3.4 million iterations the process runs out of memory and crashes. The graph has no relation to how fast JSON.parse is, but what speed is achievable by skipping it altogether (ie. `Promise`-processing)
 
-# Factories
+# APIs
 
 ## inMemoryCache factory
 Create a new instance using factory method
@@ -97,7 +97,8 @@ Parameters that must be provided upon creation:
 - grace - `Number`. Used to calculate TTL in redis (before auto removal), ie. object.TTL + grace. Default `86400000` (24h)
 - bootload - `Boolean`. Flag to choose if persisted cache is loaded from redis on middleware creation. Default `true`
 
-# API
+## Instance methods
+When the factory is created (with or without middlewares), the following methods may be used.
 
 ## .get(key, config?, fnReturningPromise?)
 Get an item from the cache.
