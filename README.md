@@ -48,7 +48,7 @@ The image shows graph from running the test script `perf:nocache-cache-file -- -
 The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1 million iterations the event loop starts lagging, and at around 3.4 million iterations the process runs out of memory and crashes. The graph has no relation to how fast JSON.parse is, but what speed is achievable by skipping it altogether (ie. `Promise`-processing)
 
 ## APIs
-The module is used by creating a new `inMemoryCache` instance using a factory method. This may be extended by the `distCache` and/or `persistentCache` middlewares, also using factory methods.
+Create a new `inMemoryCache` instance using a factory method. This instance may be extended by the `distCache` and/or `persistentCache` middlewares (`.use(..)`).
 
 ### inMemoryCache factory
 Creating a new instance
