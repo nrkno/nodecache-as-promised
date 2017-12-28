@@ -6,7 +6,7 @@ import os from 'os'
 const EXPIRE_MESSAGE_TYPE = 'EXPIRE_MESSAGE_TYPE'
 
 /**
- * @description Create new instance
+ * @description Create new middlware instance to be used by inMemoryCache module
  * @param {function} redisFactory - provides a redisClient with publish/subscribe features
  * @param {String} namespace - namespace to publish/subscribe messages (eg. http://desketoy:8080/)
  * @returns {Object} middleware facade

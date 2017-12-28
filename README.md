@@ -29,7 +29,7 @@ Sometimes Node.js needs to do some heavy lifting, performing CPU or network inte
 - __On demand expiry__ is supported using Redis pub/sub, so that new content may be available published before cache-TTL is reached.
 - __Grace mode__ is used if a worker promise fails (eg. caused by failing backends), ie.  stale cache is returned instead.
 - __Avoidance of spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
-- __Bake your extensions__ using middlewares
+- __Middleware support__ to create your own custom extensions
 
 ### Performance testing
 

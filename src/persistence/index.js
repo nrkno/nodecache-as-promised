@@ -13,7 +13,7 @@ import pkg from '../../package.json'
 const DEFAULT_GRACE = 60 * 60 * 24 * 1000
 
 /**
- * @description Create new instance
+ * @description Create new persistentCache middleware instance to be used by inMemoryCache
  * @param {function} redisFactory - provides a redisClient with publish/subscribe features
  * @param {RegExp} options.doNotPersist - regexp-matching of keys that are not to peristed
  * @param {String} options.keySpace - Prefix to use for keys in redis
