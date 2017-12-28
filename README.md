@@ -16,12 +16,12 @@
 npm install @nrk/doublecache-as-promised --save
 ```
 
-# Motivation
+## Motivation
 Sometimes Node.js needs to do some heavy lifting, performing CPU or network intensive tasks and yet respond quickly on incoming requests. For repetitive tasks like Server side rendering of markup or parsing big JSON responses caching can give the application a great performance boost. In addition - serving stale content when a backend resource is down may save your day! The intention of `doublecache-as-promised` is to give you a fairly simple, yet powerful application cache, with fine-grained control over caching behaviour.
 
 `doublecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing. There exists several other cache solutions on NPM, but they're often too basic or too attached to a combination of perquisites that does not fit all needs of an application cache.
 
-## Features
+### Features
 - __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data over network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
 - __Persistent cache__ is used as secondary storage to avoid high back-pressure on backend resources when caches are cleared after server restarts. This is achieved storing cache-misses in Redis depending on a [ioredis](https://www.npmjs.com/package/ioredis)-factory
 - __Caches are filled using (worker) promises__ since cached objects often are depending on async operations. (RxJs)[https://www.npmjs.com/package/rxjs] is used to queue concurrent requests for the same key; thus ensuring that only __one__ worker is performed when cached content is missing/stale.
@@ -31,7 +31,7 @@ Sometimes Node.js needs to do some heavy lifting, performing CPU or network inte
 - __Avoidance of spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
 - __Bake your extensions__ using middlewares
 
-## Performance testing
+### Performance testing
 
 Parsing a json-file at around 47kb (file contents are cached at startup). Using a Macbook pro, mid 2015, 16gb ram, i7 CPU.
 
@@ -47,9 +47,10 @@ The image shows graph from running the test script `perf:nocache-cache-file -- -
 
 The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1 million iterations the event loop starts lagging, and at around 3.4 million iterations the process runs out of memory and crashes. The graph has no relation to how fast JSON.parse is, but what speed is achievable by skipping it altogether (ie. `Promise`-processing)
 
-# APIs
+## APIs
+The module is used by creating a new `inMemoryCache` using a factory method. This may be extended my the `distCache` and/or `persistentCache` middlewares, also using factory methods.
 
-## inMemoryCache factory
+### inMemoryCache factory
 Create a new instance using factory method
 
 ```js
@@ -57,14 +58,14 @@ import inMemoryCache from '@nrk/doublecache-as-promised'
 const cache = inMemoryCache(options)
 ```
 
-### options
+#### options
 An object containing configuration
 - initial - `Object`. Initial key/value set to prefill cache. Default: `{}`
 - maxLength - `Number`. Max key count before LRU-cache evicts object. Default: `1000`
 - maxAge - `Number`. Max time before a (stale) key is evicted by LRU-cache (in ms). Default: `172800000` (48h)
 - log - `Object with log4j-facade`. Used to log internal work. Default: `console`
 
-## distCache factory
+### distCache factory
 Creates a new instance of the distCache middleware.
 
 ```js
@@ -73,12 +74,12 @@ const cache = inMemoryCache()
 cache.use(distCache(redisFactory, namespace))
 ```
 
-### Parameters
+#### Parameters
 Parameters that must be provided upon creation:
 - redisFactory - `Function`. A function that returns an ioredis compatible redisClient.
 - namespace - `String`. Pub/sub-namespace used for distributed expiries
 
-## persistentCache factory
+### persistentCache factory
 Creates a new instance of the persistentCache middleware.
 
 ```js
@@ -87,20 +88,20 @@ const cache = inMemoryCache()
 cache.use(persistentCache(redisFactory, options))
 ```
 
-### Parameters
+#### Parameters
 Parameters that must be provided upon creation:
 - redisFactory - `Function`. A function that returns an ioredis compatible redisClient.
 
-### options
+#### options
 - doNotPersist - `RegExp`. Keys matching this regexp is not persisted to cache. Default `null`
 - keySpace - `String`. Prefix used when storing keys in redis.
 - grace - `Number`. Used to calculate TTL in redis (before auto removal), ie. object.TTL + grace. Default `86400000` (24h)
 - bootload - `Boolean`. Flag to choose if persisted cache is loaded from redis on middleware creation. Default `true`
 
-## Instance methods
+### Instance methods
 When the factory is created (with or without middlewares), the following methods may be used.
 
-## .get(key, config?, fnReturningPromise?)
+#### .get(key, config?, fnReturningPromise?)
 Get an item from the cache.
 ```js
 const value = cache.get('myKey')  // ordinary lookup
@@ -114,42 +115,42 @@ cache.get('myKey', options, () => promise)  // ordinary lookup
     console.log(value)
   })
 ```
-### options
+#### options
 Configuration for the newly created object
 - ttl - `Number`. Ttl (in ms) before cached object becomes stale. Default: `86400000` (24h)
 - workerTimeout - `Number`. max time allowed to run promise. Default: `5000`
 - deltaWait - `Number`. delta wait (in ms) before retrying promise, when stale. Default: `10000`
 
-## .set(key, value, ttl)
+#### .set(key, value, ttl)
 Set a new cache value with ttl
 ```js
 // set a cache value that becomes stale after 1 minute
 cache.set('myKey', 'someData', 60 * 1000)
 ```
 
-## .expire(keys)
+#### .expire(keys)
 Mark keys as stale
 ```js
 cache.expire(['myKey*', 'anotherKey'])
 ```
 
-## .addDisposer(callback)
+#### .addDisposer(callback)
 Add callback to be called when an item is evicted by LRU-cache. Used to do cleanup
 ```js
 const cb = (key, value) => cleanup(key, value)
 cache.addDisposer(cb)
 ```
 
-## .removeDisposer(callback)
+#### .removeDisposer(callback)
 Remove callback attached to LRU-cache
 ```js
 cache.removeDisposer(cb)
 ```
 
-# Examples
+## Examples
 *Note! These examples are written using ES2015 syntax. The lib is exported using Babel as CJS modules*
 
-## Basic usage
+### Basic usage
 ```js
 import inMemoryCache from '@nrk/doublecache-as-promised'
 const cache = inMemoryCache({ /* options */})
@@ -169,7 +170,7 @@ cache.get('key', {/* options */}, () => Promise.resolve({hello: 'world'}))
   })
 ```
 
-## Basic usage with options
+### Basic usage with options
 ```js
 import inMemoryCache from '@nrk/doublecache-as-promised';
 
@@ -201,7 +202,7 @@ cache.get('anotherkey', {
   })
 ```
 
-## Distributed capabilites
+### Distributed capabilites
 Distributed expire and persisting of cache misses to Redis are provided as middlewares, ie. wrapping the in-memory cache with a factory that intercepts function calls. It should therefore be easy to write your own middlewares using pub/sub from rabbitMQ, zeroMQ, persisting to a NAS, hit/miss-ratio to external measurments systems and more.
 
 #### Distributed expire
@@ -275,15 +276,15 @@ First clone the repo and install its dependencies:
 
 ```bash
 git clone git@github.com:nrkno/doublecache-as-promised.git
+git checkout -b feature/my-changes
 cd doublecache-as-promised
 npm install && npm run build && npm run test
 ```
 
 ## Building and committing
-After having applied changes, remember to build and run tests before pushing the changes upstream.
+After having applied changes, remember to build and run/fix tests before pushing the changes upstream.
 
 ```bash
-git checkout -b feature/my-changes
 # update the source code
 npm run build
 git commit -am "Add my changes"
