@@ -243,6 +243,7 @@ export default (options) => {
       get,
       set,
       expire,
+      // helpers
       debug,
       log,
       maxLength,

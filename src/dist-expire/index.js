@@ -7,10 +7,9 @@ const EXPIRE_MESSAGE_TYPE = 'EXPIRE_MESSAGE_TYPE'
 
 /**
  * @description Create new instance
- * @param {Object} cacheInstance - an instance of CacheManager
  * @param {function} redisFactory - provides a redisClient with publish/subscribe features
  * @param {String} namespace - namespace to publish/subscribe messages (eg. http://desketoy:8080/)
- * @returns {Object} facade
+ * @returns {Object} middleware facade
  * @returns {function} object.get method
  * @returns {function} object.set method
  * @returns {function} object.expire method

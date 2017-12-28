@@ -4,7 +4,9 @@
 
 - [Installing](#installing)
 - [Features](#features)
-- [Basic usage](#examples)
+- [Factories](#factories)
+- [API](#api)
+- [Examples](#examples)
 - [Distributed capabilites](#distributed-capabilites)
 - [Local development](#local-development)
 - [Building and committing](#building-and-committing)
@@ -45,6 +47,104 @@ The image shows graph from running the test script `perf:nocache-cache-file -- -
 
 The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1 million iterations the event loop starts lagging, and at around 3.4 million iterations the process runs out of memory and crashes. The graph has no relation to how fast JSON.parse is, but what speed is achievable by skipping it altogether (ie. `Promise`-processing)
 
+# Factories
+
+## inMemoryCache factory
+Create a new instance using factory method
+
+```js
+import inMemoryCache from '@nrk/doublecache-as-promised'
+const cache = inMemoryCache(options)
+```
+
+### options
+An object containing configuration
+- initial - `Object`. Initial key/value set to prefill cache. Default: `{}`
+- maxLength - `Number`. Max key count before LRU-cache evicts object. Default: `1000`
+- maxAge - `Number`. Max time before a (stale) key is evicted by LRU-cache (in ms). Default: `172800000` (48h)
+- log - `Object with log4j-facade`. Used to log internal work. Default: `console`
+
+## distCache factory
+Creates a new instance of the distCache middleware.
+
+```js
+import cache, {distCache} from '@nrk/doublecache-as-promised'
+const cache = inMemoryCache()
+cache.use(distCache(redisFactory, namespace))
+```
+
+### Parameters
+Parameters that must be provided upon creation:
+- redisFactory - `Function`. A function that returns an ioredis compatible redisClient.
+- namespace - `String`. Pub/sub-namespace used for distributed expiries
+
+## persistentCache factory
+Creates a new instance of the persistentCache middleware.
+
+```js
+import cache, {persistentCache} from '@nrk/doublecache-as-promised'
+const cache = inMemoryCache()
+cache.use(persistentCache(redisFactory, options))
+```
+
+### Parameters
+Parameters that must be provided upon creation:
+- redisFactory - `Function`. A function that returns an ioredis compatible redisClient.
+
+### options
+- doNotPersist - `RegExp`. Keys matching this regexp is not persisted to cache. Default `null`
+- keySpace - `String`. Prefix used when storing keys in redis.
+- grace - `Number`. Used to calculate TTL in redis (before auto removal), ie. object.TTL + grace. Default `86400000` (24h)
+- bootload - `Boolean`. Flag to choose if persisted cache is loaded from redis on middleware creation. Default `true`
+
+# API
+
+## .get(key, config?, fnReturningPromise?)
+Get an item from the cache.
+```js
+const value = cache.get('myKey')  // ordinary lookup
+console.log(value)
+```
+
+Get an item from the cache, or fill with data returned by promise using config (on cache MISS, ie. stale or cold cache)
+```js
+cache.get('myKey', options, () => promise)  // ordinary lookup
+  .then(({value}) => {
+    console.log(value)
+  })
+```
+### options
+Configuration for the newly created object
+- ttl - `Number`. Ttl (in ms) before cached object becomes stale. Default: `86400000` (24h)
+- workerTimeout - `Number`. max time allowed to run promise. Default: `5000`
+- deltaWait - `Number`. delta wait (in ms) before retrying promise, when stale. Default: `10000`
+
+## .set(key, value, ttl)
+Set a new cache value with ttl
+```js
+// set a cache value that becomes stale after 1 minute
+cache.set('myKey', 'someData', 60 * 1000)
+```
+
+## .expire(keys)
+Mark keys as stale
+```js
+cache.expire(['myKey*', 'anotherKey'])
+```
+
+## .addDisposer(callback)
+Add callback to be called when an item is evicted by LRU-cache. Used to do cleanup
+```js
+const cb = (key, value) => cleanup(key, value)
+cache.addDisposer(cb)
+```
+
+## .removeDisposer(callback)
+Remove callback attached to LRU-cache
+```js
+cache.removeDisposer(cb)
+```
+
 # Examples
 *Note! These examples are written using ES2015 syntax. The lib is exported using Babel as CJS modules*
 
@@ -54,7 +154,7 @@ import inMemoryCache from '@nrk/doublecache-as-promised'
 const cache = inMemoryCache({ /* options */})
 
 // imiplicit set cache on miss, or use cached value
-cache.get('key', {/* options */}, Promise.resolve({hello: 'world'}))
+cache.get('key', {/* options */}, () => Promise.resolve({hello: 'world'}))
   .then((data) => {
     console.log(data)
     // {
@@ -86,7 +186,7 @@ cache.get('anotherkey', {
   ttl: 60 * 1000,               // TTL for cached object, in ms
   workerTimeout: 5 * 1000,      // worker timeout, in ms
   deltaWait: 5 * 1000           // wait time, if worker fails
-}, Promise.resolve({hello: 'world'}))
+}, () => Promise.resolve({hello: 'world'}))
   .then((data) => {
     console.log(data)
     // {
@@ -136,7 +236,7 @@ cache.use(persistentCache(
   }
 ))
 
-cache.get('key', {/* options */}, Promise.resolve('hello'))
+cache.get('key', {/* options */}, () => Promise.resolve('hello'))
 // will store a key in redis, using key: myCache-<key>
 // {value: 'hello', created: 123456789, cache: 'hit', TTL: 60000}
 ```
@@ -162,7 +262,7 @@ cache.get('key', {
   ttl: 60000,                       // in ms
   workerTimeout: 5000,
   deltaWait: 5000
-}, Promise.resolve('hello').then(console.log)
+}, () => Promise.resolve('hello')).then(console.log)
 // will store a key in redis, using key: myCache-<key>
 // {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
 ```
