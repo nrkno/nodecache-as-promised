@@ -48,10 +48,10 @@ The image shows graph from running the test script `perf:nocache-cache-file -- -
 The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1 million iterations the event loop starts lagging, and at around 3.4 million iterations the process runs out of memory and crashes. The graph has no relation to how fast JSON.parse is, but what speed is achievable by skipping it altogether (ie. `Promise`-processing)
 
 ## APIs
-The module is used by creating a new `inMemoryCache` using a factory method. This may be extended my the `distCache` and/or `persistentCache` middlewares, also using factory methods.
+The module is used by creating a new `inMemoryCache` instance using a factory method. This may be extended by the `distCache` and/or `persistentCache` middlewares, also using factory methods.
 
 ### inMemoryCache factory
-Create a new instance using factory method
+Creating a new instance
 
 ```js
 import inMemoryCache from '@nrk/doublecache-as-promised'
@@ -66,7 +66,7 @@ An object containing configuration
 - log - `Object with log4j-facade`. Used to log internal work. Default: `console`
 
 ### distCache factory
-Creates a new instance of the distCache middleware.
+Creating a new distCache middleware instance
 
 ```js
 import cache, {distCache} from '@nrk/doublecache-as-promised'
@@ -80,7 +80,7 @@ Parameters that must be provided upon creation:
 - namespace - `String`. Pub/sub-namespace used for distributed expiries
 
 ### persistentCache factory
-Creates a new instance of the persistentCache middleware.
+Creating a new persistentCache middleware instance
 
 ```js
 import cache, {persistentCache} from '@nrk/doublecache-as-promised'
@@ -108,7 +108,7 @@ const value = cache.get('myKey')  // ordinary lookup
 console.log(value)
 ```
 
-Get an item from the cache, or fill with data returned by promise using config (on cache MISS, ie. stale or cold cache)
+Get an item from the cache, or fill cache with data returned by promise using config (on cache MISS, ie. stale or cold cache)
 ```js
 cache.get('myKey', options, () => promise)  // ordinary lookup
   .then(({value}) => {
