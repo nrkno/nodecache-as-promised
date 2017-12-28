@@ -4,13 +4,14 @@
  **/
 import cloneDeep from 'lodash/cloneDeep'
 import {
-  existsAndNotStale,
+  // existsAndNotStale,
   createEntry,
   createObservable,
-  finishedWaiting,
   createWait,
   createRegExp,
-  waitingForError
+  waitingForError,
+  isFresh,
+  isWaiting
 } from './utils/cache-helpers'
 import {
   getCacheInfo
@@ -132,22 +133,13 @@ export default (options) => {
    **/
   const _requestFromCache = ({promise, key, workerTimeout, ttl, deltaWait}) => {
     const obj = cache.get(key)
-    if (!promise) {
-      // return object as is, since there is no way to update data
-      return Promise.resolve(obj ? obj.value : null)
-    } else if (existsAndNotStale(obj, waiting.get(key))) {
-      // fresh or stale + wait
-      if (obj) {
-        if (obj.created + obj.TTL < Date.now()) {
-          return Promise.resolve({...obj, cache: CACHE_STALE})
-        }
-        return Promise.resolve(obj)
-      } else if (!promise) {
-        return Promise.resolve(null)
-      }
-      return Promise.reject(waitingForError(key, waiting.get(key)))
-    } else if (!obj && !finishedWaiting(waiting.get(key))) {
-      // cold + wait get
+    if (obj && isFresh(obj) && !waiting.get(key)) {
+      return Promise.resolve(obj)
+    } else if (obj && (!promise || isWaiting(waiting.get(key)))) {
+      return Promise.resolve({...obj, cache: CACHE_STALE})
+    } else if (!obj && !promise) {
+      return Promise.resolve(null)
+    } else if (isWaiting(waiting.get(key))) {
       return Promise.reject(waitingForError(key, waiting.get(key)))
     }
 

@@ -16,6 +16,20 @@ export const createRegExp = (search) => {
     .replace(/\*/g, '.*'))
 }
 
+export const isFresh = (entry, nowDefault) => {
+  const now = nowDefault || Date.now()
+  return entry.created + entry.TTL > now
+}
+
+export const isWaiting = (waiting, nowDefault) => {
+  const now = nowDefault || Date.now()
+  if (waiting) {
+    return waiting.waitUntil > now
+  }
+  return false
+}
+
+/*
 export const existsAndNotStale = (entry, wait, nowDefault) => {
   const now = nowDefault || Date.now()
 
@@ -33,8 +47,9 @@ export const existsAndNotStale = (entry, wait, nowDefault) => {
 }
 
 export const finishedWaiting = (waiting) => {
-  return waiting ? (waiting.started + waiting.wait) < Date.now() : true
+  return waiting ? waiting.waitUntil < Date.now() : true
 }
+*/
 
 export const waitingForError = (key, wait = {}) => {
   return new Error(`Waiting for next run for ${key}, wait: ${JSON.stringify(wait, null, 2)}`)
@@ -52,7 +67,8 @@ export const createWait = (wait, now) => {
   const started = now || Date.now()
   return {
     started,
-    wait
+    wait,
+    waitUntil: started + wait
   }
 }
 
@@ -60,28 +76,4 @@ export const createObservable = (promise, timeout) => {
   return Observable
     .fromPromise(promise())
     .timeout(timeout)
-}
-
-export const buildKey = ({key, value, isWaiting, full}) => {
-  const expire = new Date(value.created + value.TTL + isWaiting.wait)
-  const expireKey = expire < Date.now() ? 'expired' : 'expires'
-  return Object.assign({
-    key,
-    created: new Date(value.created),
-    [expireKey]: new Date(value.created + value.TTL + isWaiting.wait)
-  },
-  isWaiting.wait !== 0 ? {isWaiting} : {},
-  full ? {value: value.value} : {})
-}
-
-export const formatWait = (waiting) => {
-  if (!waiting) {
-    return {
-      wait: 0
-    }
-  }
-  return {
-    started: new Date(waiting.started),
-    wait: waiting.wait
-  }
 }

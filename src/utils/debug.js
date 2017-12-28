@@ -2,11 +2,27 @@
  * @module
  **/
 import {
-  buildKey,
-  existsAndNotStale,
-  formatWait,
+  isFresh,
   createRegExp
 } from './cache-helpers'
+
+export const buildKey = ({key, value, waiting, full}) => {
+  const expire = value.created + value.TTL
+  const expireKey = expire < Date.now() ? 'expired' : 'expires'
+  return Object.assign({
+    key,
+    created: new Date(value.created),
+    [expireKey]: new Date(expire)
+  },
+  waiting ? {
+    waiting: {
+      started: new Date(waiting.started),
+      wait: waiting.wait,
+      waitUntil: new Date(waiting.waitUntil)
+    }
+  } : {},
+  full ? {value: value.value} : {})
+}
 
 const extractProps = (obj) => {
   const ret = {}
@@ -35,8 +51,8 @@ export const getCacheInfo = (info) => {
     if (!matcher.test(key)) {
       return
     }
-    const keyInfo = buildKey({key, value, isWaiting: formatWait(waiting.get(key)), full})
-    if (existsAndNotStale(value)) {
+    const keyInfo = buildKey({key, value, waiting: waiting.get(key), full})
+    if (isFresh(value)) {
       keys.hot.push(keyInfo)
     } else {
       keys.stale.push(keyInfo)

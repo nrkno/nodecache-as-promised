@@ -241,10 +241,8 @@ describe('CacheManager', () => {
     })
 
     it('should re-run promise after deltaWait time has passed (when failing caused by a rejection)', (done) => {
-      const p = () => Promise.reject(new Error(''))
-      const p2 = () => Promise.resolve('hei verden')
-      const rejectionSpy = sinon.spy(p)
-      const resolveSpy = sinon.spy(p2)
+      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('')))
+      const resolveSpy = sinon.spy(() => Promise.resolve('hei verden'))
       const conf = {
         deltaWait: 10
       }
@@ -310,7 +308,8 @@ describe('CacheManager', () => {
           expect(rejectionSpy.callCount).to.equal(1)
           expect(cacheInstance.waiting.get('N/A')).to.eql({
             started,
-            wait: 10
+            wait: 10,
+            waitUntil: started + 10
           })
           setTimeout(() => {
             return cacheInstance.get('N/A', conf, rejectionSpy).catch((err) => {
