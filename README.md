@@ -102,7 +102,7 @@ Parameters that must be provided upon creation:
 When the factory is created (with or without middlewares), the following methods may be used.
 
 #### .get(key, config?, fnReturningPromise?)
-Get an item from the cache.
+Get an item from the cache. Returns a Promise.
 ```js
 const value = cache.get('myKey')
   .then(({value}) => {
@@ -110,7 +110,8 @@ const value = cache.get('myKey')
   })
 ```
 
-Get an item from the cache, or fill cache with data returned by promise using config (on cache MISS, ie. stale or cold cache)
+Get an item from the cache, and fill the cache with data returned by promise using config (on cache MISS, ie. stale or cold cache).
+
 ```js
 cache.get('myKey', options, () => promise)
   .then(({value}) => {
@@ -122,6 +123,8 @@ Configuration for the newly created object
 - ttl - `Number`. Ttl (in ms) before cached object becomes stale. Default: `86400000` (24h)
 - workerTimeout - `Number`. max time allowed to run promise. Default: `5000`
 - deltaWait - `Number`. delta wait (in ms) before retrying promise, when stale. Default: `10000`
+
+**NOTE:** It might seem a bit strange to set cache values using `.get` - but it is to avoid a series of operations using `.get()` to check if a value exists, then call `.set`, and finally running `.get()` once more. In summary: `.get()` returns a value from cache or provided promise (and saves the value for later calls)
 
 #### .set(key, value, ttl)
 Set a new cache value with ttl
@@ -281,6 +284,34 @@ git clone git@github.com:nrkno/doublecache-as-promised.git
 git checkout -b feature/my-changes
 cd doublecache-as-promised
 npm install && npm run build && npm run test
+```
+
+### Creating your own middleware
+A middleware consists of three parts:
+1) an exported factory function
+2) constructor arguments to be used within the middleware
+3) an exported facade that corresponds with the overriden functions (appending a `next` parameter that runs the next function in the middleware chain)
+
+Lets say you want to build a middleware that notifies some other part of your application that a new value has been set (eg. using RxJs streams).
+
+Here's an example on how to achieve this:
+```js
+// export namespace to be applied in inMemoryCache.use().
+export const myMiddleware = (onSet, onDispose) => (cacheInstance) => {
+  // create a function that runs before the others in the middleware chain
+  const set = (key, value, next) => {
+    onSet(key, value)
+    next(key, value)
+  }
+
+  // use functionality exposed by the inMemoryCache instance
+  cacheInstance.addDisposer(onDispose)
+
+  // export facade
+  return {
+    set
+  }
+}
 ```
 
 ## Building and committing
