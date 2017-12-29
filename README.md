@@ -101,7 +101,7 @@ Parameters that must be provided upon creation:
 ### Instance methods
 When the factory is created (with or without middlewares), the following methods may be used.
 
-#### .get(key, config?, fnReturningPromise?)
+#### .get(key, [config, fnReturningPromise])
 Get an item from the cache. Returns a Promise.
 ```js
 const value = cache.get('myKey')
@@ -110,7 +110,7 @@ const value = cache.get('myKey')
   })
 ```
 
-Get an item from the cache, and fill the cache with data returned by promise using config (on cache MISS, ie. stale or cold cache).
+Using parameters `config` and `fnReturningPromise` - the function with either fetch a value from cache or provided promise if the cache is stale or cold. The promise will set the cache key if ran.
 
 ```js
 cache.get('myKey', options, () => promise)
@@ -126,18 +126,22 @@ Configuration for the newly created object
 
 **NOTE:** It might seem a bit strange to set cache values using `.get` - but it is to avoid a series of operations using `.get()` to check if a value exists, then call `.set`, and finally running `.get()` once more. In summary: `.get()` returns a value from cache or provided promise (and saves the value for later calls)
 
-#### .set(key, value, ttl)
+#### .set(key, value, [ttl])
 Set a new cache value with ttl
 ```js
 // set a cache value that becomes stale after 1 minute
 cache.set('myKey', 'someData', 60 * 1000)
 ```
 
+If `ttl`-parameter is omitted, a default will be used (`86400000` - 24h)
+
 #### .expire(keys)
 Mark keys as stale
 ```js
 cache.expire(['myKey*', 'anotherKey'])
 ```
+
+Asterisk `*` is used for wildcards
 
 #### .addDisposer(callback)
 Add callback to be called when an item is evicted by LRU-cache. Used to do cleanup
@@ -150,6 +154,12 @@ cache.addDisposer(cb)
 Remove callback attached to LRU-cache
 ```js
 cache.removeDisposer(cb)
+```
+
+#### .debug([extraOptions])
+Prints debug information about current cache (ie. hot keys, stale keys, keys in waiting state etc). Use `extraOptions` to add custom properties to the debug info, eg. hostname.
+```js
+cache.debug({hostname: os.hostname()})
 ```
 
 ## Examples
