@@ -329,11 +329,12 @@ After having applied changes, remember to build and run/fix tests before pushing
 
 ```bash
 # update the source code
+npm run test
 npm run build
 git commit -am "Add my changes"
 git push origin feature/my-changes
 # then make a PR to the master branch,
-# and assign another developer to review your code
+# and assign one of the maintainers to review your code
 ```
 
 > NOTE! Please make sure to keep commits small and clean (that the commit message actually refers to the updated files). Stylistically, make sure the commit message is **Capitalized** and **starts with a verb in the present tense** (eg. `Add minification support`).
