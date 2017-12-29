@@ -307,7 +307,7 @@ Lets say you want to build a middleware that notifies some other part of your ap
 Here's an example on how to achieve this:
 ```js
 // export namespace to be applied in inMemoryCache.use().
-export const myMiddleware = (onSet, onDispose) => (cacheInstance) => {
+export const streamingMiddleware = (onSet, onDispose) => (cacheInstance) => {
   // create a function that runs before the others in the middleware chain
   const set = (key, value, next) => {
     onSet(key, value)
