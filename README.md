@@ -260,13 +260,13 @@ cache.get('key', {/* options */}, () => Promise.resolve('hello'))
 
 #### Persisting cache misses __and__ distributed expire
 ```js
-import inMemoryCache, {distCache, persistenCache} from '@nrk/doublecache-as-promised'
+import inMemoryCache, {distCache, persistentCache} from '@nrk/doublecache-as-promised'
 import Redis from 'ioredis'
 
 const redisFactory = () => new Redis(/* options */)
 const cache = inMemoryCache({/* options */})
 cache.use(distCache(redisFactory, 'namespace'))
-cache.use(persistenCache(
+cache.use(persistentCache(
   redisFactory,
   {
     keySpace: 'myCache',   // key prefix used when storing in redis
