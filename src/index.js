@@ -208,7 +208,7 @@ export default (options) => {
         .filter((key) => search.test(key))
         .forEach((key) => {
           const obj = cache.get(key)
-          set(key, obj.value, 0)
+          set(key, obj.value, 0)  // TTL = 0
           waiting.delete(key)
         })
     })
