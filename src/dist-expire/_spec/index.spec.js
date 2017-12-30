@@ -33,7 +33,7 @@ describe('dist-expire', () => {
       const p = () => Promise.resolve()
       const spy = sinon.spy(p)
       cache.set('hello', 'world')
-      return cache.get('hello', {}, spy).then((obj) => {
+      return cache.get('hello', {worker: spy}).then((obj) => {
         expect(obj.value).to.equal('world')
         expect(spy.called).to.equal(false)
       })
@@ -42,13 +42,12 @@ describe('dist-expire', () => {
 
   describe('-> distributed expire', () => {
     it('should expire content on expire', () => {
-      const p = () => Promise.resolve('world2')
-      const spy = sinon.spy(p)
+      const spy = sinon.spy(() => Promise.resolve('world2'))
       const cache = inMemoryCache({initial: {hello: 'world'}, log: dummyLog})
       cache.use(distCache(mockRedisFactory(), namespace))
       cache.expire(['hello'])
       expect(cache.cache.get('hello').TTL).to.equal(0)
-      return cache.get('hello', {}, spy).then((obj) => {
+      return cache.get('hello', {worker: spy}).then((obj) => {
         expect(obj.value).to.equal('world2')
         expect(spy.called).to.equal(true)
       })

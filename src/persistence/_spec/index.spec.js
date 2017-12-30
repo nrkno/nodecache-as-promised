@@ -62,11 +62,10 @@ describe('persistence', () => {
     })
 
     it('should write to redis when a cache miss occurs', () => {
-      const p = () => Promise.resolve('hei')
-      const spy = sinon.spy(p)
+      const spy = sinon.spy(() => Promise.resolve('hei'))
       const now = Date.now()
       const key = `key${now}`
-      return cache.get(key, {ttl: 1000}, spy).then((obj) => {
+      return cache.get(key, {ttl: 1000, worker: spy}).then((obj) => {
         expect(spy.called).to.equal(true)
         expect(obj.value).to.equal('hei')
         expect(obj.cache).to.equal('miss')
@@ -81,11 +80,10 @@ describe('persistence', () => {
     })
 
     it('should log a warning when write to redis fails (on cache miss)', () => {
-      const p = () => Promise.resolve('hei')
-      const spy = sinon.spy(p)
+      const spy = sinon.spy(() => Promise.resolve('hei'))
       const key = 'setFail'
       const callCount = dummyLog.warn.callCount
-      return cache.get(key, {ttl: 1000}, spy).then((obj) => {
+      return cache.get(key, {ttl: 1000, worker: spy}).then((obj) => {
         expect(spy.called).to.equal(true)
         expect(obj.value).to.equal('hei')
         expect(obj.cache).to.equal('miss')
@@ -101,11 +99,10 @@ describe('persistence', () => {
     })
 
     it('should not write to redis when a cache miss occurs and key matches ignored keys', () => {
-      const p = () => Promise.resolve('hei')
-      const spy = sinon.spy(p)
+      const spy = sinon.spy(() => Promise.resolve('hei'))
       const now = Date.now()
       const key = `/store/${now}`
-      return cache.get(key, {}, spy).then((obj) => {
+      return cache.get(key, {worker: spy}).then((obj) => {
         expect(spy.called).to.equal(true)
         expect(obj.value).to.equal('hei')
         expect(obj.cache).to.equal('miss')
@@ -120,13 +117,12 @@ describe('persistence', () => {
     let cache
 
     beforeEach(() => {
-      const p = (key, cb) => {
+      delSpy = sinon.spy((key, cb) => {
         if (key.indexOf('house/1') > -1) {
           return cb(null, 'ok')
         }
         cb(new Error('dummyerror'), null)
-      }
-      delSpy = sinon.spy(p)
+      })
       mockFactory = mockRedisFactory({
         del: delSpy
       })

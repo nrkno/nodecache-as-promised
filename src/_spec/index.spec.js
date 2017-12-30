@@ -56,7 +56,7 @@ describe('CacheManager', () => {
     })
 
     it('should return cached content if not stale', () => {
-      return cacheInstance.get(dummyKey, {}, spy).then((obj) => {
+      return cacheInstance.get(dummyKey, {worker: spy}).then((obj) => {
         expect(obj.value).to.eql(cacheValue)
         expect(obj.cache).to.equal('hit')
         expect(spy.called).to.equal(false)
@@ -74,14 +74,13 @@ describe('CacheManager', () => {
       const staleObj = {...cacheInstance.cache.get(dummyKey), TTL: -1000}
       cacheInstance.cache.set(dummyKey, staleObj)
       now = Date.now()
-      const p = () => new Promise((resolve) => {
+      spy = sinon.spy(() => new Promise((resolve) => {
         setTimeout(() => resolve(now), 10)
-      })
-      spy = sinon.spy(p)
+      }))
     })
 
     it('should return promised content when key is not present', () => {
-      return cacheInstance.get('N/A', {}, spy).then((obj) => {
+      return cacheInstance.get('N/A', {worker: spy}).then((obj) => {
         expect(obj.value).to.eql(now)
         expect(obj.cache).to.equal('miss')
         expect(spy.called).to.equal(true)
@@ -95,7 +94,7 @@ describe('CacheManager', () => {
     })
 
     it('should return promised content if cache is stale', () => {
-      return cacheInstance.get(dummyKey, {}, spy).then((obj) => {
+      return cacheInstance.get(dummyKey, {worker: spy}).then((obj) => {
         expect(obj.value).to.eql(now)
         expect(obj.cache).to.equal('miss')
         expect(spy.called).to.equal(true)
@@ -113,16 +112,15 @@ describe('CacheManager', () => {
       const staleObj = {...cacheInstance.cache.get(dummyKey), TTL: -1000}
       cacheInstance.cache.set(dummyKey, staleObj)
       now = Date.now()
-      const p = () => new Promise((resolve) => {
+      spy = sinon.spy(() => new Promise((resolve) => {
         setTimeout(() => resolve(now), 10)
-      })
-      spy = sinon.spy(p)
+      }))
     })
 
     it('should run only one promise, while two requests asks for data from cold cache concurrently', () => {
       return Promise.all([
-        cacheInstance.get(dummyKey, {}, spy),
-        cacheInstance.get(dummyKey, {}, spy)
+        cacheInstance.get(dummyKey, {worker: spy}),
+        cacheInstance.get(dummyKey, {worker: spy})
       ]).then(([val1, val2]) => {
         expect(val1.value).to.eql(val2.value)
         expect(spy.callCount).to.equal(1)
@@ -142,12 +140,11 @@ describe('CacheManager', () => {
     })
 
     it('should return stale cache and increase wait if promise reaches timeout', () => {
-      const p = () => new Promise((resolve) => {
+      const timeoutSpy = sinon.spy(() => new Promise((resolve) => {
         setTimeout(() => resolve('another object'), 1000)
-      })
-      const timeoutSpy = sinon.spy(p)
+      }))
       expect(cacheInstance.waiting.get(dummyKey)).to.be.a('undefined')
-      return cacheInstance.get(dummyKey, { workerTimeout: 0 }, timeoutSpy).then((obj) => {
+      return cacheInstance.get(dummyKey, { workerTimeout: 0, worker: timeoutSpy }).then((obj) => {
         expect(timeoutSpy.called).to.equal(true)
         expect(cacheInstance.waiting.get(dummyKey)).not.to.equal(0)
         expect(obj.value).to.eql(cacheValue)
@@ -156,11 +153,10 @@ describe('CacheManager', () => {
     })
 
     it('should reject if cache is cold and a timeout occurs', () => {
-      const p = () => new Promise((resolve) => {
+      const timeoutSpy = sinon.spy(() => new Promise((resolve) => {
         setTimeout(() => resolve('another object'), 1000)
-      })
-      const timeoutSpy = sinon.spy(p)
-      return cacheInstance.get(dummyKey, {workerTimeout: 0}, timeoutSpy)
+      }))
+      return cacheInstance.get(dummyKey, {workerTimeout: 0, worker: timeoutSpy})
       .catch((err) => {
         expect(timeoutSpy.called).to.equal(true)
         expect(err).to.be.an(Error)
@@ -168,26 +164,24 @@ describe('CacheManager', () => {
     })
 
     it('should re-run promise after deltaWait time has passed', (done) => {
-      const p = () => new Promise((resolve) => {
+      const timeoutSpy = sinon.spy(() => new Promise((resolve) => {
         setTimeout(() => resolve('another object'), 1000)
-      })
-      const p2 = () => Promise.resolve('hei verden')
-      const timeoutSpy = sinon.spy(p)
-      const resolveSpy = sinon.spy(p2)
+      }))
+      const resolveSpy = sinon.spy(() => Promise.resolve('hei verden'))
       const conf = {
         deltaWait: 10,
         workerTimeout: 10
       }
-      cacheInstance.get(dummyKey, conf, timeoutSpy).then((obj) => {
+      cacheInstance.get(dummyKey, {...conf, worker: timeoutSpy}).then((obj) => {
         // 1. should return stale cache when timeout occurs
         expect(obj.value).to.eql(cacheValue)
         expect(cacheInstance.waiting.get(dummyKey).wait).to.equal(10)
-        return cacheInstance.get(dummyKey, conf, resolveSpy).then((obj) => {
+        return cacheInstance.get(dummyKey, {...conf, worker: resolveSpy}).then((obj) => {
           // 2. should return stale cache before wait period has finished
           expect(obj.cache).to.equal('stale')
           expect(obj.value).to.eql(cacheValue)
           setTimeout(() => {
-            return cacheInstance.get(dummyKey, conf, resolveSpy).then((obj) => {
+            return cacheInstance.get(dummyKey, {...conf, worker: resolveSpy}).then((obj) => {
               // 3. should return fresh data when wait period has finished
               expect(obj.value).to.eql('hei verden')
               expect(obj.cache).to.equal('miss')
@@ -209,10 +203,9 @@ describe('CacheManager', () => {
     })
 
     it('should return stale cache and set wait if a promise rejection occurs', () => {
-      const p = () => Promise.reject(new Error('an error occurred'))
-      const rejectionSpy = sinon.spy(p)
+      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('an error occurred')))
       expect(cacheInstance.waiting.get(dummyKey)).to.be.a('undefined')
-      return cacheInstance.get(dummyKey, {}, rejectionSpy).then((obj) => {
+      return cacheInstance.get(dummyKey, {worker: rejectionSpy}).then((obj) => {
         expect(rejectionSpy.called).to.equal(true)
         expect(cacheInstance.waiting.get(dummyKey)).not.to.equal(0)
         expect(obj.value).to.eql(cacheValue)
@@ -221,20 +214,18 @@ describe('CacheManager', () => {
     })
 
     it('should reject if cache is cold and a rejection occurs', () => {
-      const p = () => Promise.reject(new Error('an error occurred'))
-      const rejectionSpy = sinon.spy(p)
-      return cacheInstance.get(dummyKey, {}, rejectionSpy).catch((err) => {
+      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('an error occurred')))
+      return cacheInstance.get(dummyKey, {worker: rejectionSpy}).catch((err) => {
         expect(rejectionSpy.called).to.equal(true)
         expect(err).to.be.an(Error)
       })
     })
 
     it('should reject if an Error is thrown', () => {
-      const p = () => {
+      const rejectionSpy = sinon.spy(() => {
         throw new Error('an error occurred')
-      }
-      const rejectionSpy = sinon.spy(p)
-      return cacheInstance.get(dummyKey, {}, rejectionSpy).catch((err) => {
+      })
+      return cacheInstance.get(dummyKey, {worker: rejectionSpy}).catch((err) => {
         expect(rejectionSpy.called).to.equal(true)
         expect(err).to.be.an(Error)
       })
@@ -246,15 +237,15 @@ describe('CacheManager', () => {
       const conf = {
         deltaWait: 10
       }
-      cacheInstance.get(dummyKey, conf, rejectionSpy).then((obj) => {
+      cacheInstance.get(dummyKey, {...conf, worker: rejectionSpy}).then((obj) => {
         // 1. should return stale cache when rejection occurs
         expect(obj.value).to.eql(cacheValue)
-        return cacheInstance.get(dummyKey, conf, resolveSpy).then((obj) => {
+        return cacheInstance.get(dummyKey, {...conf, worker: resolveSpy}).then((obj) => {
           // 2. should return stale cache before wait period has finished
           expect(obj.value).to.eql(cacheValue)
           expect(obj.cache).to.equal('stale')
           setTimeout(() => {
-            return cacheInstance.get(dummyKey, conf, resolveSpy).then((obj) => {
+            return cacheInstance.get(dummyKey, {...conf, worker: resolveSpy}).then((obj) => {
               // 3. should return fresh data when wait period has finished
               expect(obj.value).to.eql('hei verden')
               expect(obj.cache).to.equal('miss')
@@ -266,21 +257,20 @@ describe('CacheManager', () => {
     })
 
     it('should re-run promise after deltaWait time has passed (when failing caused by a rejection and cache is cold)', (done) => {
-      const p = () => Promise.reject(new Error(''))
-      const rejectionSpy = sinon.spy(p)
+      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('')))
       const conf = {
         deltaWait: 10
       }
-      cacheInstance.get('N/A', conf, rejectionSpy).catch((err) => {
+      cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
         expect(err).to.be.an(Error)
         expect(rejectionSpy.callCount).to.equal(1)
-        cacheInstance.get('N/A', conf, rejectionSpy).catch((err) => {
+        cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
           expect(err).to.be.an(Error)
           expect(rejectionSpy.callCount).to.equal(1)
           cacheInstance.set('N/A', 'hei verden')
           cacheInstance.waiting.delete('N/A')
           setTimeout(() => {
-            return cacheInstance.get('N/A', conf, rejectionSpy).then((obj) => {
+            return cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).then((obj) => {
               expect(rejectionSpy.callCount).to.equal(1)
               expect(obj.value).to.eql('hei verden')
               expect(obj.cache).to.equal('hit')
@@ -292,18 +282,17 @@ describe('CacheManager', () => {
     })
 
     it('should increase deltaWait after several re-runs', (done) => {
-      const p = () => Promise.reject(new Error(''))
-      const rejectionSpy = sinon.spy(p)
+      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('')))
       const conf = {
         deltaWait: 10
       }
       expect(cacheInstance.waiting.get('N/A')).to.be.a('undefined')
-      cacheInstance.get('N/A', conf, rejectionSpy).catch((err) => {
+      cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
         expect(err).to.be.an(Error)
         expect(rejectionSpy.callCount).to.equal(1)
         expect(cacheInstance.waiting.get('N/A').wait).to.equal(10)
         const {started} = cacheInstance.waiting.get('N/A')
-        cacheInstance.get('N/A', conf, rejectionSpy).catch((err) => {
+        cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
           expect(err).to.be.an(Error)
           expect(rejectionSpy.callCount).to.equal(1)
           expect(cacheInstance.waiting.get('N/A')).to.eql({
@@ -312,7 +301,7 @@ describe('CacheManager', () => {
             waitUntil: started + 10
           })
           setTimeout(() => {
-            return cacheInstance.get('N/A', conf, rejectionSpy).catch((err) => {
+            return cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
               expect(err).to.be.an(Error)
               expect(rejectionSpy.callCount).to.equal(2)
               expect(cacheInstance.waiting.get('N/A').wait).to.equal(10)

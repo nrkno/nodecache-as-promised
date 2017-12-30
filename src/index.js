@@ -63,7 +63,7 @@ export default (options) => {
   } = options
 
   let disposers = []
-  const workers = new Map()
+  const jobs = new Map()
   const waiting = new Map()
   const cache = lruCache({
     max: maxLength,
@@ -89,75 +89,75 @@ export default (options) => {
   }
 
   /**
-   * @description Create/subscribe to rxJs-worker
+   * @description Create a job that subscribes to a rxJs-worker
    * @access private
    * @param {Object} options - an options object.
    * @param {String} options.key - key to create worker for.
-   * @param {function} options.promise - function wrapper that returns a promise to fill cache object.
+   * @param {function} options.worker - function wrapper that returns a promise to fill cache object.
    * @param {number} workertimeout - max time allowed to run promise.
    * @param {number} ttl - ttl (in ms) before cached object becomes stale.
    * @param {number} deltaWait - delta wait (in ms) before retrying promise.
    * @returns {undefined}
    **/
-  const _createWorker = ({key, promise, workerTimeout, ttl, deltaWait}) => {
-    const worker = createObservable(promise, workerTimeout)
+  const _createJob = ({key, worker, workerTimeout, ttl, deltaWait}) => {
+    const observable = createObservable(worker, workerTimeout)
     const onNext = (value) => {
       // update cache
       set(key, value, ttl)
       waiting.delete(key)
-      workers.delete(key)
+      jobs.delete(key)
     }
     const onError = (err) => {
       // handle error
       log.error(err)
       waiting.set(key, createWait(deltaWait))
-      workers.delete(key)
+      jobs.delete(key)
     }
     const onComplete = () => {
-      workers.delete(key)
+      jobs.delete(key)
     }
-    worker.subscribe(onNext, onError, onComplete)
-    return worker
+    observable.subscribe(onNext, onError, onComplete)
+    return observable
   }
 
   /**
    * @description Read from cache, check if stale, run promise (in a dedicated worker) or wait for other worker to complete
    * @access private
    * @param {Object} options - an options object.
-   * @param {function} options.promise - function wrapper that returns a promise to fill cache object.
+   * @param {function} options.worker - function wrapper that returns a promise to fill cache object.
    * @param {String} options.key - key to create worker for.
    * @param {number} workertimeout - max time allowed to run promise.
    * @param {number} ttl - ttl (in ms) before cached object becomes stale.
    * @param {number} deltaWait - delta wait (in ms) before retrying promise, when stale.
    * @returns {Promise} resolves/rejects when request operation finishes
    **/
-  const _requestFromCache = ({promise, key, workerTimeout, ttl, deltaWait}) => {
+  const _requestFromCache = ({worker, key, workerTimeout, ttl, deltaWait}) => {
     const obj = cache.get(key)
     if (obj && isFresh(obj) && !waiting.get(key)) {
       return Promise.resolve(obj)
-    } else if (obj && (!promise || isWaiting(waiting.get(key)))) {
+    } else if (obj && (!worker || isWaiting(waiting.get(key)))) {
       return Promise.resolve({...obj, cache: CACHE_STALE})
-    } else if (!obj && !promise) {
+    } else if (!obj && !worker) {
       return Promise.resolve(null)
     } else if (isWaiting(waiting.get(key))) {
       return Promise.reject(waitingForError(key, waiting.get(key)))
     }
 
     return new Promise((resolve, reject) => {
-      let worker = workers.get(key)
+      let job = jobs.get(key)
       let cacheType = CACHE_HIT
-      if (!worker) {
+      if (!job) {
         cacheType = CACHE_MISS
-        worker = _createWorker({
+        job = _createJob({
           key,
-          promise,
+          worker,
           workerTimeout,
           ttl,
           deltaWait
         })
-        workers.set(key, worker)
+        jobs.set(key, job)
       }
-      worker.subscribe((value) => {
+      job.subscribe((value) => {
         resolve({value, cache: cacheType})
       }, (err) => {
         // serve stale object if it exists
@@ -174,17 +174,18 @@ export default (options) => {
    * @param {number} config.ttl - ttl (in ms) before cached object becomes stale.
    * @param {number} config.workerTimeout - max time allowed to run promise.
    * @param {number} config.deltaWait - delta wait (in ms) before retrying promise, when stale.
-   * @param {function} promise - (optional) function wrapper that returns a promise to fill cache object.
+   * @param {function} config.worker - function wrapper that returns a promise to fill cache object.
    * @returns {Promise} resolves/rejects when request operation finishes
    **/
-  const get = (key, config = {}, promise) => {
+  const get = (key, config = {}) => {
     const {
       ttl = DEFAULT_CACHE_EXPIRE,
       workerTimeout = 5000,
-      deltaWait = DEFAULT_DELTA_WAIT
+      deltaWait = DEFAULT_DELTA_WAIT,
+      worker
     } = config
     return _requestFromCache({
-      promise,
+      worker,
       key,
       workerTimeout,
       ttl,
@@ -250,7 +251,7 @@ export default (options) => {
     Object.keys(m).forEach((key) => {
       // Keep a reference to the original function pointer
       const prevFacade = facade[key]
-      // overwrite the original function
+      // overwrite/mutate the original function
       facade[key] = (...args) => {
         // call middlware function
         return m[key](
