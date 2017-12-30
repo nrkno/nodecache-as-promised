@@ -24,14 +24,13 @@ Sometimes Node.js needs to do some heavy lifting, performing CPU or network inte
 
 ### Features
 - __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data over network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
-- __Persistent cache__ is used as secondary storage to avoid high back-pressure on backend resources when caches are cleared after server restarts. This is achieved storing cache-misses in Redis depending on a [ioredis](https://www.npmjs.com/package/ioredis)-factory
-- __Stale cache__ is supported setting a TTL on cache entries that are shorter than the maxAge provided by the LRU-cache.
 - __Caches are filled using worker promises__ since cached objects often are depending on async operations. (RxJs)[https://www.npmjs.com/package/rxjs] is used to queue concurrent requests for the same key; thus ensuring that only __one__ worker is performed when cached content is missing/stale.
 - __Caching of custom class instances, functions and native objects__ such as Date, RegExp and redux stores are supported through in-memory caching. Non-serializable (using JSON.stringify) objects are filtered out in persistent caches though.
-- __Distributed on demand expiry__ is supported using Redis pub/sub, so that new content may be published before cache-TTL is reached.
 - __Grace mode__ is used if a worker promise fails (eg. caused by failing backends), ie.  stale cache is returned instead.
 - __Avoidance of spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
-- __Middleware support__ to create your own custom extensions
+- __Middleware support__ so you may create your own custom extensions. Provided middlewares:
+  - __Persistent cache__ is used as secondary storage to avoid high back-pressure on backend resources when caches are cleared after server restarts. This is achieved storing cache-misses in Redis depending on a [ioredis](https://www.npmjs.com/package/ioredis)-factory
+  - __Distributed on demand expiry__ is supported using Redis pub/sub, so that new content may be published before cache-TTL is reached.
 
 ### Performance testing
 
