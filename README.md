@@ -1,4 +1,4 @@
-# @nrk/doublecache-as-promised
+# @nrk/nodecache-as-promised
 
 > Fast and resilient cache for NodeJs targeting high-volume sites
 
@@ -14,13 +14,13 @@
 ## Installing
 
 ```
-npm install @nrk/doublecache-as-promised --save
+npm install @nrk/nodecache-as-promised --save
 ```
 
 ## Motivation
-Sometimes Node.js needs to do some heavy lifting, performing CPU or network intensive tasks and yet respond quickly on incoming requests. For repetitive tasks like Server side rendering of markup or parsing big JSON responses caching can give the application a great performance boost. In addition - serving stale content when a backend resource is down may save your day! The intention of `doublecache-as-promised` is to give you a fairly simple, yet powerful application cache, with fine-grained control over caching behaviour.
+Sometimes Node.js needs to do some heavy lifting, performing CPU or network intensive tasks and yet respond quickly on incoming requests. For repetitive tasks like Server side rendering of markup or parsing big JSON responses caching can give the application a great performance boost. In addition - serving stale content when a backend resource is down may save your day! The intention of `nodecache-as-promised` is to give you a fairly simple, yet powerful application cache, with fine-grained control over caching behaviour.
 
-`doublecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing. There exists several other cache solutions on NPM, but they're often too basic or too attached to a combination of perquisites that does not fit all needs of an application cache.
+`nodecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing. There exists several other cache solutions on NPM, but they're often too basic or too attached to a combination of perquisites that does not fit all needs of an application cache.
 
 ### Features
 - __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data over network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
@@ -55,7 +55,7 @@ Create a new `inMemoryCache` instance using a factory method. This instance may 
 Creating a new instance
 
 ```js
-import inMemoryCache from '@nrk/doublecache-as-promised'
+import inMemoryCache from '@nrk/nodecache-as-promised'
 const cache = inMemoryCache(options)
 ```
 
@@ -70,7 +70,7 @@ An object containing configuration
 Creating a new distCache middleware instance
 
 ```js
-import cache, {distCache} from '@nrk/doublecache-as-promised'
+import cache, {distCache} from '@nrk/nodecache-as-promised'
 const cache = inMemoryCache()
 cache.use(distCache(redisFactory, namespace))
 ```
@@ -84,7 +84,7 @@ Parameters that must be provided upon creation:
 Creating a new persistentCache middleware instance
 
 ```js
-import cache, {persistentCache} from '@nrk/doublecache-as-promised'
+import cache, {persistentCache} from '@nrk/nodecache-as-promised'
 const cache = inMemoryCache()
 cache.use(persistentCache(redisFactory, options))
 ```
@@ -167,7 +167,7 @@ cache.debug({hostname: os.hostname()})
 
 ### Basic usage
 ```js
-import inMemoryCache from '@nrk/doublecache-as-promised'
+import inMemoryCache from '@nrk/nodecache-as-promised'
 const cache = inMemoryCache({ /* options */})
 
 // imiplicit set cache on miss, or use cached value
@@ -187,7 +187,7 @@ cache.get('key', { worker: () => Promise.resolve({hello: 'world'}) })
 
 ### Basic usage with options
 ```js
-import inMemoryCache from '@nrk/doublecache-as-promised';
+import inMemoryCache from '@nrk/nodecache-as-promised';
 
 const cache = inMemoryCache({
   initial: {                    // initial state
@@ -222,7 +222,7 @@ Distributed expire and persisting of cache misses to Redis are provided as middl
 
 #### Distributed expire
 ```js
-import inMemoryCache, {distCache} from '@nrk/doublecache-as-promised'
+import inMemoryCache, {distCache} from '@nrk/nodecache-as-promised'
 import Redis from 'ioredis'
 
 // a factory function that returns a redisClient
@@ -240,7 +240,7 @@ setTimeout(() => {
 
 #### Persisting cache misses
 ```js
-import inMemoryCache, {persistentCache} from '@nrk/doublecache-as-promised'
+import inMemoryCache, {persistentCache} from '@nrk/nodecache-as-promised'
 import Redis from 'ioredis'
 
 const redisFactory = () => new Redis(/* options */)
@@ -260,7 +260,7 @@ cache.get('key', { worker: () => Promise.resolve('hello') })
 
 #### Persisting cache misses __and__ distributed expire
 ```js
-import inMemoryCache, {distCache, persistentCache} from '@nrk/doublecache-as-promised'
+import inMemoryCache, {distCache, persistentCache} from '@nrk/nodecache-as-promised'
 import Redis from 'ioredis'
 
 const redisFactory = () => new Redis(/* options */)
@@ -291,9 +291,9 @@ cache.get('key', {
 First clone the repo and install its dependencies:
 
 ```bash
-git clone git@github.com:nrkno/doublecache-as-promised.git
+git clone git@github.com:nrkno/nodecache-as-promised.git
 git checkout -b feature/my-changes
-cd doublecache-as-promised
+cd nodecache-as-promised
 npm install && npm run build && npm run test
 ```
 

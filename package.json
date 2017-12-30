@@ -1,5 +1,5 @@
 {
-  "name": "@nrk/doublecache-as-promised",
+  "name": "@nrk/nodecache-as-promised",
   "author": "opensource@nrk.no",
   "license": "MIT",
   "version": "1.0.3",
@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:nrkno/doublecache-as-promised.git"
+    "url": "git@github.com:nrkno/nodecache-as-promised.git"
   },
   "dependencies": {
     "lodash": "4.17.4",
