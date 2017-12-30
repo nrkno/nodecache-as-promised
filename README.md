@@ -126,13 +126,13 @@ Configuration for the newly created object
 **NOTE:** It might seem a bit strange to set cache values using `.get` - but it is to avoid a series of operations using `.get()` to check if a value exists, then call `.set()`, and finally running `.get()` once more (making queing difficult). In summary: `.get()` returns a value from cache or a provided worker.
 
 #### .set(key, value, [ttl])
-Set a new cache value with ttl
+Set a new cache value.
 ```js
 // set a cache value that becomes stale after 1 minute
 cache.set('myKey', 'someData', 60 * 1000)
 ```
 
-If `ttl`-parameter is omitted, a default will be used (`86400000` - 24h)
+If `ttl`-parameter is omitted, a default will be used: `86400000` (24h)
 
 #### .expire(keys)
 Mark keys as stale
