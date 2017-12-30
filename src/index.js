@@ -226,7 +226,7 @@ export default (options) => {
     set(key, cloneDeep(initial[key]))
   })
 
-  const getFacade = () => {
+  const buildFacade = () => {
     return {
       addDisposer,
       removeDisposer,
@@ -243,10 +243,10 @@ export default (options) => {
     }
   }
 
-  const facade = getFacade()
+  const facade = buildFacade()
 
   facade.use = (middleware) => {
-    const m = middleware(getFacade())
+    const m = middleware(buildFacade())
     Object.keys(m).forEach((key) => {
       // Keep a reference to the original function pointer
       const prevFacade = facade[key]
