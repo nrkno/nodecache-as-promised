@@ -30,7 +30,7 @@ Sometimes Node.js needs to do some heavy lifting, performing CPU or network inte
 - __Avoidance of spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
 - __Middleware support__ so you may create your own custom extensions. Provided middlewares:
   - __Persistent cache__ is used as secondary storage to avoid high back-pressure on backend resources when caches are cleared after server restarts. This is achieved storing cache-misses in Redis depending on a [ioredis](https://www.npmjs.com/package/ioredis)-factory
-  - __Distributed on demand expiry__ is supported using Redis pub/sub, so that new content may be published before cache-TTL is reached.
+  - __Distributed on demand expiry__ so that new content may be published across servers/instances before cache-TTL is reached. This is achieved using Redis pub/sub depending on a [ioredis](https://www.npmjs.com/package/ioredis)-factory
 
 ### Performance testing
 
