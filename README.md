@@ -101,7 +101,7 @@ Parameters that must be provided upon creation:
 ### Instance methods
 When the factory is created (with or without middlewares), the following methods may be used.
 
-#### .get(key, [config, fnReturningPromise])
+#### .get(key, [options])
 Get an item from the cache. Returns a Promise.
 ```js
 const value = cache.get('myKey')
@@ -110,21 +110,22 @@ const value = cache.get('myKey')
   })
 ```
 
-Using parameters `config` and `fnReturningPromise` - the function with either fetch a value from cache or provided promise if the cache is stale or cold. The promise will set the cache key if ran.
+Using parameter `options` - the function either fetches a value from cache or executes provided worker if the cache is stale or cold. The worker will set the cache key if ran.
 
 ```js
-cache.get('myKey', options, () => promise)
+cache.get('myKey', options)
   .then(({value}) => {
     console.log(value)
   })
 ```
 #### options
 Configuration for the newly created object
+- worker - `function`. A function that returns a promise which resolves new value to be set in cache.
 - ttl - `Number`. Ttl (in ms) before cached object becomes stale. Default: `86400000` (24h)
 - workerTimeout - `Number`. max time allowed to run promise. Default: `5000`
 - deltaWait - `Number`. delta wait (in ms) before retrying promise, when stale. Default: `10000`
 
-**NOTE:** It might seem a bit strange to set cache values using `.get` - but it is to avoid a series of operations using `.get()` to check if a value exists, then call `.set`, and finally running `.get()` once more. In summary: `.get()` returns a value from cache or provided promise (and saves the value for later calls)
+**NOTE:** It might seem a bit strange to set cache values using `.get` - but it is to avoid a series of operations using `.get()` to check if a value exists, then call `.set`, and finally running `.get()` once more (making queing difficult). In summary: `.get()` returns a value from cache or a provided worker.
 
 #### .set(key, value, [ttl])
 Set a new cache value with ttl
@@ -156,8 +157,8 @@ Remove callback attached to LRU-cache
 cache.removeDisposer(cb)
 ```
 
-#### .debug([extraOptions])
-Prints debug information about current cache (ie. hot keys, stale keys, keys in waiting state etc). Use `extraOptions` to add custom properties to the debug info, eg. hostname.
+#### .debug([extraData])
+Prints debug information about current cache (ie. hot keys, stale keys, keys in waiting state etc). Use `extraData` to add custom properties to the debug info, eg. hostname.
 ```js
 cache.debug({hostname: os.hostname()})
 ```
@@ -171,7 +172,7 @@ import inMemoryCache from '@nrk/doublecache-as-promised'
 const cache = inMemoryCache({ /* options */})
 
 // imiplicit set cache on miss, or use cached value
-cache.get('key', {/* options */}, () => Promise.resolve({hello: 'world'}))
+cache.get('key', { worker: () => Promise.resolve({hello: 'world'}) })
   .then((data) => {
     console.log(data)
     // {
@@ -200,11 +201,11 @@ const cache = inMemoryCache({
 cache.set('key', {hello: 'world'})
 // imiplicit set cache on miss, or use cached value
 cache.get('anotherkey', {
+  worker: () => Promise.resolve({hello: 'world'}),
   ttl: 60 * 1000,               // TTL for cached object, in ms
   workerTimeout: 5 * 1000,      // worker timeout, in ms
-  deltaWait: 5 * 1000           // wait time, if worker fails
-}, () => Promise.resolve({hello: 'world'}))
-  .then((data) => {
+  deltaWait: 5 * 1000,          // wait time, if worker fails
+}).then((data) => {
     console.log(data)
     // {
     //   value: {
@@ -253,7 +254,7 @@ cache.use(persistentCache(
   }
 ))
 
-cache.get('key', {/* options */}, () => Promise.resolve('hello'))
+cache.get('key', { worker: () => Promise.resolve('hello') })
 // will store a key in redis, using key: myCache-<key>
 // {value: 'hello', created: 123456789, cache: 'hit', TTL: 60000}
 ```
@@ -276,10 +277,11 @@ cache.use(persistentCache(
 
 cache.expire(['foo*'])  // distributed expire of all keys starting with foo
 cache.get('key', {
+  worker: () => Promise.resolve('hello'),
   ttl: 60000,                       // in ms
   workerTimeout: 5000,
   deltaWait: 5000
-}, () => Promise.resolve('hello')).then(console.log)
+}).then(console.log)
 // will store a key in redis, using key: myCache-<key>
 // {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
 ```
@@ -328,8 +330,11 @@ export const streamingMiddleware = (onSet, onDispose) => (cacheInstance) => {
 After having applied changes, remember to build and run/fix tests before pushing the changes upstream.
 
 ```bash
-# update the source code
+# run the tests, generate code coverage report
 npm run test
+# inspect code coverage
+open ./coverage/lcov-report/index.html
+# update the code
 npm run build
 git commit -am "Add my changes"
 git push origin feature/my-changes

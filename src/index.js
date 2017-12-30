@@ -212,12 +212,12 @@ export default (options) => {
     })
   }
 
-  const debug = (extraOptions = {}) => {
+  const debug = (extraData = {}) => {
     return getCacheInfo({
       maxAge,
       maxLength,
       ...options,
-      ...extraOptions,
+      ...extraData,
       cache,
       waiting
     })

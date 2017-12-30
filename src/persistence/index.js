@@ -68,8 +68,8 @@ export default (redisFactory,
       })
   }
 
-  const debug = (extraOptions, next) => {
-    return next({cacheKeyPrefix, ...extraOptions})
+  const debug = (extraData, next) => {
+    return next({cacheKeyPrefix, ...extraData})
   }
 
   const onDispose = (key) => {

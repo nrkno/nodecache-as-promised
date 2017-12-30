@@ -68,8 +68,8 @@ export default (redisFactory, namespace) => (cacheInstance) => {
     redisPub.publish(namespace, JSON.stringify(message))
   }
 
-  const debug = (extraOptions, next) => {
-    return next({namespace, ...extraOptions})
+  const debug = (extraData, next) => {
+    return next({namespace, ...extraData})
   }
 
   setupSubscriber(redisSubClient, namespace)
