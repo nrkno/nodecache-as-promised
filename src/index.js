@@ -133,12 +133,14 @@ export default (options) => {
    **/
   const _requestFromCache = ({worker, key, workerTimeout, ttl, deltaWait}) => {
     const obj = cache.get(key)
-    if (obj && isFresh(obj) && !waiting.get(key)) {
+    if (!worker) {
+      return (obj && isFresh(obj) && obj) ||
+              (obj && {...obj, cache: CACHE_STALE}) ||
+              null
+    } if (obj && isFresh(obj) && !waiting.get(key)) {
       return Promise.resolve(obj)
     } else if (obj && (!worker || isWaiting(waiting.get(key)))) {
       return Promise.resolve({...obj, cache: CACHE_STALE})
-    } else if (!obj && !worker) {
-      return Promise.resolve(null)
     } else if (isWaiting(waiting.get(key))) {
       return Promise.reject(waitingForError(key, waiting.get(key)))
     }

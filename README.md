@@ -102,15 +102,13 @@ Parameters that must be provided upon creation:
 When the factory is created (with or without middlewares), the following methods may be used.
 
 #### .get(key, [options])
-Get an item from the cache. Returns a Promise.
+Get an item from the cache.
 ```js
-const value = cache.get('myKey')
-  .then(({value}) => {
-    console.log(value)
-  })
+const {value} = cache.get('myKey')
+console.log(value)
 ```
 
-Using parameter `options` - the function either fetches a value from cache or executes provided worker if the cache is stale or cold. The worker will set the cache key if ran.
+Using parameter `options` - the function either fetches a value from cache or executes provided worker if the cache is stale or cold. The worker will set the cache key if ran and thus returns a Promise
 
 ```js
 cache.get('myKey', options)

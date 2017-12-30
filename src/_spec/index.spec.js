@@ -87,10 +87,19 @@ describe('CacheManager', () => {
       })
     })
 
-    it('should return undefined if no promise is given', () => {
-      return cacheInstance.get('N/A').then((obj) => {
-        expect(obj).to.be(null)
-      })
+    it('should return synchronous get when no worker is given', () => {
+      // miss
+      const obj = cacheInstance.get('N/A')
+      expect(obj).to.equal(null)
+      // stale
+      const obj2 = cacheInstance.get(dummyKey)
+      expect(obj2.value).to.eql(cacheValue)
+      expect(obj2.cache).to.equal('stale')
+      // hot
+      cacheInstance.set('hello', {yoman: 'world'})
+      const obj3 = cacheInstance.get('hello')
+      expect(obj3.value).to.eql({yoman: 'world'})
+      expect(obj3.cache).to.equal('hit')
     })
 
     it('should return promised content if cache is stale', () => {
