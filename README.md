@@ -123,7 +123,7 @@ Configuration for the newly created object
 - workerTimeout - `Number`. max time allowed to run promise. Default: `5000`
 - deltaWait - `Number`. delta wait (in ms) before retrying promise, when stale. Default: `10000`
 
-**NOTE:** It might seem a bit strange to set cache values using `.get` - but it is to avoid a series of operations using `.get()` to check if a value exists, then call `.set`, and finally running `.get()` once more (making queing difficult). In summary: `.get()` returns a value from cache or a provided worker.
+**NOTE:** It might seem a bit strange to set cache values using `.get` - but it is to avoid a series of operations using `.get()` to check if a value exists, then call `.set()`, and finally running `.get()` once more (making queing difficult). In summary: `.get()` returns a value from cache or a provided worker.
 
 #### .set(key, value, [ttl])
 Set a new cache value with ttl
