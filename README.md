@@ -8,6 +8,7 @@
 - [Examples](#examples)
 - [Distributed capabilites](#distributed-capabilites)
 - [Local development](#local-development)
+- [Creating your own middleware](#creating-your-own-middleware)
 - [Building and committing](#building-and-committing)
 
 ## Installing
@@ -296,7 +297,7 @@ cd doublecache-as-promised
 npm install && npm run build && npm run test
 ```
 
-### Creating your own middleware
+## Creating your own middleware
 A middleware consists of three parts:
 1) an exported factory function
 2) constructor arguments to be used within the middleware
