@@ -41,13 +41,13 @@ Parsing a json-file at around 47kb (file contents are cached at startup). Using 
   <img src="./test/linear-perftest-nocache.jpeg?raw=true" width="50%"/>
 </p>
 
-The image shows graph from running the test script `perf:nocache-cache-file -- --type=linear`. At around 1300 iterations the event loop starts lagging, and at around 1500 iterations the process stops responding. It displays that even extremely optimized JSON.parse could be a bottleneck when fetching remote data for rendring. (`React.render` would be even slower)
+The image shows a graph from running the test script `npm run perf:nocache-cache-file -- --type=linear`. At around 1300 iterations the event loop starts lagging, and at around 1500 iterations the process stops responding. It displays that even natively optimized JSON.parse could be a bottleneck when fetching remote API-data for rendring. (`React.render` would be even slower)
 
 <p align="left">
   <img src="./test/linear-perftest-cache.jpeg?raw=true" width="50%"/>
 </p>
 
-The second image is a graph from running test script `perf:cache -- --type=linear`. At around 3.1 million iterations the event loop starts lagging, and at around 3.4 million iterations the process runs out of memory and crashes. The graph has no relation to how fast JSON.parse is, but what speed is achievable by skipping it altogether (ie. `Promise`-processing)
+The second image is a graph from running test script `npm run perf:cache -- --type=linear`. At around 3.1 million iterations the event loop starts lagging, and at around 3.4 million iterations the process runs out of memory and crashes. The graph has no relation to how fast JSON.parse is, but what speed is achievable by skipping it altogether (ie. `Promise`-processing)
 
 ## APIs
 Create a new `inMemoryCache` instance using a factory method. This instance may be extended by the `distCache` and/or `persistentCache` middlewares (`.use(..)`).
