@@ -284,7 +284,6 @@ export default (options) => {
       // helpers
       debug,
       log,
-      maxLength,
       // for testing purposes
       cache,
       waiting
