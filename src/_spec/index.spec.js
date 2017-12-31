@@ -182,10 +182,11 @@ describe('CacheManager', () => {
       const timeoutSpy = sinon.spy(() => new Promise((resolve) => {
         setTimeout(() => resolve('another object'), 1000)
       }))
-      expect(cacheInstance.waiting.get(dummyKey)).to.be.a('undefined')
+      const info = cacheInstance.debug()
+      expect(info.waiting.get(dummyKey)).to.be.a('undefined')
       return cacheInstance.get(dummyKey, { workerTimeout: 0, worker: timeoutSpy }).then((obj) => {
         expect(timeoutSpy.called).to.equal(true)
-        expect(cacheInstance.waiting.get(dummyKey)).not.to.equal(0)
+        expect(info.waiting.get(dummyKey)).not.to.equal(0)
         expect(obj.value).to.eql(cacheValue)
         expect(obj.cache).to.equal('stale')
       })
@@ -214,7 +215,8 @@ describe('CacheManager', () => {
       cacheInstance.get(dummyKey, {...conf, worker: timeoutSpy}).then((obj) => {
         // 1. should return stale cache when timeout occurs
         expect(obj.value).to.eql(cacheValue)
-        expect(cacheInstance.waiting.get(dummyKey).wait).to.equal(10)
+        const info = cacheInstance.debug()
+        expect(info.waiting.get(dummyKey).wait).to.equal(10)
         return cacheInstance.get(dummyKey, {...conf, worker: resolveSpy}).then((obj) => {
           // 2. should return stale cache before wait period has finished
           expect(obj.cache).to.equal('stale')
@@ -242,10 +244,11 @@ describe('CacheManager', () => {
 
     it('should return stale cache and set wait if a promise rejection occurs', () => {
       const rejectionSpy = sinon.spy(() => Promise.reject(new Error('an error occurred')))
-      expect(cacheInstance.waiting.get(dummyKey)).to.be.a('undefined')
+      const info = cacheInstance.debug()
+      expect(info.waiting.get(dummyKey)).to.be.a('undefined')
       return cacheInstance.get(dummyKey, {worker: rejectionSpy}).then((obj) => {
         expect(rejectionSpy.called).to.equal(true)
-        expect(cacheInstance.waiting.get(dummyKey)).not.to.equal(0)
+        expect(info.waiting.get(dummyKey)).not.to.equal(0)
         expect(obj.value).to.eql(cacheValue)
         expect(obj.cache).to.equal('stale')
       })
@@ -306,7 +309,8 @@ describe('CacheManager', () => {
           expect(err).to.be.an(Error)
           expect(rejectionSpy.callCount).to.equal(1)
           cacheInstance.set('N/A', 'hei verden')
-          cacheInstance.waiting.delete('N/A')
+          const info = cacheInstance.debug()
+          info.waiting.delete('N/A')
           setTimeout(() => {
             return cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).then((obj) => {
               expect(rejectionSpy.callCount).to.equal(1)
@@ -324,16 +328,17 @@ describe('CacheManager', () => {
       const conf = {
         deltaWait: 10
       }
-      expect(cacheInstance.waiting.get('N/A')).to.be.a('undefined')
+      const info = cacheInstance.debug()
+      expect(info.waiting.get('N/A')).to.be.a('undefined')
       cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
         expect(err).to.be.an(Error)
         expect(rejectionSpy.callCount).to.equal(1)
-        expect(cacheInstance.waiting.get('N/A').wait).to.equal(10)
-        const {started} = cacheInstance.waiting.get('N/A')
+        expect(info.waiting.get('N/A').wait).to.equal(10)
+        const {started} = info.waiting.get('N/A')
         cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
           expect(err).to.be.an(Error)
           expect(rejectionSpy.callCount).to.equal(1)
-          expect(cacheInstance.waiting.get('N/A')).to.eql({
+          expect(info.waiting.get('N/A')).to.eql({
             started,
             wait: 10,
             waitUntil: started + 10
@@ -342,8 +347,8 @@ describe('CacheManager', () => {
             return cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
               expect(err).to.be.an(Error)
               expect(rejectionSpy.callCount).to.equal(2)
-              expect(cacheInstance.waiting.get('N/A').wait).to.equal(10)
-              expect(cacheInstance.waiting.get('N/A').started).not.to.equal(started)
+              expect(info.waiting.get('N/A').wait).to.equal(10)
+              expect(info.waiting.get('N/A').started).not.to.equal(started)
               done()
             })
           }, 10)

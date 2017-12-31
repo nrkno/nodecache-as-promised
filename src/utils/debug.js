@@ -27,7 +27,7 @@ export const buildKey = ({key, value, waiting, full}) => {
 const extractProps = (obj) => {
   const ret = {}
   Object.keys(obj)
-    .filter((key) => !/^log$|^cache$|^waiting$/.test(key))
+    .filter((key) => !/^log$|^cache$/.test(key))
     .forEach((key) => {
       ret[key] = obj[key]
     })

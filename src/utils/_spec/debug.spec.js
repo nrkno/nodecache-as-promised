@@ -54,7 +54,6 @@ describe('debug', () => {
   describe('getCacheInfo', () => {
     it('should print debug info from cache', () => {
       const maxAge = 10000
-      const waiting = new Map()
       const cache = lruCache({
         max: 100,
         maxAge
@@ -66,13 +65,13 @@ describe('debug', () => {
       cache.set('yo', entry)
       cache.set('notinresults', entry2)
       cache.set('yo2', entry3)
-      // omit now field
-      const {now, ...info} = getCacheInfo({
+      // omit now and waiting field
+      const {now, waiting, ...info} = getCacheInfo({
         full: true,
         search: 'yo*',
         cache,
         maxAge,
-        waiting
+        waiting: new Map()
       })
       expect(info).to.eql({
         full: true,

@@ -292,7 +292,8 @@ export default (options) => {
       ...options,
       ...extraData,
       cache,
-      waiting
+      waiting,
+      jobs
     })
   }
 
@@ -315,9 +316,7 @@ export default (options) => {
       removeDisposer,
       // helpers
       debug,
-      log,
-      // for testing purposes
-      waiting
+      log
     }
   }
 
