@@ -416,5 +416,25 @@ describe('CacheManager', () => {
       expect(cacheInstance.cache.itemCount).to.equal(2)
       expect(cacheInstance.cache.keys()).to.eql(['guest/4', 'guest/3'])
     })
+
+    it('should call dispose on del operations', () => {
+      const cacheInstance = inMemoryCache({maxLength: 2})
+      const spy = sinon.spy()
+      cacheInstance.addDisposer(spy)
+      cacheInstance.set('house/1', {hei: 'verden'})
+      cacheInstance.del('house/1')
+      expect(spy.called).to.equal(true)
+      cacheInstance.removeDisposer(spy)
+    })
+
+    it('should call dispose on clear operations', () => {
+      const cacheInstance = inMemoryCache({maxLength: 2})
+      const spy = sinon.spy()
+      cacheInstance.addDisposer(spy)
+      cacheInstance.set('house/1', {hei: 'verden'})
+      cacheInstance.clear()
+      expect(spy.called).to.equal(true)
+      cacheInstance.removeDisposer(spy)
+    })
   })
 })
