@@ -181,6 +181,12 @@ Prints debug information about current cache (ie. hot keys, stale keys, keys in 
 cache.debug({hostname: os.hostname()})
 ```
 
+#### .log[trace|debug|info|warn|error](data)
+Logger instance exposed to be used by middlewares
+```js
+cache.log.info('hello world!')
+```
+
 ## Examples
 *Note! These examples are written using ES2015 syntax. The lib is exported using Babel as CJS modules*
 
