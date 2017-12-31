@@ -150,6 +150,15 @@ cache.expire(['myKey*', 'anotherKey'])
 
 Asterisk `*` is used for wildcards
 
+#### .keys()
+Get all keys as an array of strings stored in cache
+
+#### .values()
+Get all values as an array of all values in cache
+
+#### .entries()
+Get all entries as a Map of all keys and values in cache
+
 #### .clear()
 Clear the cache entirely, throwing away all values.
 

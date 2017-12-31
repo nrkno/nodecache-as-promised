@@ -354,6 +354,40 @@ describe('CacheManager', () => {
     })
   })
 
+  describe('-> keys/values/entries', () => {
+    let cacheInstance
+
+    beforeEach(() => {
+      cacheInstance = inMemoryCache({initial: {
+        'house/1': {hei: 'verden1'},
+        'house/2': {hei: 'verden2'},
+        'guest/2': {hei: 'verden3'}
+      }})
+    })
+
+    it('should return keys', () => {
+      expect(cacheInstance.keys()).to.eql(['house/1', 'house/2', 'guest/2'].reverse())
+    })
+
+    it('should return values', () => {
+      expect(cacheInstance
+        .values()
+        .map(({value}) => value))
+        .to.eql([{hei: 'verden3'}, {hei: 'verden2'}, {hei: 'verden1'}])
+    })
+
+    it('should return entries', () => {
+      expect(Array.from(cacheInstance.entries())
+        .map(([key, {value}]) => {
+          return {[key]: value}
+        })).to.eql([
+          {'guest/2': {hei: 'verden3'}},
+          {'house/2': {hei: 'verden2'}},
+          {'house/1': {hei: 'verden1'}}
+        ])
+    })
+  })
+
   describe('-> expire', () => {
     let cacheInstance
 

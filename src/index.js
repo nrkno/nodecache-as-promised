@@ -239,6 +239,34 @@ export default (options) => {
   }
 
   /**
+   * @description get keys from cache
+   * @access public
+   * @returns {Array<String>} - keys
+   **/
+  const keys = () => cache.keys()
+
+  /**
+   * @description get values from cache
+   * @access public
+   * @returns {Array<Any>} - values
+   **/
+  const values = () => cache.values()
+
+  /**
+   * @description get cache entries
+   * @access public
+   * @returns {Map<<String, Any>} - values
+   **/
+  const entries = () => {
+    const vals = values()
+    return new Map(keys().reduce((acc, key, i) => {
+      // console.log({[key]: vals[i]})
+      acc.push([key, vals[i]])
+      return acc
+    }, []))
+  }
+
+  /**
    * @description expire a cache key (ie. set TTL = 0)
    * @access public
    * @param {Array<String>} keys - array of keys to expire (supports * as wildcards, converted to .* regexp)
@@ -278,6 +306,9 @@ export default (options) => {
       set,
       has,
       del,
+      keys,
+      values,
+      entries,
       clear,
       expire,
       addDisposer,
