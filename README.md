@@ -18,15 +18,15 @@ npm install @nrk/nodecache-as-promised --save
 ```
 
 ## Motivation
-Sometimes Node.js needs to do some heavy lifting, performing CPU or network intensive tasks and yet respond quickly on incoming requests. For repetitive tasks like Server side rendering of markup or parsing big JSON responses caching can give the application a great performance boost. Since many requests may hit the server concurrently, you do not want more than *one* worker to run for a given resource at the same time. In addition - serving stale content when a backend resource is down may save your day! The intention of `nodecache-as-promised` is to give you a fairly simple, yet powerful application cache, with fine-grained control over caching behaviour.
+Sometimes Node.js needs to do some heavy lifting, performing CPU or network intensive tasks and yet respond quickly on incoming requests. For repetitive tasks like Server side rendering of markup or parsing big JSON responses caching can give the application a great performance boost. Since many requests may hit the server concurrently, you do not want more than *one* worker to run for a given resource at the same time. In addition - serving stale content when a backend resource is down may save your day! The intention of `nodecache-as-promised` is to give you a fairly simple interface, yet powerful application cache, with fine-grained control over caching behaviour.
 
 `nodecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). In general Varnish works great as an edge/burst/failover cache, in addition to reverse proxying and loadbalancing. There exists several other cache solutions on NPM, but they're often too basic or too attached to a combination of perquisites that does not fit all needs of an application cache.
 
 ### Features
-- __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data over network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
+- __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data from disk or via network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
 - __Caches are filled using worker promises__ since cached objects often are depending on async operations. (RxJs)[https://www.npmjs.com/package/rxjs] is used to queue concurrent requests for the same key; thus ensuring that only __one__ worker is performed when cached content is missing/stale.
-- __Caching of custom class instances, functions and native objects__ such as Date, RegExp and redux stores are supported through in-memory caching. Non-serializable (using JSON.stringify) objects are filtered out in persistent caches though.
-- __Grace mode__ is used if a worker promise fails (eg. caused by failing backends), ie.  stale cache is returned instead.
+- __Caching of custom class instances, functions and native objects__ such as Date, RegExp and Redux stores are supported through in-memory caching. Non-serializable (using JSON.stringify) objects are filtered out in persistent caches though.
+- __Grace mode__ is used if a worker fails (eg. caused by failing backends), ie.  stale cache is returned instead.
 - __Avoidance of spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
 - __Middleware support__ so you may create your own custom extensions. Provided middlewares:
   - __Persistent cache__ is used as secondary storage to avoid high back-pressure on backend resources when caches are cleared after server restarts. This is achieved storing cache-misses in Redis depending on a [ioredis](https://www.npmjs.com/package/ioredis)-factory
@@ -218,7 +218,7 @@ cache.get('anotherkey', {
 ```
 
 ### Distributed capabilites
-Distributed expire and persisting of cache misses to Redis are provided as middlewares, ie. wrapping the in-memory cache with a factory that intercepts function calls. It should therefore be easy to write your own middlewares using pub/sub from rabbitMQ, zeroMQ, persisting to a NAS, hit/miss-ratio to external measurments systems and more.
+Distributed expire and persisting of cache misses to Redis are provided as middlewares, ie. extending the in-memory cache interceptors. Writing your own middlewares using pub/sub from rabbitMQ, zeroMQ, persisting to a NAS, counting hit/miss-ratios should be easy.
 
 #### Distributed expire
 ```js
