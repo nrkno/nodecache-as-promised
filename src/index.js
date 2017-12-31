@@ -222,6 +222,7 @@ export default (options) => {
    * @returns {Promise} resolves/rejects when request operation finishes
    **/
   const get = (key, config = {}) => {
+    // TODO: support stale-while-revalidate
     const {
       ttl = DEFAULT_CACHE_EXPIRE,
       workerTimeout = 5000,
