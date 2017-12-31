@@ -15,20 +15,8 @@ export const extractKeyFromRedis = (prefix, key) => {
   return key.replace(new RegExp(`${prefix}-`), '')
 }
 
-export const getRedisKey = (prefix, key) => {
+export const getRedisKey = (prefix, key = '') => {
   return `${[prefix, key].join('-')}`
-}
-
-export const deleteKey = (key, redisClient) => {
-  return new Promise((resolve, reject) => {
-    redisClient.del(key, (err, res) => {
-      if (err) {
-        reject(err)
-        return
-      }
-      resolve(res)
-    })
-  })
 }
 
 export const readKeys = (keys, redisClient, log) => {
@@ -80,6 +68,24 @@ export const scanKeys = (cacheKeyPrefix, redisClient) => {
     stream.on('error', (err) => {
       reject(err)
     })
+  })
+}
+
+export const deleteKey = (key, redisClient) => {
+  return new Promise((resolve, reject) => {
+    redisClient.del(key, (err, res) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve(res)
+    })
+  })
+}
+
+export const deleteKeys = (cacheKeyPrefix, redisClient) => {
+  return scanKeys(cacheKeyPrefix, redisClient).then((keys) => {
+    return Promise.all(keys.map((key) => deleteKey(key, redisClient)))
   })
 }
 

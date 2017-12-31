@@ -163,4 +163,41 @@ describe('persistence', () => {
       })
     })
   })
+
+  describe('-> del/clear', () => {
+    let delSpy
+    let cache
+
+    beforeEach(() => {
+      delSpy = sinon.spy((key, cb) => {
+        if (key.indexOf('house/1') > -1) {
+          return cb(null, 'ok')
+        }
+        cb(new Error('dummyerror'), null)
+      })
+      cache = inMemoryCache({log: dummyLog})
+      cache.use(persistentCache(mockRedisFactory({del: delSpy}), {bootload: false}))
+    })
+
+    it('should delete key from redis when a key is deleted from lru-cache', () => {
+      return cache.del('house/1').then(() => {
+        expect(delSpy.called).to.equal(true)
+      })
+    })
+
+    it('should throw an error key from redis when a key is deleted from lru-cache', () => {
+      return cache.del('key').catch(() => {
+        expect(delSpy.called).to.equal(true)
+      })
+    })
+
+    it('should delete all keys in redis with prefix', () => {
+      sinon.stub(utils, 'deleteKeys').resolves()
+      return cache.clear().then(() => {
+        expect(utils.deleteKeys.called).to.equal(true)
+        expect(utils.deleteKeys.args[0][0]).to.equal(`${pkg.name}-`)
+        utils.deleteKeys.restore()
+      })
+    })
+  })
 })

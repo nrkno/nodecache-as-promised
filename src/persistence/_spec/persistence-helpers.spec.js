@@ -1,5 +1,6 @@
 import {
   deleteKey,
+  deleteKeys,
   readKeys,
   extractKeyFromRedis,
   getRedisKey,
@@ -49,10 +50,9 @@ describe('persistence-helpers', () => {
         events.data[0](['test-localhost8080-myKey'])
         events.end[0]()
       }, 20)
-      const y = (keysToRead, cb) => {
+      mgetSpy = sinon.spy((keysToRead, cb) => {
         cb(null, [JSON.stringify({hei: 'verden'})])
-      }
-      mgetSpy = sinon.spy(y)
+      })
       redisClient = mockRedisFactory({mget: mgetSpy}, {events})()
       return loadObjects('test-localhost8080', redisClient, dummyLog).then((results) => {
         expect(results).to.eql({
@@ -100,14 +100,31 @@ describe('persistence-helpers', () => {
     })
   })
 
+  describe('-> deleteKeys', () => {
+    it('should delete all keys with prefix from redis', () => {
+      const delSpy = sinon.spy((key, cb) => cb(null, 'ok'))
+      const events = {}
+      setTimeout(() => {
+        events.data[0](['test-localhost8080-myKey'])
+        events.end[0]()
+      }, 100)
+      const mgetSpy = sinon.spy((keysToRead, cb) => {
+        cb(null, [JSON.stringify({hei: 'verden'})])
+      })
+      const redisClient = mockRedisFactory({del: delSpy, mget: mgetSpy}, {events})()
+      return deleteKeys('asdf', redisClient).then((...args) => {
+        expect(delSpy.called).to.equal(true)
+      })
+    })
+  })
+
   describe('-> readKeys', () => {
     let redisClient
     let mgetSpy
 
     it('should read multiple keys', () => {
       const values = Object.keys(redisCache).map((key) => redisCache[key])
-      const p = (keys, cb) => cb(null, values)
-      mgetSpy = sinon.spy(p)
+      mgetSpy = sinon.spy((keys, cb) => cb(null, values))
       redisClient = mockRedisFactory({mget: mgetSpy})()
       return readKeys(Object.keys(redisCache), redisClient, dummyLog).then((result) => {
         expect(mgetSpy.called).to.equal(true)

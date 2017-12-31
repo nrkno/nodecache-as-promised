@@ -64,6 +64,37 @@ describe('CacheManager', () => {
     })
   })
 
+  describe('-> has/del/clear', () => {
+    let cacheInstance
+
+    beforeEach(() => {
+      cacheInstance = inMemoryCache({initial: preCached})
+    })
+
+    it('should return true if key exists in cache', () => {
+      cacheInstance.set('key', 'value')
+      expect(cacheInstance.has('key')).to.equal(true)
+    })
+
+    it('should return false if key is not in cache', () => {
+      expect(cacheInstance.has('key')).to.equal(false)
+    })
+
+    it('should return false if key was deleted from cache', () => {
+      cacheInstance.set('key', 'value')
+      cacheInstance.del('key')
+      expect(cacheInstance.has('key')).to.equal(false)
+    })
+
+    it('should return false if key was deleted from cache', () => {
+      cacheInstance.set('key1', 'value')
+      cacheInstance.set('key2', 'value')
+      cacheInstance.clear()
+      expect(cacheInstance.has('key1')).to.equal(false)
+      expect(cacheInstance.has('key2')).to.equal(false)
+    })
+  })
+
   describe('-> cold/stale cache', () => {
     let cacheInstance
     let spy

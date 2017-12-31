@@ -73,7 +73,20 @@ export default (options) => {
     }
   })
 
+  /**
+   * @description add a callback to lruCache#dispose
+   * @access public
+   * @param {function} callback - a function to be called when a cache key is evicted
+   * @returns {undefined}
+   **/
   const addDisposer = (cb) => disposers.push(cb)
+
+  /**
+   * @description remove a callback from lruCache#dispose
+   * @access public
+   * @param {function} callback - a function to be called when a cache key is evicted
+   * @returns {undefined}
+   **/
   const removeDisposer = (cb) => (disposers = disposers.filter((disposer) => disposer && disposer !== cb))
 
   /**
@@ -86,6 +99,35 @@ export default (options) => {
    **/
   const set = (key, value, ttl = DEFAULT_CACHE_EXPIRE) => {
     cache.set(key, {...createEntry(value, ttl), cache: CACHE_HIT})
+  }
+
+  /**
+   * @description check if key exists in cache
+   * @access public
+   * @param {String} key - key in cache to lookup.
+   * @returns {Boolean} - true|false key exists in cache
+   **/
+  const has = (key) => {
+    return cache.has(key)
+  }
+
+  /**
+   * @description delete key from cache
+   * @access public
+   * @param {String} key - key in cache to delete
+   * @returns {undefined}
+   **/
+  const del = (key) => {
+    cache.del(key)
+  }
+
+  /**
+   * @description removes all cache entries
+   * @access public
+   * @returns {undefined}
+   **/
+  const clear = () => {
+    cache.reset()
   }
 
   /**
@@ -196,7 +238,7 @@ export default (options) => {
   }
 
   /**
-   * @description set value in cache
+   * @description expire a cache key (ie. set TTL = 0)
    * @access public
    * @param {Array<String>} keys - array of keys to expire (supports * as wildcards, converted to .* regexp)
    * @returns {undefined}
@@ -231,11 +273,14 @@ export default (options) => {
 
   const buildFacade = () => {
     return {
-      addDisposer,
-      removeDisposer,
       get,
       set,
+      has,
+      del,
+      clear,
       expire,
+      addDisposer,
+      removeDisposer,
       // helpers
       debug,
       log,

@@ -4,6 +4,7 @@
 import {
   loadObjects,
   deleteKey,
+  deleteKeys,
   extractKeyFromRedis,
   getRedisKey,
   isSerializable
@@ -56,6 +57,18 @@ export default (redisFactory,
     })
   }
 
+  const del = (key, next) => {
+    return deleteKey(getRedisKey(cacheKeyPrefix, key), redisClient).then(() => {
+      next(key)
+    })
+  }
+
+  const clear = (next) => {
+    return deleteKeys(cacheKeyPrefix, redisClient).then(() => {
+      next()
+    })
+  }
+
   const load = () => {
     const then = Date.now()
     return loadObjects(cacheKeyPrefix, redisClient, cacheInstance.log)
@@ -92,6 +105,8 @@ export default (redisFactory,
 
   return {
     get,
+    del,
+    clear,
     load,
     debug,
     destroy

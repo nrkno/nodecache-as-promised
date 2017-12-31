@@ -2,8 +2,12 @@
   "name": "@nrk/nodecache-as-promised",
   "author": "opensource@nrk.no",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nrkno/nodecache-as-promised/issues"
+  },
+  "homepage": "https://github.com/nrkno/nodecache-as-promised#readme",
   "version": "1.0.3",
-  "description": "NodeJs in-memory cache. Optional distributed capabilites using Redis pub/sub + persistence",
+  "description": "NodeJs in-memory cache with Promise support. Extendable with middlewares. Middlewares provided: Distributed invalidation and persistence of cache misses",
   "main": "lib/index.js",
   "scripts": {
     "preversion": "echo prepublish clean, test and build && rm -rf lib node_modules && npm i && npm test && npm run build",

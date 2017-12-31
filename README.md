@@ -135,13 +135,23 @@ cache.set('myKey', 'someData', 60 * 1000)
 
 If `ttl`-parameter is omitted, a default will be used: `86400000` (24h)
 
+
+#### .has(key)
+Check if a key is in the cache, without updating the recent-ness or deleting it for being stale.
+
+#### .del(key)
+Deletes a key out of the cache.
+
 #### .expire(keys)
-Mark keys as stale
+Mark keys as stale (ie. set TTL = 0)
 ```js
 cache.expire(['myKey*', 'anotherKey'])
 ```
 
 Asterisk `*` is used for wildcards
+
+#### .clear()
+Clear the cache entirely, throwing away all values.
 
 #### .addDisposer(callback)
 Add callback to be called when an item is evicted by LRU-cache. Used to do cleanup
