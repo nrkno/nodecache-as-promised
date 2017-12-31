@@ -42,7 +42,7 @@ export default (redisFactory,
           persisting[key] = true
           const redisKey = getRedisKey(cacheKeyPrefix, key)
           cacheInstance.log.debug(`Persist to key "${redisKey}"`)
-          const objWithMeta = cacheInstance.cache.get(key)
+          const objWithMeta = cacheInstance.get(key)
           redisClient.set(redisKey, JSON.stringify(objWithMeta), 'ex', Math.round((objWithMeta.TTL + grace) / 1000), (err) => {
             if (err) {
               cacheInstance.log.warn(err)

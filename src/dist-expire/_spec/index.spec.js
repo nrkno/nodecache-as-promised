@@ -46,7 +46,7 @@ describe('dist-expire', () => {
       const cache = inMemoryCache({initial: {hello: 'world'}, log: dummyLog})
       cache.use(distCache(mockRedisFactory(), namespace))
       cache.expire(['hello'])
-      expect(cache.cache.get('hello').TTL).to.equal(0)
+      expect(cache.get('hello').TTL).to.equal(0)
       return cache.get('hello', {worker: spy}).then((obj) => {
         expect(obj.value).to.equal('world2')
         expect(spy.called).to.equal(true)

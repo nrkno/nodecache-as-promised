@@ -6,6 +6,5 @@ node_modules
 *.orig
 .idea/
 logs
-lib
 coverage
 .nyc_output

@@ -17,7 +17,8 @@ describe('CacheManager', () => {
     it('should create a new empty instance', () => {
       const cacheInstance = inMemoryCache({}, {})
       expect(cacheInstance).to.be.a(Object)
-      expect(cacheInstance.cache.itemCount).to.equal(0)
+      const info = cacheInstance.debug()
+      expect(info.itemCount).to.equal(0)
     })
 
     it('should have exported plugins', () => {
@@ -30,9 +31,10 @@ describe('CacheManager', () => {
       const cacheInstance = inMemoryCache({initial: obj})
       obj.hei = 'world'
       expect(cacheInstance).to.be.a(Object)
-      expect(cacheInstance.cache.itemCount).to.equal(1)
-      expect(cacheInstance.cache.get('hei').value).to.equal('verden')
-      expect(cacheInstance.cache.get('hei').cache).to.equal('hit')
+      const info = cacheInstance.debug()
+      expect(info.itemCount).to.equal(1)
+      expect(cacheInstance.get('hei').value).to.equal('verden')
+      expect(cacheInstance.get('hei').cache).to.equal('hit')
     })
   })
 
@@ -102,8 +104,7 @@ describe('CacheManager', () => {
 
     beforeEach(() => {
       cacheInstance = inMemoryCache({initial: preCached})
-      const staleObj = {...cacheInstance.cache.get(dummyKey), TTL: -1000}
-      cacheInstance.cache.set(dummyKey, staleObj)
+      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000)
       now = Date.now()
       spy = sinon.spy(() => new Promise((resolve) => {
         setTimeout(() => resolve(now), 10)
@@ -149,8 +150,7 @@ describe('CacheManager', () => {
 
     beforeEach(() => {
       cacheInstance = inMemoryCache({initial: preCached})
-      const staleObj = {...cacheInstance.cache.get(dummyKey), TTL: -1000}
-      cacheInstance.cache.set(dummyKey, staleObj)
+      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000)
       now = Date.now()
       spy = sinon.spy(() => new Promise((resolve) => {
         setTimeout(() => resolve(now), 10)
@@ -175,8 +175,7 @@ describe('CacheManager', () => {
 
     beforeEach(() => {
       cacheInstance = inMemoryCache({initial: preCached, log: dummyLog})
-      const staleObj = {...cacheInstance.cache.get(dummyKey), TTL: -1000}
-      cacheInstance.cache.set(dummyKey, staleObj)
+      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000)
     })
 
     it('should return stale cache and increase wait if promise reaches timeout', () => {
@@ -238,8 +237,7 @@ describe('CacheManager', () => {
 
     beforeEach(() => {
       cacheInstance = inMemoryCache({initial: preCached, log: dummyLog})
-      const staleObj = {...cacheInstance.cache.get(dummyKey), TTL: -1000}
-      cacheInstance.cache.set(dummyKey, staleObj)
+      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000)
     })
 
     it('should return stale cache and set wait if a promise rejection occurs', () => {
@@ -401,16 +399,16 @@ describe('CacheManager', () => {
 
     it('should expire all house keys', () => {
       cacheInstance.expire(['house/*'])
-      expect(cacheInstance.cache.get('house/1').TTL).to.equal(0)
-      expect(cacheInstance.cache.get('house/2').TTL).to.equal(0)
-      expect(cacheInstance.cache.get('guest/2').TTL).not.to.equal(0)
+      expect(cacheInstance.get('house/1').TTL).to.equal(0)
+      expect(cacheInstance.get('house/2').TTL).to.equal(0)
+      expect(cacheInstance.get('guest/2').TTL).not.to.equal(0)
     })
 
     it('should expire given house keys', () => {
       cacheInstance.expire(['house/*', 'guest/2'])
-      expect(cacheInstance.cache.get('house/1').TTL).to.equal(0)
-      expect(cacheInstance.cache.get('house/2').TTL).to.equal(0)
-      expect(cacheInstance.cache.get('guest/2').TTL).to.equal(0)
+      expect(cacheInstance.get('house/1').TTL).to.equal(0)
+      expect(cacheInstance.get('house/2').TTL).to.equal(0)
+      expect(cacheInstance.get('guest/2').TTL).to.equal(0)
     })
   })
 
@@ -424,8 +422,9 @@ describe('CacheManager', () => {
         },
         maxLength: 2
       })
-      expect(cacheInstance.cache.itemCount).to.equal(2)
-      expect(cacheInstance.cache.keys()).to.eql(['guest/3', 'house/2'])
+      const info = cacheInstance.debug()
+      expect(info.itemCount).to.equal(2)
+      expect(cacheInstance.keys()).to.eql(['guest/3', 'house/2'])
     })
 
     it('should call dispose on set operations when LRU cache evicts object', () => {
@@ -447,8 +446,9 @@ describe('CacheManager', () => {
       cacheInstance.removeDisposer(spy)
       cacheInstance.set('guest/4', {hei: 'verden'})
       expect(spy.callCount).to.equal(1)
-      expect(cacheInstance.cache.itemCount).to.equal(2)
-      expect(cacheInstance.cache.keys()).to.eql(['guest/4', 'guest/3'])
+      const info = cacheInstance.debug()
+      expect(info.itemCount).to.equal(2)
+      expect(cacheInstance.keys()).to.eql(['guest/4', 'guest/3'])
     })
 
     it('should call dispose on del operations', () => {

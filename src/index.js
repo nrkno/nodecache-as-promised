@@ -317,7 +317,6 @@ export default (options) => {
       debug,
       log,
       // for testing purposes
-      cache,
       waiting
     }
   }
