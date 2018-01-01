@@ -20,13 +20,15 @@ npm install @nrk/nodecache-as-promised --save
 ## Motivation
 Sometimes Node.js needs to do some heavy lifting, performing CPU or network intensive tasks and yet respond quickly on incoming requests. For repetitive tasks like Server side rendering of markup or parsing big JSON responses caching can give the application a great performance boost. Since many requests may hit the server concurrently, you do not want more than **one** worker to run for a given resource at the same time. In addition - serving stale content when a backend resource is down may save your day! The intention of `nodecache-as-promised` is to give you a fairly simple interface, yet powerful application cache, with fine-grained control over caching behaviour.
 
-`nodecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). Whereas Varnish is a high-performant edge/burst/failover cache, working as a reverse proxy and loadbalancer, it depends on a fast backend when configured with short a cache window (ie. TTL ~1s). It uses URLs in combination with cookies as keys for its cached content. Since there are no restrictions on conformant URLs/cookies for clients requesting content, it is quite easy to bust it's cache without any security measures. `nodecache-as-promised` on the other hand is running at application level for more strict handling of cache keys, and may use many different caches and policies on how the web page is built. The application cache may be used in various ways, as a standalone inMemoryCache, a cache backed by Redis persistence and pub/sub expiry, or with an edge cache in front. As an analogy to how multilevel caches in CPUs works it may be used in a similar way:
+`nodecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). Whereas Varnish is a high-performant edge/burst/failover cache, working as a reverse proxy and loadbalancer, it depends on a fast backend when configured with short a cache window (ie. TTL ~1s). It uses URLs in combination with cookies as keys for its cached content. Since there are no restrictions on conformant URLs/cookies for clients requesting content, it is quite easy to bust it's cache without any security measures. `nodecache-as-promised` on the other hand is running at application level for more strict handling of cache keys, and may use many different caches and policies on how the web page is built. The application cache may be used in various ways, as a standalone inMemoryCache, a cache backed by Redis persistence and pub/sub expiry, or with an edge cache in front.
 
-|Type        |Level 1         |Level 2                |Level 3  |
-|:-----------|:---------------|:----------------------|:--------|
-|Technology  |Varnish         |`nodecache-as-promised`|Redis    |
-|Lifespan    |Short age (1s)  |Medium age (1m - 24h)  |Long age |
-|Distribution|Singular        |Singular               |Shared   |
+|Type           |Level 1               |Level 2                |Level 3                   |
+|:--------------|:---------------------|:----------------------|:-------------------------|
+|Technology     |Varnish, Nginx        |`nodecache-as-promised`|Redis                     |
+|Lifespan       |Short age (1s)        |Medium age (1m - 24h)  |Long age                  |
+|Distribution   |Singular              |Singular               |Shared                    |
+|Invalidation   |TTL                   |TTL or on-demand expiry|TTL or on-demand deletions|
+|Synchronization|stale-while-revalidate|stale-if-error         |master/slave-replication  |
 
 ### Features
 - __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data from disk or via network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
