@@ -223,6 +223,7 @@ export default (options = {}) => {
    **/
   const get = (key, config = {}) => {
     // TODO: support stale-while-revalidate
+    // TODO: make stale-if-error a configurable
     const {
       ttl = DEFAULT_CACHE_EXPIRE,
       workerTimeout = 5000,
