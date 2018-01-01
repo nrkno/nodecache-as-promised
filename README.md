@@ -25,10 +25,10 @@ Sometimes Node.js needs to do some heavy lifting, performing CPU or network inte
 |Type           |Level 1               |Level 2                |Level 3                   |
 |:--------------|:---------------------|:----------------------|:-------------------------|
 |Technology     |Varnish, Nginx        |`nodecache-as-promised`|Redis                     |
-|Lifespan       |Short age (1s)        |Medium age (1m - 24h)  |Long age                  |
-|Distribution   |Singular              |Singular               |Shared                    |
+|Lifespan       |Short age (1s)        |Medium age (>1s)       |Long age                  |
+|Distribution   |Singular              |Singular/dist. expire  |Shared                    |
 |Invalidation   |TTL                   |TTL or on-demand expiry|TTL or on-demand deletions|
-|Synchronization|stale-while-revalidate|stale-if-error         |master/slave-replication  |
+|Stale support  |stale-while-revalidate|stale-if-error         |N/A                       |
 
 ### Features
 - __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data from disk or via network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
