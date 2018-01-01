@@ -129,6 +129,12 @@ Configuration for the newly created object
 - workerTimeout - `Number`. max time allowed to run promise. Default: `5000`
 - deltaWait - `Number`. delta wait (in ms) before retrying promise, when stale. Default: `10000`
 
+#### returned object
+- value - `any` - value set in cache
+- created - `Number` - UX timestamp (ms) when the value was created
+- cache - `Enum(hit|miss|stale)` - status of cached content
+- TTL - `Number` - Amount of ms until until value becomes stale since creation
+
 **NOTE:** It might seem a bit strange to set cache values using `.get` - but it is to avoid a series of operations using `.get()` to check if a value exists, then call `.set()`, and finally running `.get()` once more (making queing difficult). In summary: `.get()` returns a value from cache or a provided worker.
 
 #### .set(key, value, [ttl])
@@ -186,7 +192,7 @@ Prints debug information about current cache (ie. hot keys, stale keys, keys in 
 cache.debug({hostname: os.hostname()})
 ```
 
-#### .log[trace|debug|info|warn|error](data)
+#### .log.[trace|debug|info|warn|error] (data)
 Logger instance exposed to be used by middlewares
 ```js
 cache.log.info('hello world!')
