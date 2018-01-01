@@ -54,7 +54,7 @@ const CACHE_STALE = 'stale'
   * @returns {function} object.expire method
   * @returns {function} object.debug method
   **/
-export default (options) => {
+export default (options = {}) => {
   const {
     log = console,  // eslint-disable-line
     initial = {},

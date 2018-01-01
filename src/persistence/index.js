@@ -69,19 +69,19 @@ export default (redisFactory,
     })
   }
 
-  const load = () => {
-    const then = Date.now()
+  const load = (nowDefault = Date.now()) => {
+    const now = nowDefault
     return loadObjects(cacheKeyPrefix, redisClient, cacheInstance.log)
       .then((mapLoaded) => {
         Object.keys(mapLoaded).map((key) => {
           cacheInstance.set(
             extractKeyFromRedis(cacheKeyPrefix, key),
             mapLoaded[key].value,
-            mapLoaded[key].TTL - (Date.now() - mapLoaded[key].created)
+            mapLoaded[key].TTL - (now - mapLoaded[key].created)
           )
           return key
         })
-        cacheInstance.log.info(`Read ${Object.keys(mapLoaded).length} keys from redis. Used ${Date.now() - then} ms`)
+        cacheInstance.log.info(`Read ${Object.keys(mapLoaded).length} keys from redis. Used ${Date.now() - now} ms`)
       })
   }
 

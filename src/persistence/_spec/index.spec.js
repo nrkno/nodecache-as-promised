@@ -4,6 +4,7 @@ import sinon from 'sinon'
 import expect from 'expect.js'
 import {mockRedisFactory} from '../../utils/mock-redis-factory'
 import * as utils from '../persistence-helpers'
+import {createEntry} from '../../utils/cache-helpers'
 import {dummyLog} from '../../utils/log-helper'
 import pkg from '../../../package.json'
 
@@ -26,21 +27,45 @@ describe('persistence', () => {
     })
   })
 
+  describe('-> bootload', () => {
+    it('should set TTL based on elapsed time', () => {
+      const now = Date.now()
+      const diff = 10
+      const loadObjectsStub = sinon.stub(utils, 'loadObjects').resolves({
+        [`${pkg.name}-myCache-house/1`]: createEntry({hello: 'world'}, 1000, now)
+      })
+      const cache = inMemoryCache({log: dummyLog})
+      let cacheInstance
+      cache.use((ci) => {
+        cacheInstance = ci
+        return persistentCache(mockRedisFactory(), {bootload: false})(ci)
+      })
+      const setStub = sinon.stub(cacheInstance, 'set').returns('ok')
+      return cache.load(now + diff).then(() => {
+        expect(setStub.called).to.equal(true)
+        expect(setStub.args[0][0]).to.equal(`${pkg.name}-myCache-house/1`)
+        expect(setStub.args[0][1]).to.eql({hello: 'world'})
+        expect(setStub.args[0][2]).to.equal(1000 - diff)
+        setStub.restore()
+        loadObjectsStub.restore()
+      })
+    })
+  })
+
   describe('-> get (write to redis on MISS)', () => {
     let cache
     let mockFactory
     let setSpy
 
     beforeEach(() => {
-      const p = (key, json, ex, ttl, cb) => {
+      setSpy = sinon.spy((key, json, ex, ttl, cb) => {
         if (key.indexOf('setFail') > -1) {
           return cb(new Error('dummyerror'), null)
         }
         cb(null, 'ok')
-      }
-      setSpy = sinon.spy(p)
+      })
       sinon.stub(utils, 'loadObjects').resolves({
-        [`${pkg.name}-myCache-house/1`]: '{"hello": "world"}'
+        [`${pkg.name}-myCache-house/1`]: createEntry({hello: 'world'}, 1000)
       })
       mockFactory = mockRedisFactory({
         set: setSpy

@@ -55,9 +55,10 @@ export const waitingForError = (key, wait = {}) => {
   return new Error(`Waiting for next run for ${key}, wait: ${JSON.stringify(wait, null, 2)}`)
 }
 
-export const createEntry = (value, TTL) => {
+export const createEntry = (value, TTL, date) => {
+  const created = date || Date.now()
   return {
-    created: Date.now(),
+    created,
     TTL,
     value
   }
