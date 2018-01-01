@@ -22,11 +22,11 @@ Sometimes Node.js needs to do some heavy lifting, performing CPU or network inte
 
 `nodecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). Whereas Varnish is a high-performant edge/burst/failover cache, working as a reverse proxy and loadbalancer, it depends on a fast backend when configured with short a cache window (ie. TTL ~1s). It uses URLs in combination with cookies as keys for its cached content. Since there are no restrictions on conformant URLs/cookies for clients requesting content, it is quite easy to bust it's cache without any security measures. `nodecache-as-promised` on the other hand is running at application level for more strict handling of cache keys, and may use many different caches and policies on how the web page is built. The application cache may be used in various ways, as a standalone inMemoryCache, a cache backed by Redis persistence and pub/sub expiry, or with an edge cache in front. As an analogy to how CPUs caches work it may be used in a similar way:
 
-|Level 1         |Level 2                |Level 3  |
-|:---------------|:----------------------|:--------|
-|Varnish, 1s TTL |`nodecache-as-promised`|Redis    |
-|----------------|-----------------------|---------|
-|Short age       |Long lived             |Shared   |
+|Type        |Level 1         |Level 2                |Level 3  |
+|:-----------|:---------------|:----------------------|:--------|
+|Technology  |Varnish, 1s TTL |`nodecache-as-promised`|Redis    |
+|Lifespan    |Short age       |Medium age             |Long age |
+|Distribution|Individual      |Individual             |Shared   |
 
 
 ### Features
