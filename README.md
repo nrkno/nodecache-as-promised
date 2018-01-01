@@ -29,7 +29,7 @@ Sometimes Node.js needs to do some heavy lifting, performing CPU or network inte
 - __Grace mode__ is used if a worker fails (eg. caused by failing backends), ie.  stale cache is returned instead.
 - __Avoidance of spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
 - __Middleware support__ so you may create your own custom extensions. Provided middlewares:
-  - __Persistent cache__ is used as secondary storage to avoid high back-pressure on backend resources when caches are cleared after server restarts. This is achieved storing cache-misses in Redis depending on a [ioredis](https://www.npmjs.com/package/ioredis)-factory
+  - __Persistent cache__ is used as secondary storage to avoid high back-pressure when inMemoryCaches are cleared after server restarts. This is achieved storing cache-misses and deletions on cache evictions using a [ioredis](https://www.npmjs.com/package/ioredis)-factory connecting to a redis instance.
   - __Distributed on demand expiry__ so that new content may be published across servers/instances before cache-TTL is reached. This is achieved using Redis pub/sub depending on a [ioredis](https://www.npmjs.com/package/ioredis)-factory
 
 ### Performance testing
