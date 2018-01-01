@@ -29,7 +29,7 @@ Sometimes Node.js needs to do some heavy lifting, performing CPU or network inte
 
 ### Features
 - __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data from disk or via network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
-- __Caches are filled using worker promises__ since cached objects often are depending on async operations. (RxJs)[https://www.npmjs.com/package/rxjs] is used to queue concurrent requests for the same key; thus ensuring that only __one__ worker is performed when cached content is missing/stale.
+- __Caches are filled using worker promises__ since cached objects often are depending on async operations. [RxJs](https://www.npmjs.com/package/rxjs) is used to queue concurrent requests for the same key; thus ensuring that only __one__ worker is performed when cached content is missing/stale.
 - __Caching of custom class instances, functions and native objects__ such as Date, RegExp and Redux stores are supported through in-memory caching. Non-serializable (using JSON.stringify) objects are filtered out in persistent caches though.
 - __Grace mode__ is used if a worker fails (eg. caused by failing backends), ie.  stale cache is returned instead.
 - __Avoidance of spamming backend resources__ using a configurable retry-wait parameter, serving either a stale object or rejection.
