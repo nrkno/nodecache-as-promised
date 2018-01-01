@@ -31,8 +31,8 @@ Sometimes Node.js needs to do some heavy lifting, performing CPU or network inte
 - __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data from disk or via network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
 - __Caches are filled using worker promises__ since cached objects often are depending on async operations. [RxJs](https://www.npmjs.com/package/rxjs) is used to queue concurrent requests for the same key; thus ensuring that only __one__ worker is performed when cached content is missing/stale.
 - __Caching of custom class instances, functions and native objects__ such as Date, RegExp and Redux stores are supported through in-memory caching. Non-serializable (using JSON.stringify) objects are filtered out in persistent caches though.
-- __Grace mode__ (ie. *stale-if-error*) is used if a worker fails (eg. caused by failing backends), ie.  stale cache is returned instead.
-- __Avoidance of spamming backend resources__ (ie. *stale-while-revalidate*) using a configurable deltaWait parameter, serving either a stale object or a rejection.
+- __Grace mode__ is used if a worker fails (eg. caused by failing backends), ie.  stale cache is returned instead.
+- __Avoidance of spamming backend resources__ using a configurable deltaWait parameter, serving either a stale object or a rejection.
 - __Middleware support__ so you may create your own custom extensions. Provided middlewares:
   - __Persistent cache__ is used as secondary storage to avoid high back-pressure when inMemoryCaches are cleared after server restarts. This is achieved storing cache-misses and deletions on cache evictions using a [ioredis](https://www.npmjs.com/package/ioredis)-factory connecting to a redis instance.
   - __Distributed on demand expiry__ so that new content may be published across servers/instances before cache-TTL is reached. This is achieved using Redis pub/sub depending on a [ioredis](https://www.npmjs.com/package/ioredis)-factory
