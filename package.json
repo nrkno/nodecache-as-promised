@@ -6,7 +6,7 @@
     "url": "https://github.com/nrkno/nodecache-as-promised/issues"
   },
   "homepage": "https://github.com/nrkno/nodecache-as-promised#readme",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "NodeJs in-memory cache with Promise support. Extendable with middlewares. Middlewares provided: Distributed invalidation and persistence of cache misses",
   "main": "lib/index.js",
   "scripts": {
