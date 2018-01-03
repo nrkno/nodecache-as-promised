@@ -67,7 +67,7 @@ An object containing configuration
 - log - `Object with log4j-facade`. Used to log internal work. Default: `console`
 
 ### distCache factory
-Creating a new distCache middleware instance
+Creating a new distCache middleware instance. The distCache middleware is extending the inMemoryCache instance by making a publish call to Redis using the provided `namespace` when the `.expire`-method is called. A subscription to the `namespace` ensures calls to `.expire` is distributed to all instances of the inMemoryCache using the same distCache middleware with the same `namespace`.
 
 ```js
 import cache, {distCache} from '@nrk/nodecache-as-promised'
@@ -81,7 +81,8 @@ Parameters that must be provided upon creation:
 - namespace - `String`. Pub/sub-namespace used for distributed expiries
 
 ### persistentCache factory
-Creating a new persistentCache middleware instance
+Creating a new persistentCache middleware instance. The persistentCache middleware is extending the inMemoryCache instance by serializing and storing any new values recieved via workers in `.get` or in `.set`-calls to Redis. In addition it deletes values from Redis when the `.del` and `.clear`-methods are called. Cache values evicted by the LRU-cache are also deleted. On creation it will load and set initial cache values by doing a search for stored keys on the provided `keySpace` (may be disabled using the option `bootLoad: false` - so that loading may be done afterwards using the provided `.load`-method). It adds a couple of parameters to the `.debug`-method.
+
 
 ```js
 import cache, {persistentCache} from '@nrk/nodecache-as-promised'
