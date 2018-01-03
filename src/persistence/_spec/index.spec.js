@@ -138,6 +138,7 @@ describe('persistence', () => {
 
   describe('onDispose', () => {
     let delSpy
+    let setSpy
     let mockFactory
     let cache
 
@@ -148,8 +149,10 @@ describe('persistence', () => {
         }
         cb(new Error('dummyerror'), null)
       })
+      setSpy = sinon.spy(() => {})
       mockFactory = mockRedisFactory({
-        del: delSpy
+        del: delSpy,
+        set: setSpy
       })
       cache = inMemoryCache({log: dummyLog, maxLength: 2})
       cache.use(persistentCache(
@@ -171,6 +174,10 @@ describe('persistence', () => {
       cache.set('house/1', {hei: 'verden'})
       cache.set('house/2', {hei: 'verden'})
       cache.set('guest/3', {hei: 'verden'})
+      expect(setSpy.callCount).to.equal(3)
+      expect(setSpy.args[0][0]).to.equal(utils.getRedisKey(`${pkg.name}-myCache`, 'house/1'))
+      expect(setSpy.args[1][0]).to.equal(utils.getRedisKey(`${pkg.name}-myCache`, 'house/2'))
+      expect(setSpy.args[2][0]).to.equal(utils.getRedisKey(`${pkg.name}-myCache`, 'guest/3'))
       expect(delSpy.called).to.equal(true)
       expect(delSpy.args[0][0]).to.equal(utils.getRedisKey(`${pkg.name}-myCache`, 'house/1'))
     })
@@ -180,6 +187,10 @@ describe('persistence', () => {
       cache.set('guest/3', {hei: 'verden'})
       cache.set('house/1', {hei: 'verden'})
       cache.set('house/2', {hei: 'verden'})
+      expect(setSpy.callCount).to.equal(3)
+      expect(setSpy.args[0][0]).to.equal(utils.getRedisKey(`${pkg.name}-myCache`, 'guest/3'))
+      expect(setSpy.args[1][0]).to.equal(utils.getRedisKey(`${pkg.name}-myCache`, 'house/1'))
+      expect(setSpy.args[2][0]).to.equal(utils.getRedisKey(`${pkg.name}-myCache`, 'house/2'))
       expect(delSpy.called).to.equal(true)
       expect(delSpy.args[0][0]).to.equal(utils.getRedisKey(`${pkg.name}-myCache`, 'guest/3'))
       setTimeout(() => {

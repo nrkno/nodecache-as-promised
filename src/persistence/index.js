@@ -33,28 +33,54 @@ export default (redisFactory,
   const cacheKeyPrefix = `${pkg.name}-${keySpace}`
   const persisting = {}
 
+  const persist = (key, val) => {
+    if ((!doNotPersist || !doNotPersist.test(key)) && isSerializable(val) && !persisting[key]) {
+      persisting[key] = true
+      const redisKey = getRedisKey(cacheKeyPrefix, key)
+      cacheInstance.log.debug(`Persist to key "${redisKey}"`)
+      const valWithMeta = cacheInstance.get(key)
+      redisClient.set(redisKey, JSON.stringify(valWithMeta), 'ex', Math.round((valWithMeta.TTL + grace) / 1000), (err) => {
+        if (err) {
+          cacheInstance.log.warn(err)
+        }
+        delete persisting[key]
+      })
+    } else {
+      cacheInstance.log.debug(`skipping persistence of promised object with key ${key}`)
+    }
+  }
+
   const get = (...args) => {
     const next = args.pop()
-    return next(...args).then((obj) => {
+    return next(...args).then((val) => {
       const [key] = args
-      if (obj.cache === 'miss') {
-        if ((!doNotPersist || !doNotPersist.test(key)) && isSerializable(obj) && !persisting[key]) {
-          persisting[key] = true
-          const redisKey = getRedisKey(cacheKeyPrefix, key)
-          cacheInstance.log.debug(`Persist to key "${redisKey}"`)
-          const objWithMeta = cacheInstance.get(key)
-          redisClient.set(redisKey, JSON.stringify(objWithMeta), 'ex', Math.round((objWithMeta.TTL + grace) / 1000), (err) => {
-            if (err) {
-              cacheInstance.log.warn(err)
-            }
-            delete persisting[key]
-          })
-        } else {
-          cacheInstance.log.debug(`skipping persistence of promised object with key ${key}`)
-        }
+      if (val.cache === 'miss') {
+        persist(key, val)
+        // return valj
+        // if ((!doNotPersist || !doNotPersist.test(key)) && isSerializable(obj) && !persisting[key]) {
+        //   persisting[key] = true
+        //   const redisKey = getRedisKey(cacheKeyPrefix, key)
+        //   cacheInstance.log.debug(`Persist to key "${redisKey}"`)
+        //   const objWithMeta = cacheInstance.get(key)
+        //   redisClient.set(redisKey, JSON.stringify(objWithMeta), 'ex', Math.round((objWithMeta.TTL + grace) / 1000), (err) => {
+        //     if (err) {
+        //       cacheInstance.log.warn(err)
+        //     }
+        //     delete persisting[key]
+        //   })
+        // } else {
+        //   cacheInstance.log.debug(`skipping persistence of promised object with key ${key}`)
+        // }
       }
-      return obj
+      return val
     })
+  }
+
+  const set = (...args) => {
+    const next = args.pop()
+    next(...args)
+    const [key, val] = args
+    persist(key, val)
   }
 
   const del = (key, next) => {
@@ -109,6 +135,7 @@ export default (redisFactory,
 
   return {
     get,
+    set,
     del,
     clear,
     load,
