@@ -6,9 +6,9 @@
 - [Features](#features)
 - [APIs](#apis)
 - [Examples](#examples)
-- [Distributed capabilites](#distributed-capabilites)
+- [Middlewares](#middlewares)
+- [Creating your own middlewares](#creating-your-own-middleware)
 - [Local development](#local-development)
-- [Creating your own middleware](#creating-your-own-middleware)
 - [Building and committing](#building-and-committing)
 
 ## Installing
@@ -20,7 +20,7 @@ npm install @nrk/nodecache-as-promised --save
 ## Motivation
 Sometimes Node.js needs to do some heavy lifting, performing CPU or network intensive tasks and yet respond quickly on incoming requests. For repetitive tasks like Server side rendering of markup or parsing big JSON responses caching can give the application a great performance boost. Since many requests may hit the server concurrently, you do not want more than **one** worker to run for a given resource at the same time. In addition - serving stale content when a backend resource is down may save your day! The intention of `nodecache-as-promised` is to give you a fairly simple interface, yet powerful application cache, with fine-grained control over caching behaviour.
 
-`nodecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). Whereas Varnish is a high-performant edge/burst/failover cache, working as a reverse proxy and loadbalancer, it depends on a fast backend when configured with short a cache window (ie. TTL ~1s). It uses URLs in combination with cookies as keys for its cached content. Since there are no restrictions on conformant URLs/cookies for clients requesting content, it is quite easy to bust it's cache without any security measures. `nodecache-as-promised` on the other hand is running at application level for more strict handling of cache keys, and may use many different caches and policies on how the web page is built. Look [below](#advanced-usage) for more advanced use cases.
+`nodecache-as-promised` is inspired by how [Varnish](https://varnish-cache.org/) works. It is not intended to replace Varnish (but works great in combination). Whereas Varnish is a high-performant edge/burst/failover cache, working as a reverse proxy and loadbalancer, it depends on a fast backend when configured with short a cache window (ie. TTL ~1s). It uses URLs in combination with cookies as keys for its cached content. Since there are no restrictions on conformant URLs/cookies for clients requesting content, it is quite easy to bust it's cache without any security measures. `nodecache-as-promised` on the other hand is running at application level for more strict handling of cache keys, and may use many different caches and policies on how the web page is built.
 
 ### Features
 - __In-memory cache__ is used as primary storage since it will always be faster than parsing and fetching data from disk or via network. An [LRU-cache](https://www.npmjs.com/package/lru-cache) is enabled to constrain the amount of memory used.
@@ -65,40 +65,6 @@ An object containing configuration
 - maxLength - `Number`. Max key count before LRU-cache evicts object. Default: `1000`
 - maxAge - `Number`. Max time before a (stale) key is evicted by LRU-cache (in ms). Default: `172800000` (48h)
 - log - `Object with log4j-facade`. Used to log internal work. Default: `console`
-
-### distCache factory
-Creating a new distCache middleware instance. The distCache middleware is extending the inMemoryCache instance by making a publish call to Redis using the provided `namespace` when the `.expire`-method is called. A subscription to the `namespace` ensures calls to `.expire` is distributed to all instances of the inMemoryCache using the same distCache middleware with the same `namespace`. It adds a couple of parameters to the `.debug`-method.
-
-```js
-import cache, {distCache} from '@nrk/nodecache-as-promised'
-const cache = inMemoryCache()
-cache.use(distCache(redisFactory, namespace))
-```
-
-#### Parameters
-Parameters that must be provided upon creation:
-- redisFactory - `Function`. A function that returns an ioredis compatible redisClient.
-- namespace - `String`. Pub/sub-namespace used for distributed expiries
-
-### persistentCache factory
-Creating a new persistentCache middleware instance. The persistentCache middleware is extending the inMemoryCache instance by serializing and storing any new values recieved via workers in `.get` or in `.set`-calls to Redis. In addition it deletes values from Redis when the `.del` and `.clear`-methods are called. Cache values evicted by the LRU-cache are also deleted. On creation it will load and set initial cache values by doing a search for stored keys on the provided `keySpace` (may be disabled using the option `bootLoad: false` - so that loading may be done afterwards using the provided `.load`-method). It adds a couple of parameters to the `.debug`-method.
-
-
-```js
-import cache, {persistentCache} from '@nrk/nodecache-as-promised'
-const cache = inMemoryCache()
-cache.use(persistentCache(redisFactory, options))
-```
-
-#### Parameters
-Parameters that must be provided upon creation:
-- redisFactory - `Function`. A function that returns an ioredis compatible redisClient.
-
-#### options
-- doNotPersist - `RegExp`. Keys matching this regexp is not persisted to cache. Default `null`
-- keySpace - `String`. Prefix used when storing keys in redis.
-- grace - `Number`. Used to calculate TTL in redis (before auto removal), ie. object.TTL + grace. Default `86400000` (24h)
-- bootload - `Boolean`. Flag to choose if persisted cache is loaded from redis on middleware creation. Default `true`
 
 ### Instance methods
 When the factory is created (with or without middlewares), the following methods may be used.
@@ -249,10 +215,23 @@ cache.get('anotherkey', {
   })
 ```
 
-### Distributed capabilites
-Distributed expire and persisting of cache misses to Redis are provided as middlewares, ie. extending the in-memory cache interceptors. Writing your own middlewares using pub/sub from rabbitMQ, zeroMQ, persisting to a NAS, counting hit/miss-ratios should be easy.
+## Middlewares
 
-#### Distributed expire
+### distCache middleware
+Creating a new distCache middleware instance. The distCache middleware is extending the inMemoryCache instance by making a publish call to Redis using the provided `namespace` when the `.expire`-method is called. A subscription to the `namespace` ensures calls to `.expire` is distributed to all instances of the inMemoryCache using the same distCache middleware with the same `namespace`. It adds a couple of parameters to the `.debug`-method.
+
+```js
+import cache, {distCache} from '@nrk/nodecache-as-promised'
+const cache = inMemoryCache()
+cache.use(distCache(redisFactory, namespace))
+```
+
+#### Parameters
+Parameters that must be provided upon creation:
+- redisFactory - `Function`. A function that returns an ioredis compatible redisClient.
+- namespace - `String`. Pub/sub-namespace used for distributed expiries
+
+#### Example
 ```js
 import inMemoryCache, {distCache} from '@nrk/nodecache-as-promised'
 import Redis from 'ioredis'
@@ -270,7 +249,27 @@ setTimeout(() => {
 }, 1000)
 ```
 
-#### Persisting cache misses
+### persistentCache middleware
+Creating a new persistentCache middleware instance. The persistentCache middleware is extending the inMemoryCache instance by serializing and storing any new values recieved via workers in `.get` or in `.set`-calls to Redis. In addition it deletes values from Redis when the `.del` and `.clear`-methods are called. Cache values evicted by the LRU-cache are also deleted. On creation it will load and set initial cache values by doing a search for stored keys on the provided `keySpace` (may be disabled using the option `bootLoad: false` - so that loading may be done afterwards using the provided `.load`-method). It adds a couple of parameters to the `.debug`-method.
+
+
+```js
+import cache, {persistentCache} from '@nrk/nodecache-as-promised'
+const cache = inMemoryCache()
+cache.use(persistentCache(redisFactory, options))
+```
+
+#### Parameters
+Parameters that must be provided upon creation:
+- redisFactory - `Function`. A function that returns an ioredis compatible redisClient.
+
+#### options
+- doNotPersist - `RegExp`. Keys matching this regexp is not persisted to cache. Default `null`
+- keySpace - `String`. Prefix used when storing keys in redis.
+- grace - `Number`. Used to calculate TTL in redis (before auto removal), ie. object.TTL + grace. Default `86400000` (24h)
+- bootload - `Boolean`. Flag to choose if persisted cache is loaded from redis on middleware creation. Default `true`
+
+#### Example
 ```js
 import inMemoryCache, {persistentCache} from '@nrk/nodecache-as-promised'
 import Redis from 'ioredis'
@@ -290,7 +289,10 @@ cache.get('key', { worker: () => Promise.resolve('hello') })
 // {value: 'hello', created: 123456789, cache: 'hit', TTL: 60000}
 ```
 
-#### Persisting cache misses __and__ distributed expire
+#### Combining middlewares
+
+Example in combining persistentCache __and__ distCache
+
 ```js
 import inMemoryCache, {distCache, persistentCache} from '@nrk/nodecache-as-promised'
 import Redis from 'ioredis'
@@ -315,32 +317,6 @@ cache.get('key', {
 }).then(console.log)
 // will store a key in redis, using key: myCache-<key>
 // {value: 'hello', created: 123456789, cache: 'miss', TTL: 60000}
-```
-
-## Advanced usage
-
-The application cache may be used in various ways, as a standalone inMemoryCache, a cache backed by Redis persistence and pub/sub expiry, or with an edge cache in front. Below is a table one way to configure different caches.
-
-|Type           |Level 1               |Level 2                |Level 3                   |
-|:--------------|:---------------------|:----------------------|:-------------------------|
-|Technology     |Varnish, Nginx        |`nodecache-as-promised`|Redis                     |
-|Lifespan       |Short age (1s)        |Medium age (>1s)       |Long age                  |
-|Distribution   |Singular              |Singular/dist. expire  |Shared                    |
-|Invalidation   |TTL                   |TTL or on-demand expiry|TTL or on-demand deletions|
-|Stale support  |stale-while-revalidate|stale-if-error         |N/A                       |
-
-
-
----
-
-## Local development
-First clone the repo and install its dependencies:
-
-```bash
-git clone git@github.com:nrkno/nodecache-as-promised.git
-git checkout -b feature/my-changes
-cd nodecache-as-promised
-npm install && npm run build && npm run test
 ```
 
 ## Creating your own middleware
@@ -369,6 +345,19 @@ export const streamingMiddleware = (onSet, onDispose) => (cacheInstance) => {
     set
   }
 }
+```
+
+
+---
+
+## Local development
+First clone the repo and install its dependencies:
+
+```bash
+git clone git@github.com:nrkno/nodecache-as-promised.git
+git checkout -b feature/my-changes
+cd nodecache-as-promised
+npm install && npm run build && npm run test
 ```
 
 ## Building and committing
