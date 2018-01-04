@@ -29,28 +29,6 @@ export const isWaiting = (waiting, nowDefault) => {
   return false
 }
 
-/*
-export const existsAndNotStale = (entry, wait, nowDefault) => {
-  const now = nowDefault || Date.now()
-
-  let remainingToWait = 0
-  if (wait) {
-    remainingToWait = wait.started + wait.wait - now
-  }
-  if (remainingToWait > 0) {
-    return true
-  }
-  if (entry) {
-    return entry.created + entry.TTL > now
-  }
-  return false
-}
-
-export const finishedWaiting = (waiting) => {
-  return waiting ? waiting.waitUntil < Date.now() : true
-}
-*/
-
 export const waitingForError = (key, wait = {}) => {
   return new Error(`Waiting for next run for ${key}, wait: ${JSON.stringify(wait, null, 2)}`)
 }

@@ -98,7 +98,7 @@ export default (options = {}) => {
    * @returns {undefined}
    **/
   const set = (key, value, ttl = DEFAULT_CACHE_EXPIRE) => {
-    cache.set(key, {...createEntry(value, ttl), cache: CACHE_HIT})
+    cache.set(key, {...createEntry(value, ttl), cache: CACHE_HIT}, maxAge)
   }
 
   /**
@@ -181,7 +181,7 @@ export default (options = {}) => {
               null
     } if (obj && isFresh(obj) && !waiting.get(key)) {
       return Promise.resolve(obj)
-    } else if (obj && (!worker || isWaiting(waiting.get(key)))) {
+    } else if (obj && isWaiting(waiting.get(key))) {
       return Promise.resolve({...obj, cache: CACHE_STALE})
     } else if (isWaiting(waiting.get(key))) {
       return Promise.reject(waitingForError(key, waiting.get(key)))
@@ -261,7 +261,6 @@ export default (options = {}) => {
   const entries = () => {
     const vals = values()
     return new Map(keys().reduce((acc, key, i) => {
-      // console.log({[key]: vals[i]})
       acc.push([key, vals[i]])
       return acc
     }, []))
