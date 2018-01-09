@@ -51,8 +51,13 @@ export const createWait = (wait, now) => {
   }
 }
 
-export const createObservable = (promise, timeout) => {
+export const createObservable = (promiseCreator, timeout, logger) => {
+  const promise = promiseCreator().catch((err) => {
+    logger.error('An error occured while executing worker promise', err)
+    throw err
+  })
+
   return Observable
-    .fromPromise(promise())
+    .fromPromise(promise)
     .timeout(timeout)
 }
