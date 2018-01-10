@@ -63,7 +63,7 @@ describe('cache-helpers', () => {
     })
 
     it('should create an Observable from promise with timeout support', (done) => {
-      const p = () => setTimeout(() => Promise.resolve(), 10)
+      const p = () => new Promise((resolve) => setTimeout(() => resolve(), 10))
       const spy = sinon.spy(p)
       const obs = createObservable(spy, 0)
       obs.subscribe(Function.prototype, (err) => {

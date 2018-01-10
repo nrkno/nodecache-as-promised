@@ -142,7 +142,7 @@ export default (options = {}) => {
    * @returns {undefined}
    **/
   const _createJob = ({key, worker, workerTimeout, ttl, deltaWait}) => {
-    const observable = createObservable(worker, workerTimeout)
+    const observable = createObservable(worker, workerTimeout, log)
     const onNext = (value) => {
       // update cache
       set(key, value, ttl)

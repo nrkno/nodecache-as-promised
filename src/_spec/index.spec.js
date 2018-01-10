@@ -192,14 +192,16 @@ describe('CacheManager', () => {
       })
     })
 
-    it('should reject if cache is cold and a timeout occurs', () => {
+    it('should reject if cache is cold and a timeout occurs', (done) => {
       const timeoutSpy = sinon.spy(() => new Promise((resolve) => {
         setTimeout(() => resolve('another object'), 1000)
       }))
-      return cacheInstance.get(dummyKey, {workerTimeout: 0, worker: timeoutSpy})
+      cacheInstance = inMemoryCache({log: dummyLog})
+      cacheInstance.get(dummyKey, {workerTimeout: 0, worker: timeoutSpy})
       .catch((err) => {
         expect(timeoutSpy.called).to.equal(true)
         expect(err).to.be.an(Error)
+        done()
       })
     })
 
@@ -243,7 +245,10 @@ describe('CacheManager', () => {
     })
 
     it('should return stale cache and set wait if a promise rejection occurs', () => {
+      const errorLogSpy = sinon.spy()
       const rejectionSpy = sinon.spy(() => Promise.reject(new Error('an error occurred')))
+      cacheInstance = inMemoryCache({initial: preCached, log: {...dummyLog, error: errorLogSpy}})
+      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000)
       const info = cacheInstance.debug()
       expect(info.waiting.get(dummyKey)).to.be.a('undefined')
       return cacheInstance.get(dummyKey, {worker: rejectionSpy}).then((obj) => {
@@ -251,24 +256,30 @@ describe('CacheManager', () => {
         expect(info.waiting.get(dummyKey)).not.to.equal(0)
         expect(obj.value).to.eql(cacheValue)
         expect(obj.cache).to.equal('stale')
+        expect(errorLogSpy.called).to.equal(true)
       })
     })
 
-    it('should reject if cache is cold and a rejection occurs', () => {
+    it('should reject if cache is cold and a rejection occurs', (done) => {
+      const errorLogSpy = sinon.spy()
+      cacheInstance = inMemoryCache({log: {...dummyLog, error: errorLogSpy}})
       const rejectionSpy = sinon.spy(() => Promise.reject(new Error('an error occurred')))
-      return cacheInstance.get(dummyKey, {worker: rejectionSpy}).catch((err) => {
+      cacheInstance.get(dummyKey, {worker: rejectionSpy}).catch((err) => {
         expect(rejectionSpy.called).to.equal(true)
+        expect(errorLogSpy.called).to.equal(true)
         expect(err).to.be.an(Error)
+        done()
       })
     })
 
-    it('should reject if an Error is thrown', () => {
+    it('should reject if an Error is thrown', (done) => {
       const rejectionSpy = sinon.spy(() => {
         throw new Error('an error occurred')
       })
-      return cacheInstance.get(dummyKey, {worker: rejectionSpy}).catch((err) => {
+      cacheInstance.get(dummyKey, {worker: rejectionSpy}).catch((err) => {
         expect(rejectionSpy.called).to.equal(true)
         expect(err).to.be.an(Error)
+        done()
       })
     })
 
