@@ -1,490 +1,526 @@
 /* eslint max-nested-callbacks: 0 */
-import inMemoryCache, {distCache, persistentCache} from '../'
-import expect from 'expect.js'
-import sinon from 'sinon'
-import {dummyLog} from '../utils/log-helper'
+/* eslint-disable no-unused-vars */
+import inMemoryCache, { distCache, persistentCache } from '../';
+import expect from 'expect.js';
+import sinon from 'sinon';
+import { dummyLog } from '../utils/log-helper';
 
-const dummyKey = 'hei/verden'
+const dummyKey = 'hei/verden';
 const cacheValue = {
   keyNamespace: 'valueAsString'
-}
+};
 const preCached = {
   [dummyKey]: cacheValue
-}
+};
 
 describe('CacheManager', () => {
   describe('instantation', () => {
     it('should create a new empty instance', () => {
-      const cacheInstance = inMemoryCache({}, {})
-      expect(cacheInstance).to.be.a(Object)
-      const info = cacheInstance.debug()
-      expect(info.itemCount).to.equal(0)
-    })
+      const cacheInstance = inMemoryCache({}, {});
+      expect(cacheInstance).to.be.a(Object);
+      const info = cacheInstance.debug();
+      expect(info.itemCount).to.equal(0);
+    });
 
     it('should have exported plugins', () => {
-      expect(distCache).to.be.a('function')
-      expect(persistentCache).to.be.a('function')
-    })
+      expect(distCache).to.be.a('function');
+      expect(persistentCache).to.be.a('function');
+    });
 
     it('should create a new prefilled instance with a cloned copy', () => {
-      const obj = {hei: 'verden'}
-      const cacheInstance = inMemoryCache({initial: obj})
-      obj.hei = 'world'
-      expect(cacheInstance).to.be.a(Object)
-      const info = cacheInstance.debug()
-      expect(info.itemCount).to.equal(1)
-      expect(cacheInstance.get('hei').value).to.equal('verden')
-      expect(cacheInstance.get('hei').cache).to.equal('hit')
-    })
-  })
+      const obj = { hei: 'verden' };
+      const cacheInstance = inMemoryCache({ initial: obj });
+      obj.hei = 'world';
+      expect(cacheInstance).to.be.a(Object);
+      const info = cacheInstance.debug();
+      expect(info.itemCount).to.equal(1);
+      expect(cacheInstance.get('hei').value).to.equal('verden');
+      expect(cacheInstance.get('hei').cache).to.equal('hit');
+    });
+  });
 
   describe('debug', () => {
     it('should print a debug of the cache with extra options', () => {
       // more thorough testing of debug in debug.spec.js
-      const cacheInstance = inMemoryCache({initial: {hello: 'world'}})
-      const info = cacheInstance.debug({extraData: 'values'})
-      expect(info.extraData).to.equal('values')
-    })
-  })
+      const cacheInstance = inMemoryCache({ initial: { hello: 'world' } });
+      const info = cacheInstance.debug({ extraData: 'values' });
+      expect(info.extraData).to.equal('values');
+    });
+  });
 
   describe('-> hot cache', () => {
-    let cacheInstance
-    let spy
+    let cacheInstance;
+    let spy;
 
     beforeEach(() => {
-      cacheInstance = inMemoryCache({initial: preCached})
-      const p = () => Promise.resolve()
-      spy = sinon.spy(p)
-    })
+      cacheInstance = inMemoryCache({ initial: preCached });
+      const p = () => Promise.resolve();
+      spy = sinon.spy(p);
+    });
 
     it('should return cached content if not stale', () => {
-      return cacheInstance.get(dummyKey, {worker: spy}).then((obj) => {
-        expect(obj.value).to.eql(cacheValue)
-        expect(obj.cache).to.equal('hit')
-        expect(spy.called).to.equal(false)
-      })
-    })
-  })
+      return cacheInstance.get(dummyKey, { worker: spy }).then((obj) => {
+        expect(obj.value).to.eql(cacheValue);
+        expect(obj.cache).to.equal('hit');
+        expect(spy.called).to.equal(false);
+      });
+    });
+  });
 
   describe('-> has/del/clear', () => {
-    let cacheInstance
+    let cacheInstance;
 
     beforeEach(() => {
-      cacheInstance = inMemoryCache({initial: preCached})
-    })
+      cacheInstance = inMemoryCache({ initial: preCached });
+    });
 
     it('should return true if key exists in cache', () => {
-      cacheInstance.set('key', 'value')
-      expect(cacheInstance.has('key')).to.equal(true)
-    })
+      cacheInstance.set('key', 'value');
+      expect(cacheInstance.has('key')).to.equal(true);
+    });
 
     it('should return false if key is not in cache', () => {
-      expect(cacheInstance.has('key')).to.equal(false)
-    })
+      expect(cacheInstance.has('key')).to.equal(false);
+    });
 
     it('should return false if key was deleted from cache', () => {
-      cacheInstance.set('key', 'value')
-      cacheInstance.del('key')
-      expect(cacheInstance.has('key')).to.equal(false)
-    })
+      cacheInstance.set('key', 'value');
+      cacheInstance.del('key');
+      expect(cacheInstance.has('key')).to.equal(false);
+    });
 
     it('should return false if key was deleted from cache', () => {
-      cacheInstance.set('key1', 'value')
-      cacheInstance.set('key2', 'value')
-      cacheInstance.clear()
-      expect(cacheInstance.has('key1')).to.equal(false)
-      expect(cacheInstance.has('key2')).to.equal(false)
-    })
-  })
+      cacheInstance.set('key1', 'value');
+      cacheInstance.set('key2', 'value');
+      cacheInstance.clear();
+      expect(cacheInstance.has('key1')).to.equal(false);
+      expect(cacheInstance.has('key2')).to.equal(false);
+    });
+  });
 
   describe('-> cold/stale cache', () => {
-    let cacheInstance
-    let spy
-    let now
+    let cacheInstance;
+    let spy;
+    let now;
 
     beforeEach(() => {
-      cacheInstance = inMemoryCache({initial: preCached})
-      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000)
-      now = Date.now()
-      spy = sinon.spy(() => new Promise((resolve) => {
-        setTimeout(() => resolve(now), 10)
-      }))
-    })
+      cacheInstance = inMemoryCache({ initial: preCached });
+      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000);
+      now = Date.now();
+      spy = sinon.spy(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => resolve(now), 10);
+          })
+      );
+    });
 
     it('should return promised content when key is not present', () => {
-      return cacheInstance.get('N/A', {worker: spy}).then((obj) => {
-        expect(obj.value).to.eql(now)
-        expect(obj.cache).to.equal('miss')
-        expect(spy.called).to.equal(true)
-      })
-    })
+      return cacheInstance.get('N/A', { worker: spy }).then((obj) => {
+        expect(obj.value).to.eql(now);
+        expect(obj.cache).to.equal('miss');
+        expect(spy.called).to.equal(true);
+      });
+    });
 
     it('should return synchronous get when no worker is given', () => {
       // miss
-      const obj = cacheInstance.get('N/A')
-      expect(obj).to.equal(null)
+      const obj = cacheInstance.get('N/A');
+      expect(obj).to.equal(null);
       // stale
-      const obj2 = cacheInstance.get(dummyKey)
-      expect(obj2.value).to.eql(cacheValue)
-      expect(obj2.cache).to.equal('stale')
+      const obj2 = cacheInstance.get(dummyKey);
+      expect(obj2.value).to.eql(cacheValue);
+      expect(obj2.cache).to.equal('stale');
       // hot
-      cacheInstance.set('hello', {yoman: 'world'})
-      const obj3 = cacheInstance.get('hello')
-      expect(obj3.value).to.eql({yoman: 'world'})
-      expect(obj3.cache).to.equal('hit')
-    })
+      cacheInstance.set('hello', { yoman: 'world' });
+      const obj3 = cacheInstance.get('hello');
+      expect(obj3.value).to.eql({ yoman: 'world' });
+      expect(obj3.cache).to.equal('hit');
+    });
 
     it('should return promised content if cache is stale', () => {
-      return cacheInstance.get(dummyKey, {worker: spy}).then((obj) => {
-        expect(obj.value).to.eql(now)
-        expect(obj.cache).to.equal('miss')
-        expect(spy.called).to.equal(true)
-      })
-    })
-  })
+      return cacheInstance.get(dummyKey, { worker: spy }).then((obj) => {
+        expect(obj.value).to.eql(now);
+        expect(obj.cache).to.equal('miss');
+        expect(spy.called).to.equal(true);
+      });
+    });
+  });
 
   describe('-> worker queue', () => {
-    let cacheInstance
-    let spy
-    let now
+    let cacheInstance;
+    let spy;
+    let now;
 
     beforeEach(() => {
-      cacheInstance = inMemoryCache({initial: preCached})
-      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000)
-      now = Date.now()
-      spy = sinon.spy(() => new Promise((resolve) => {
-        setTimeout(() => resolve(now), 10)
-      }))
-    })
+      cacheInstance = inMemoryCache({ initial: preCached });
+      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000);
+      now = Date.now();
+      spy = sinon.spy(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => resolve(now), 10);
+          })
+      );
+    });
 
     it('should run only one promise, while two requests asks for data from cold cache concurrently', () => {
       return Promise.all([
-        cacheInstance.get(dummyKey, {worker: spy}),
-        cacheInstance.get(dummyKey, {worker: spy})
+        cacheInstance.get(dummyKey, { worker: spy }),
+        cacheInstance.get(dummyKey, { worker: spy })
       ]).then(([val1, val2]) => {
-        expect(val1.value).to.eql(val2.value)
-        expect(spy.callCount).to.equal(1)
-        expect(val1.cache).to.equal('miss')
-        expect(val2.cache).to.equal('hit')
-      })
-    })
-  })
+        expect(val1.value).to.eql(val2.value);
+        expect(spy.callCount).to.equal(1);
+        expect(val1.cache).to.equal('miss');
+        expect(val2.cache).to.equal('hit');
+      });
+    });
+  });
 
   describe('-> error handling (timeouts)', () => {
-    let cacheInstance
+    let cacheInstance;
 
     beforeEach(() => {
-      cacheInstance = inMemoryCache({initial: preCached, log: dummyLog})
-      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000)
-    })
+      cacheInstance = inMemoryCache({ initial: preCached, log: dummyLog });
+      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000);
+    });
 
     it('should return stale cache and increase wait if promise reaches timeout', () => {
-      const timeoutSpy = sinon.spy(() => new Promise((resolve) => {
-        setTimeout(() => resolve('another object'), 1000)
-      }))
-      const info = cacheInstance.debug()
-      expect(info.waiting.get(dummyKey)).to.be.a('undefined')
+      const timeoutSpy = sinon.spy(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => resolve('another object'), 1000);
+          })
+      );
+      const info = cacheInstance.debug();
+      expect(info.waiting.get(dummyKey)).to.be.a('undefined');
       return cacheInstance.get(dummyKey, { workerTimeout: 0, worker: timeoutSpy }).then((obj) => {
-        expect(timeoutSpy.called).to.equal(true)
-        expect(info.waiting.get(dummyKey)).not.to.equal(0)
-        expect(obj.value).to.eql(cacheValue)
-        expect(obj.cache).to.equal('stale')
-      })
-    })
+        expect(timeoutSpy.called).to.equal(true);
+        expect(info.waiting.get(dummyKey)).not.to.equal(0);
+        expect(obj.value).to.eql(cacheValue);
+        expect(obj.cache).to.equal('stale');
+      });
+    });
 
     it('should reject if cache is cold and a timeout occurs', (done) => {
-      const timeoutSpy = sinon.spy(() => new Promise((resolve) => {
-        setTimeout(() => resolve('another object'), 1000)
-      }))
-      cacheInstance = inMemoryCache({log: dummyLog})
-      cacheInstance.get(dummyKey, {workerTimeout: 0, worker: timeoutSpy})
-      .catch((err) => {
-        expect(timeoutSpy.called).to.equal(true)
-        expect(err).to.be.an(Error)
-        done()
-      })
-    })
+      const timeoutSpy = sinon.spy(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => resolve('another object'), 1000);
+          })
+      );
+      cacheInstance = inMemoryCache({ log: dummyLog });
+      cacheInstance.get(dummyKey, { workerTimeout: 0, worker: timeoutSpy }).catch((err) => {
+        expect(timeoutSpy.called).to.equal(true);
+        expect(err).to.be.an(Error);
+        done();
+      });
+    });
 
     it('should re-run promise after deltaWait time has passed', (done) => {
-      const timeoutSpy = sinon.spy(() => new Promise((resolve) => {
-        setTimeout(() => resolve('another object'), 1000)
-      }))
-      const resolveSpy = sinon.spy(() => Promise.resolve('hei verden'))
+      const timeoutSpy = sinon.spy(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => resolve('another object'), 1000);
+          })
+      );
+      const resolveSpy = sinon.spy(() => Promise.resolve('hei verden'));
       const conf = {
         deltaWait: 10,
         workerTimeout: 10
-      }
-      cacheInstance.get(dummyKey, {...conf, worker: timeoutSpy}).then((obj) => {
-        // 1. should return stale cache when timeout occurs
-        expect(obj.value).to.eql(cacheValue)
-        const info = cacheInstance.debug()
-        expect(info.waiting.get(dummyKey).wait).to.equal(10)
-        return cacheInstance.get(dummyKey, {...conf, worker: resolveSpy}).then((obj) => {
-          // 2. should return stale cache before wait period has finished
-          expect(obj.cache).to.equal('stale')
-          expect(obj.value).to.eql(cacheValue)
-          setTimeout(() => {
-            return cacheInstance.get(dummyKey, {...conf, worker: resolveSpy}).then((obj) => {
-              // 3. should return fresh data when wait period has finished
-              expect(obj.value).to.eql('hei verden')
-              expect(obj.cache).to.equal('miss')
-              done()
-            })
-          }, 10)
+      };
+      cacheInstance
+        .get(dummyKey, { ...conf, worker: timeoutSpy })
+        .then((obj) => {
+          // 1. should return stale cache when timeout occurs
+          expect(obj.value).to.eql(cacheValue);
+          const info = cacheInstance.debug();
+          expect(info.waiting.get(dummyKey).wait).to.equal(10);
+          return cacheInstance.get(dummyKey, { ...conf, worker: resolveSpy }).then((obj) => {
+            // 2. should return stale cache before wait period has finished
+            expect(obj.cache).to.equal('stale');
+            expect(obj.value).to.eql(cacheValue);
+            setTimeout(() => {
+              return cacheInstance.get(dummyKey, { ...conf, worker: resolveSpy }).then((obj) => {
+                // 3. should return fresh data when wait period has finished
+                expect(obj.value).to.eql('hei verden');
+                expect(obj.cache).to.equal('miss');
+                done();
+              });
+            }, 10);
+          });
         })
-      }).catch(done)
-    })
-  })
+        .catch(done);
+    });
+  });
 
   describe('-> error handling (rejections)', () => {
-    let cacheInstance
+    let cacheInstance;
 
     beforeEach(() => {
-      cacheInstance = inMemoryCache({initial: preCached, log: dummyLog})
-      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000)
-    })
+      cacheInstance = inMemoryCache({ initial: preCached, log: dummyLog });
+      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000);
+    });
 
     it('should return stale cache and set wait if a promise rejection occurs', () => {
-      const errorLogSpy = sinon.spy()
-      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('an error occurred')))
-      cacheInstance = inMemoryCache({initial: preCached, log: {...dummyLog, error: errorLogSpy}})
-      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000)
-      const info = cacheInstance.debug()
-      expect(info.waiting.get(dummyKey)).to.be.a('undefined')
-      return cacheInstance.get(dummyKey, {worker: rejectionSpy}).then((obj) => {
-        expect(rejectionSpy.called).to.equal(true)
-        expect(info.waiting.get(dummyKey)).not.to.equal(0)
-        expect(obj.value).to.eql(cacheValue)
-        expect(obj.cache).to.equal('stale')
-        expect(errorLogSpy.called).to.equal(true)
-      })
-    })
+      const errorLogSpy = sinon.spy();
+      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('an error occurred')));
+      cacheInstance = inMemoryCache({
+        initial: preCached,
+        log: { ...dummyLog, error: errorLogSpy }
+      });
+      cacheInstance.set(dummyKey, cacheInstance.get(dummyKey).value, -1000);
+      const info = cacheInstance.debug();
+      expect(info.waiting.get(dummyKey)).to.be.a('undefined');
+      return cacheInstance.get(dummyKey, { worker: rejectionSpy }).then((obj) => {
+        expect(rejectionSpy.called).to.equal(true);
+        expect(info.waiting.get(dummyKey)).not.to.equal(0);
+        expect(obj.value).to.eql(cacheValue);
+        expect(obj.cache).to.equal('stale');
+        expect(errorLogSpy.called).to.equal(true);
+      });
+    });
 
     it('should reject if cache is cold and a rejection occurs', (done) => {
-      const errorLogSpy = sinon.spy()
-      cacheInstance = inMemoryCache({log: {...dummyLog, error: errorLogSpy}})
-      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('an error occurred')))
-      cacheInstance.get(dummyKey, {worker: rejectionSpy}).catch((err) => {
-        expect(rejectionSpy.called).to.equal(true)
-        expect(errorLogSpy.called).to.equal(true)
-        expect(err).to.be.an(Error)
-        done()
-      })
-    })
+      const errorLogSpy = sinon.spy();
+      cacheInstance = inMemoryCache({ log: { ...dummyLog, error: errorLogSpy } });
+      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('an error occurred')));
+      cacheInstance.get(dummyKey, { worker: rejectionSpy }).catch((err) => {
+        expect(rejectionSpy.called).to.equal(true);
+        expect(errorLogSpy.called).to.equal(true);
+        expect(err).to.be.an(Error);
+        done();
+      });
+    });
 
     it('should reject if an Error is thrown', (done) => {
       const rejectionSpy = sinon.spy(() => {
-        throw new Error('an error occurred')
-      })
-      cacheInstance.get(dummyKey, {worker: rejectionSpy}).catch((err) => {
-        expect(rejectionSpy.called).to.equal(true)
-        expect(err).to.be.an(Error)
-        done()
-      })
-    })
+        throw new Error('an error occurred');
+      });
+      cacheInstance.get(dummyKey, { worker: rejectionSpy }).catch((err) => {
+        expect(rejectionSpy.called).to.equal(true);
+        expect(err).to.be.an(Error);
+        done();
+      });
+    });
 
     it('should re-run promise after deltaWait time has passed (when failing caused by a rejection)', (done) => {
-      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('')))
-      const resolveSpy = sinon.spy(() => Promise.resolve('hei verden'))
+      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('')));
+      const resolveSpy = sinon.spy(() => Promise.resolve('hei verden'));
       const conf = {
         deltaWait: 10
-      }
-      cacheInstance.get(dummyKey, {...conf, worker: rejectionSpy}).then((obj) => {
-        // 1. should return stale cache when rejection occurs
-        expect(obj.value).to.eql(cacheValue)
-        return cacheInstance.get(dummyKey, {...conf, worker: resolveSpy}).then((obj) => {
-          // 2. should return stale cache before wait period has finished
-          expect(obj.value).to.eql(cacheValue)
-          expect(obj.cache).to.equal('stale')
-          setTimeout(() => {
-            return cacheInstance.get(dummyKey, {...conf, worker: resolveSpy}).then((obj) => {
-              // 3. should return fresh data when wait period has finished
-              expect(obj.value).to.eql('hei verden')
-              expect(obj.cache).to.equal('miss')
-              done()
-            })
-          }, 10)
+      };
+      cacheInstance
+        .get(dummyKey, { ...conf, worker: rejectionSpy })
+        .then((obj) => {
+          // 1. should return stale cache when rejection occurs
+          expect(obj.value).to.eql(cacheValue);
+          return cacheInstance.get(dummyKey, { ...conf, worker: resolveSpy }).then((obj) => {
+            // 2. should return stale cache before wait period has finished
+            expect(obj.value).to.eql(cacheValue);
+            expect(obj.cache).to.equal('stale');
+            setTimeout(() => {
+              return cacheInstance.get(dummyKey, { ...conf, worker: resolveSpy }).then((obj) => {
+                // 3. should return fresh data when wait period has finished
+                expect(obj.value).to.eql('hei verden');
+                expect(obj.cache).to.equal('miss');
+                done();
+              });
+            }, 10);
+          });
         })
-      }).catch(done)
-    })
+        .catch(done);
+    });
 
     it('should re-run promise after deltaWait time has passed (when failing caused by a rejection and cache is cold)', (done) => {
-      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('')))
+      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('')));
       const conf = {
         deltaWait: 10
-      }
-      cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
-        expect(err).to.be.an(Error)
-        expect(rejectionSpy.callCount).to.equal(1)
-        cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
-          expect(err).to.be.an(Error)
-          expect(rejectionSpy.callCount).to.equal(1)
-          cacheInstance.set('N/A', 'hei verden')
-          const info = cacheInstance.debug()
-          info.waiting.delete('N/A')
-          setTimeout(() => {
-            return cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).then((obj) => {
-              expect(rejectionSpy.callCount).to.equal(1)
-              expect(obj.value).to.eql('hei verden')
-              expect(obj.cache).to.equal('hit')
-              done()
-            })
-          }, 10)
+      };
+      cacheInstance
+        .get('N/A', { ...conf, worker: rejectionSpy })
+        .catch((err) => {
+          expect(err).to.be.an(Error);
+          expect(rejectionSpy.callCount).to.equal(1);
+          cacheInstance.get('N/A', { ...conf, worker: rejectionSpy }).catch((err) => {
+            expect(err).to.be.an(Error);
+            expect(rejectionSpy.callCount).to.equal(1);
+            cacheInstance.set('N/A', 'hei verden');
+            const info = cacheInstance.debug();
+            info.waiting.delete('N/A');
+            setTimeout(() => {
+              return cacheInstance.get('N/A', { ...conf, worker: rejectionSpy }).then((obj) => {
+                expect(rejectionSpy.callCount).to.equal(1);
+                expect(obj.value).to.eql('hei verden');
+                expect(obj.cache).to.equal('hit');
+                done();
+              });
+            }, 10);
+          });
         })
-      }).catch(done)
-    })
+        .catch(done);
+    });
 
     it('should increase deltaWait after several re-runs', (done) => {
-      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('')))
+      const rejectionSpy = sinon.spy(() => Promise.reject(new Error('')));
       const conf = {
         deltaWait: 10
-      }
-      const info = cacheInstance.debug()
-      expect(info.waiting.get('N/A')).to.be.a('undefined')
-      cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
-        expect(err).to.be.an(Error)
-        expect(rejectionSpy.callCount).to.equal(1)
-        expect(info.waiting.get('N/A').wait).to.equal(10)
-        const {started} = info.waiting.get('N/A')
-        cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
-          expect(err).to.be.an(Error)
-          expect(rejectionSpy.callCount).to.equal(1)
-          expect(info.waiting.get('N/A')).to.eql({
-            started,
-            wait: 10,
-            waitUntil: started + 10
-          })
-          setTimeout(() => {
-            return cacheInstance.get('N/A', {...conf, worker: rejectionSpy}).catch((err) => {
-              expect(err).to.be.an(Error)
-              expect(rejectionSpy.callCount).to.equal(2)
-              expect(info.waiting.get('N/A').wait).to.equal(10)
-              expect(info.waiting.get('N/A').started).not.to.equal(started)
-              done()
-            })
-          }, 10)
+      };
+      const info = cacheInstance.debug();
+      expect(info.waiting.get('N/A')).to.be.a('undefined');
+      cacheInstance
+        .get('N/A', { ...conf, worker: rejectionSpy })
+        .catch((err) => {
+          expect(err).to.be.an(Error);
+          expect(rejectionSpy.callCount).to.equal(1);
+          expect(info.waiting.get('N/A').wait).to.equal(10);
+          const { started } = info.waiting.get('N/A');
+          cacheInstance.get('N/A', { ...conf, worker: rejectionSpy }).catch((err) => {
+            expect(err).to.be.an(Error);
+            expect(rejectionSpy.callCount).to.equal(1);
+            expect(info.waiting.get('N/A')).to.eql({
+              started,
+              wait: 10,
+              waitUntil: started + 10
+            });
+            setTimeout(() => {
+              return cacheInstance.get('N/A', { ...conf, worker: rejectionSpy }).catch((err) => {
+                expect(err).to.be.an(Error);
+                expect(rejectionSpy.callCount).to.equal(2);
+                expect(info.waiting.get('N/A').wait).to.equal(10);
+                expect(info.waiting.get('N/A').started).not.to.equal(started);
+                done();
+              });
+            }, 10);
+          });
         })
-      }).catch(done)
-    })
-  })
+        .catch(done);
+    });
+  });
 
   describe('-> keys/values/entries', () => {
-    let cacheInstance
+    let cacheInstance;
 
     beforeEach(() => {
-      cacheInstance = inMemoryCache({initial: {
-        'house/1': {hei: 'verden1'},
-        'house/2': {hei: 'verden2'},
-        'guest/2': {hei: 'verden3'}
-      }})
-    })
+      cacheInstance = inMemoryCache({
+        initial: {
+          'house/1': { hei: 'verden1' },
+          'house/2': { hei: 'verden2' },
+          'guest/2': { hei: 'verden3' }
+        }
+      });
+    });
 
     it('should return keys', () => {
-      expect(cacheInstance.keys()).to.eql(['house/1', 'house/2', 'guest/2'].reverse())
-    })
+      expect(cacheInstance.keys()).to.eql(['house/1', 'house/2', 'guest/2'].reverse());
+    });
 
     it('should return values', () => {
-      expect(cacheInstance
-        .values()
-        .map(({value}) => value))
-        .to.eql([{hei: 'verden3'}, {hei: 'verden2'}, {hei: 'verden1'}])
-    })
+      expect(cacheInstance.values().map(({ value }) => value)).to.eql([
+        { hei: 'verden3' },
+        { hei: 'verden2' },
+        { hei: 'verden1' }
+      ]);
+    });
 
     it('should return entries', () => {
-      expect(Array.from(cacheInstance.entries())
-        .map(([key, {value}]) => {
-          return {[key]: value}
-        })).to.eql([
-          {'guest/2': {hei: 'verden3'}},
-          {'house/2': {hei: 'verden2'}},
-          {'house/1': {hei: 'verden1'}}
-        ])
-    })
-  })
+      expect(
+        Array.from(cacheInstance.entries()).map(([key, { value }]) => {
+          return { [key]: value };
+        })
+      ).to.eql([
+        { 'guest/2': { hei: 'verden3' } },
+        { 'house/2': { hei: 'verden2' } },
+        { 'house/1': { hei: 'verden1' } }
+      ]);
+    });
+  });
 
   describe('-> expire', () => {
-    let cacheInstance
+    let cacheInstance;
 
     beforeEach(() => {
-      cacheInstance = inMemoryCache({initial: {
-        'house/1': {hei: 'verden'},
-        'house/2': {hei: 'verden'},
-        'guest/2': {hei: 'verden'}
-      }})
-    })
+      cacheInstance = inMemoryCache({
+        initial: {
+          'house/1': { hei: 'verden' },
+          'house/2': { hei: 'verden' },
+          'guest/2': { hei: 'verden' }
+        }
+      });
+    });
 
     it('should expire all house keys', () => {
-      cacheInstance.expire(['house/*'])
-      expect(cacheInstance.get('house/1').TTL).to.equal(0)
-      expect(cacheInstance.get('house/2').TTL).to.equal(0)
-      expect(cacheInstance.get('guest/2').TTL).not.to.equal(0)
-    })
+      cacheInstance.expire(['house/*']);
+      expect(cacheInstance.get('house/1').TTL).to.equal(0);
+      expect(cacheInstance.get('house/2').TTL).to.equal(0);
+      expect(cacheInstance.get('guest/2').TTL).not.to.equal(0);
+    });
 
     it('should expire given house keys', () => {
-      cacheInstance.expire(['house/*', 'guest/2'])
-      expect(cacheInstance.get('house/1').TTL).to.equal(0)
-      expect(cacheInstance.get('house/2').TTL).to.equal(0)
-      expect(cacheInstance.get('guest/2').TTL).to.equal(0)
-    })
-  })
+      cacheInstance.expire(['house/*', 'guest/2']);
+      expect(cacheInstance.get('house/1').TTL).to.equal(0);
+      expect(cacheInstance.get('house/2').TTL).to.equal(0);
+      expect(cacheInstance.get('guest/2').TTL).to.equal(0);
+    });
+  });
 
   describe('-> LRU capabilities', () => {
     it('should throw away first entered entry on inital state', () => {
       const cacheInstance = inMemoryCache({
         initial: {
-          'house/1': {hei: 'verden'},
-          'house/2': {hei: 'verden'},
-          'guest/3': {hei: 'verden'}
+          'house/1': { hei: 'verden' },
+          'house/2': { hei: 'verden' },
+          'guest/3': { hei: 'verden' }
         },
         maxLength: 2
-      })
-      const info = cacheInstance.debug()
-      expect(info.itemCount).to.equal(2)
-      expect(cacheInstance.keys()).to.eql(['guest/3', 'house/2'])
-    })
+      });
+      const info = cacheInstance.debug();
+      expect(info.itemCount).to.equal(2);
+      expect(cacheInstance.keys()).to.eql(['guest/3', 'house/2']);
+    });
 
     it('should call dispose on set operations when LRU cache evicts object', () => {
-      const cacheInstance = inMemoryCache({maxLength: 2})
-      const spy = sinon.spy()
-      cacheInstance.addDisposer(spy)
-      cacheInstance.set('house/1', {hei: 'verden'})
-      cacheInstance.set('house/2', {hei: 'verden'})
-      cacheInstance.set('guest/3', {hei: 'verden'})
-      expect(spy.called).to.equal(true)
-      const key = spy.args[0][0]
-      const {created, ...callArgs} = spy.args[0][1]
-      expect(key).to.equal('house/1')
+      const cacheInstance = inMemoryCache({ maxLength: 2 });
+      const spy = sinon.spy();
+      cacheInstance.addDisposer(spy);
+      cacheInstance.set('house/1', { hei: 'verden' });
+      cacheInstance.set('house/2', { hei: 'verden' });
+      cacheInstance.set('guest/3', { hei: 'verden' });
+      expect(spy.called).to.equal(true);
+      const key = spy.args[0][0];
+      const { created, ...callArgs } = spy.args[0][1];
+      expect(key).to.equal('house/1');
       expect(callArgs).to.eql({
         TTL: 86400000,
         value: { hei: 'verden' },
         cache: 'hit'
-      })
-      cacheInstance.removeDisposer(spy)
-      cacheInstance.set('guest/4', {hei: 'verden'})
-      expect(spy.callCount).to.equal(1)
-      const info = cacheInstance.debug()
-      expect(info.itemCount).to.equal(2)
-      expect(cacheInstance.keys()).to.eql(['guest/4', 'guest/3'])
-    })
+      });
+      cacheInstance.removeDisposer(spy);
+      cacheInstance.set('guest/4', { hei: 'verden' });
+      expect(spy.callCount).to.equal(1);
+      const info = cacheInstance.debug();
+      expect(info.itemCount).to.equal(2);
+      expect(cacheInstance.keys()).to.eql(['guest/4', 'guest/3']);
+    });
 
     it('should call dispose on del operations', () => {
-      const cacheInstance = inMemoryCache({maxLength: 2})
-      const spy = sinon.spy()
-      cacheInstance.addDisposer(spy)
-      cacheInstance.set('house/1', {hei: 'verden'})
-      cacheInstance.del('house/1')
-      expect(spy.called).to.equal(true)
-      cacheInstance.removeDisposer(spy)
-    })
+      const cacheInstance = inMemoryCache({ maxLength: 2 });
+      const spy = sinon.spy();
+      cacheInstance.addDisposer(spy);
+      cacheInstance.set('house/1', { hei: 'verden' });
+      cacheInstance.del('house/1');
+      expect(spy.called).to.equal(true);
+      cacheInstance.removeDisposer(spy);
+    });
 
     it('should call dispose on clear operations', () => {
-      const cacheInstance = inMemoryCache({maxLength: 2})
-      const spy = sinon.spy()
-      cacheInstance.addDisposer(spy)
-      cacheInstance.set('house/1', {hei: 'verden'})
-      cacheInstance.clear()
-      expect(spy.called).to.equal(true)
-      cacheInstance.removeDisposer(spy)
-    })
-  })
-})
+      const cacheInstance = inMemoryCache({ maxLength: 2 });
+      const spy = sinon.spy();
+      cacheInstance.addDisposer(spy);
+      cacheInstance.set('house/1', { hei: 'verden' });
+      cacheInstance.clear();
+      expect(spy.called).to.equal(true);
+      cacheInstance.removeDisposer(spy);
+    });
+  });
+});

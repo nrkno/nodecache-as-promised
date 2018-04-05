@@ -1,122 +1,120 @@
 /**
  * @module
  **/
-import isUndefined from 'lodash/isUndefined'
-import isNull from 'lodash/isNull'
-import isBoolean from 'lodash/isBoolean'
-import isNumber from 'lodash/isNumber'
-import isString from 'lodash/isString'
-import isArray from 'lodash/isArray'
-import isPlainObject from 'lodash/isPlainObject'
+import isUndefined from 'lodash/isUndefined';
+import isNull from 'lodash/isNull';
+import isBoolean from 'lodash/isBoolean';
+import isNumber from 'lodash/isNumber';
+import isString from 'lodash/isString';
+import isArray from 'lodash/isArray';
+import isPlainObject from 'lodash/isPlainObject';
 
-const MAX_PAGE_SIZE = 100
+const MAX_PAGE_SIZE = 100;
 
 export const extractKeyFromRedis = (prefix, key) => {
-  return key.replace(new RegExp(`${prefix}-`), '')
-}
+  return key.replace(new RegExp(`${prefix}-`), '');
+};
 
 export const getRedisKey = (prefix, key = '') => {
-  return `${[prefix, key].join('-')}`
-}
+  return `${[prefix, key].join('-')}`;
+};
 
 export const readKeys = (keys, redisClient, log) => {
   if (keys.length === 0) {
-    return Promise.resolve({})
+    return Promise.resolve({});
   }
-  const p = []
+  const p = [];
   for (let i = 0; i < keys.length; i = i + MAX_PAGE_SIZE) {
-    const keysToRead = keys.slice(i, i + MAX_PAGE_SIZE)
-    p.push(new Promise((resolve) => {
-      redisClient.mget(keysToRead, (err, results) => {
-        if (err) {
-          log.warn(`could not read keys into cache, reason: ${err}`)
-          resolve({})
-          return
-        }
-        resolve(keysToRead.reduce((acc, key, i) => {
-          try {
-            acc[key] = JSON.parse(results[i])
-          } catch (e) {
-            log.warn(`could not parse value for ${key} as JSON. ${results[i]}`)
+    const keysToRead = keys.slice(i, i + MAX_PAGE_SIZE);
+    p.push(
+      new Promise((resolve) => {
+        redisClient.mget(keysToRead, (err, results) => {
+          if (err) {
+            log.warn(`could not read keys into cache, reason: ${err}`);
+            resolve({});
+            return;
           }
-          return acc
-        }, {}))
+          resolve(
+            keysToRead.reduce((acc, key, i) => {
+              try {
+                acc[key] = JSON.parse(results[i]);
+              } catch (e) {
+                log.warn(`could not parse value for ${key} as JSON. ${results[i]}`);
+              }
+              return acc;
+            }, {})
+          );
+        });
       })
-    }))
+    );
   }
   return Promise.all(p).then((results) => {
     return results.reduce((acc, next) => {
-      Object.assign(acc, next)
-      return acc
-    }, {})
-  })
-}
+      Object.assign(acc, next);
+      return acc;
+    }, {});
+  });
+};
 
 export const scanKeys = (cacheKeyPrefix, redisClient) => {
-  const keys = []
+  const keys = [];
   return new Promise((resolve, reject) => {
     const stream = redisClient.scanStream({
       match: `${cacheKeyPrefix}*`,
       count: 100
-    })
+    });
     stream.on('data', (resultKeys) => {
-      keys.push(...resultKeys)
-    })
+      keys.push(...resultKeys);
+    });
     stream.on('end', () => {
-      resolve(keys)
-    })
+      resolve(keys);
+    });
     stream.on('error', (err) => {
-      reject(err)
-    })
-  })
-}
+      reject(err);
+    });
+  });
+};
 
 export const deleteKey = (key, redisClient) => {
   return new Promise((resolve, reject) => {
     redisClient.del(key, (err, res) => {
       if (err) {
-        reject(err)
-        return
+        reject(err);
+        return;
       }
-      resolve(res)
-    })
-  })
-}
+      resolve(res);
+    });
+  });
+};
 
 export const deleteKeys = (cacheKeyPrefix, redisClient) => {
   return scanKeys(cacheKeyPrefix, redisClient).then((keys) => {
-    return Promise.all(keys.map((key) => deleteKey(key, redisClient)))
-  })
-}
+    return Promise.all(keys.map((key) => deleteKey(key, redisClient)));
+  });
+};
 
 export const loadObjects = (cacheKeyPrefix, redisClient, log) => {
-  return scanKeys(cacheKeyPrefix, redisClient)
-    .then((keys) => {
-      return readKeys(keys, redisClient, log)
-    })
-}
+  return scanKeys(cacheKeyPrefix, redisClient).then((keys) => {
+    return readKeys(keys, redisClient, log);
+  });
+};
 
 // credits to https://stackoverflow.com/users/128816/treznik
 // https://stackoverflow.com/questions/30579940/reliable-way-to-check-if-objects-is-serializable-in-javascript
 export const isSerializable = (obj) => {
-  if (isUndefined(obj) ||
-      isNull(obj) ||
-      isBoolean(obj) ||
-      isNumber(obj) ||
-      isString(obj)) {
-    return true
+  if (isUndefined(obj) || isNull(obj) || isBoolean(obj) || isNumber(obj) || isString(obj)) {
+    return true;
   }
 
-  if (!isPlainObject(obj) &&
-      !isArray(obj)) {
-    return false
+  if (!isPlainObject(obj) && !isArray(obj)) {
+    return false;
   }
 
   for (var key in obj) {
     if (!isSerializable(obj[key])) {
-      return false
+      return false;
     }
   }
 
-  return true
-}
+  return true;
+};

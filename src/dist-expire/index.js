@@ -1,9 +1,9 @@
 /**
  * @module
  **/
-import os from 'os'
+import os from 'os';
 
-const EXPIRE_MESSAGE_TYPE = 'EXPIRE_MESSAGE_TYPE'
+const EXPIRE_MESSAGE_TYPE = 'EXPIRE_MESSAGE_TYPE';
 
 /**
  * @description Create new middlware instance to be used by inMemoryCache module
@@ -16,8 +16,8 @@ const EXPIRE_MESSAGE_TYPE = 'EXPIRE_MESSAGE_TYPE'
  * @returns {function} object.debug method
  **/
 export default (redisFactory, namespace) => (cacheInstance) => {
-  const redisPub = redisFactory()
-  const redisSubClient = redisFactory()
+  const redisPub = redisFactory();
+  const redisSubClient = redisFactory();
 
   /**
    * @description callback for messages recieved from redis
@@ -27,15 +27,19 @@ export default (redisFactory, namespace) => (cacheInstance) => {
    **/
   const onMessage = (namespace, data) => {
     try {
-      const {type, message} = JSON.parse(data)
+      const { type, message } = JSON.parse(data);
       if (type === EXPIRE_MESSAGE_TYPE) {
-        cacheInstance.log.info(`expire cache for keys ${message.keys} using namespace ${namespace} on host ${os.hostname()}`)
-        cacheInstance.expire(message.keys)
+        cacheInstance.log.info(
+          `expire cache for keys ${
+            message.keys
+          } using namespace ${namespace} on host ${os.hostname()}`
+        );
+        cacheInstance.expire(message.keys);
       }
     } catch (e) {
-      cacheInstance.log.error(`failed to parse message on ${namespace} - ${data}. Reason: ${e}`)
+      cacheInstance.log.error(`failed to parse message on ${namespace} - ${data}. Reason: ${e}`);
     }
-  }
+  };
 
   /**
    * @description setup subscription to redis
@@ -46,12 +50,14 @@ export default (redisFactory, namespace) => (cacheInstance) => {
   const setupSubscriber = (redisClient, namespace) => {
     redisClient.subscribe(namespace, (err, cnt) => {
       if (err) {
-        return cacheInstance.log.error(`oh oh. Subscribing for redis#${namespace} failed`)
+        return cacheInstance.log.error(`oh oh. Subscribing for redis#${namespace} failed`);
       }
-      return cacheInstance.log.debug(`Subscribing for incoming messages from redis#${namespace}. Count: ${cnt}`)
-    })
-    redisClient.on('message', onMessage)
-  }
+      return cacheInstance.log.debug(
+        `Subscribing for incoming messages from redis#${namespace}. Count: ${cnt}`
+      );
+    });
+    redisClient.on('message', onMessage);
+  };
 
   /**
    * @description distributed wrapper for expire calls
@@ -64,18 +70,18 @@ export default (redisFactory, namespace) => (cacheInstance) => {
       message: {
         keys
       }
-    }
-    redisPub.publish(namespace, JSON.stringify(message))
-  }
+    };
+    redisPub.publish(namespace, JSON.stringify(message));
+  };
 
   const debug = (extraData, next) => {
-    return next({namespace, ...extraData})
-  }
+    return next({ namespace, ...extraData });
+  };
 
-  setupSubscriber(redisSubClient, namespace)
+  setupSubscriber(redisSubClient, namespace);
 
   return {
     expire,
     debug
-  }
-}
+  };
+};
