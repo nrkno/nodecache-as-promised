@@ -1,5 +1,3 @@
-/* eslint max-nested-callbacks: 0 */
-/* eslint-disable no-unused-vars */
 import inMemoryCache, { distCache, persistentCache } from '../';
 import expect from 'expect.js';
 import sinon from 'sinon';

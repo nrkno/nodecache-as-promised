@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { getCacheInfo, buildKey } from '../debug';
 import expect from 'expect.js';
 import lruCache from 'lru-cache';
