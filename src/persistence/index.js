@@ -8,10 +8,10 @@ import {
   extractKeyFromRedis,
   getRedisKey,
   isSerializable
-} from './persistence-helpers.js'
-import pkg from '../../package.json'
+} from './persistence-helpers.js';
+import pkg from '../../package.json';
 
-const DEFAULT_GRACE = 60 * 60 * 24 * 1000
+const DEFAULT_GRACE = 60 * 60 * 24 * 1000;
 
 /**
  * @description Create new persistentCache middleware instance to be used by inMemoryCache
@@ -21,41 +21,43 @@ const DEFAULT_GRACE = 60 * 60 * 24 * 1000
  * @param {number} options.expire - Keys stored in redis expire in seconds
  * @returns {Object} middleware facade
  **/
-export default (redisFactory,
-  {
-    doNotPersist = null,
-    keySpace = '',
-    grace = DEFAULT_GRACE,
-    bootload = true
-  } = {}
+export default (
+  redisFactory,
+  { doNotPersist = null, keySpace = '', grace = DEFAULT_GRACE, bootload = true } = {}
 ) => (cacheInstance) => {
-  const redisClient = redisFactory()
-  const cacheKeyPrefix = `${pkg.name}-${keySpace}`
-  const persisting = {}
+  const redisClient = redisFactory();
+  const cacheKeyPrefix = `${pkg.name}-${keySpace}`;
+  const persisting = {};
 
   const persist = (key, val) => {
     if ((!doNotPersist || !doNotPersist.test(key)) && isSerializable(val) && !persisting[key]) {
-      persisting[key] = true
-      const redisKey = getRedisKey(cacheKeyPrefix, key)
-      cacheInstance.log.debug(`Persist to key "${redisKey}"`)
-      const valWithMeta = cacheInstance.get(key)
-      redisClient.set(redisKey, JSON.stringify(valWithMeta), 'ex', Math.round((valWithMeta.TTL + grace) / 1000), (err) => {
-        if (err) {
-          cacheInstance.log.warn(err)
+      persisting[key] = true;
+      const redisKey = getRedisKey(cacheKeyPrefix, key);
+      cacheInstance.log.debug(`Persist to key "${redisKey}"`);
+      const valWithMeta = cacheInstance.get(key);
+      redisClient.set(
+        redisKey,
+        JSON.stringify(valWithMeta),
+        'ex',
+        Math.round((valWithMeta.TTL + grace) / 1000),
+        (err) => {
+          if (err) {
+            cacheInstance.log.warn(err);
+          }
+          delete persisting[key];
         }
-        delete persisting[key]
-      })
+      );
     } else {
-      cacheInstance.log.debug(`skipping persistence of promised object with key ${key}`)
+      cacheInstance.log.debug(`skipping persistence of promised object with key ${key}`);
     }
-  }
+  };
 
   const get = (...args) => {
-    const next = args.pop()
+    const next = args.pop();
     return next(...args).then((val) => {
-      const [key] = args
+      const [key] = args;
       if (val.cache === 'miss') {
-        persist(key, val)
+        persist(key, val);
         // return valj
         // if ((!doNotPersist || !doNotPersist.test(key)) && isSerializable(obj) && !persisting[key]) {
         //   persisting[key] = true
@@ -72,65 +74,68 @@ export default (redisFactory,
         //   cacheInstance.log.debug(`skipping persistence of promised object with key ${key}`)
         // }
       }
-      return val
-    })
-  }
+      return val;
+    });
+  };
 
   const set = (...args) => {
-    const next = args.pop()
-    next(...args)
-    const [key, val] = args
-    persist(key, val)
-  }
+    const next = args.pop();
+    next(...args);
+    const [key, val] = args;
+    persist(key, val);
+  };
 
   const del = (key, next) => {
     return deleteKey(getRedisKey(cacheKeyPrefix, key), redisClient).then(() => {
-      next(key)
-    })
-  }
+      next(key);
+    });
+  };
 
   const clear = (next) => {
     return deleteKeys(cacheKeyPrefix, redisClient).then(() => {
-      next()
-    })
-  }
+      next();
+    });
+  };
 
   const load = (nowDefault = Date.now()) => {
-    const now = nowDefault
-    return loadObjects(cacheKeyPrefix, redisClient, cacheInstance.log)
-      .then((mapLoaded) => {
-        Object.keys(mapLoaded).map((key) => {
-          cacheInstance.set(
-            extractKeyFromRedis(cacheKeyPrefix, key),
-            mapLoaded[key].value,
-            mapLoaded[key].TTL - (now - mapLoaded[key].created)
-          )
-          return key
-        })
-        cacheInstance.log.info(`Read ${Object.keys(mapLoaded).length} keys from redis. Used ${Date.now() - now} ms`)
-      })
-  }
+    const now = nowDefault;
+    return loadObjects(cacheKeyPrefix, redisClient, cacheInstance.log).then((mapLoaded) => {
+      Object.keys(mapLoaded).map((key) => {
+        cacheInstance.set(
+          extractKeyFromRedis(cacheKeyPrefix, key),
+          mapLoaded[key].value,
+          mapLoaded[key].TTL - (now - mapLoaded[key].created)
+        );
+        return key;
+      });
+      cacheInstance.log.info(
+        `Read ${Object.keys(mapLoaded).length} keys from redis. Used ${Date.now() - now} ms`
+      );
+    });
+  };
 
   const debug = (extraData, next) => {
-    return next({cacheKeyPrefix, ...extraData})
-  }
+    return next({ cacheKeyPrefix, ...extraData });
+  };
 
   const onDispose = (key) => {
-    deleteKey(getRedisKey(cacheKeyPrefix, key), redisClient).then(() => {
-      cacheInstance.log.debug(`deleting key ${key} from redis (evicted by lru-cache)`)
-    }).catch((err) => {
-      cacheInstance.log.error(err)
-    })
-  }
+    deleteKey(getRedisKey(cacheKeyPrefix, key), redisClient)
+      .then(() => {
+        cacheInstance.log.debug(`deleting key ${key} from redis (evicted by lru-cache)`);
+      })
+      .catch((err) => {
+        cacheInstance.log.error(err);
+      });
+  };
 
-  cacheInstance.addDisposer(onDispose)
+  cacheInstance.addDisposer(onDispose);
 
   const destroy = () => {
-    cacheInstance.removeDisposer(onDispose)
-  }
+    cacheInstance.removeDisposer(onDispose);
+  };
 
   if (bootload) {
-    load().catch(cacheInstance.log.error)
+    load().catch(cacheInstance.log.error);
   }
 
   return {
@@ -141,5 +146,5 @@ export default (redisFactory,
     load,
     debug,
     destroy
-  }
-}
+  };
+};

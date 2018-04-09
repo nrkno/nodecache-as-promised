@@ -2,7 +2,7 @@
  * @module
  * @description Main module for creating an in-memory cache. Extendable using redis-wrapper and redis-persistence-wrapper
  **/
-import cloneDeep from 'lodash/cloneDeep'
+import cloneDeep from 'lodash/cloneDeep';
 import {
   // existsAndNotStale,
   createEntry,
@@ -12,28 +12,26 @@ import {
   waitingForError,
   isFresh,
   isWaiting
-} from './utils/cache-helpers'
-import {
-  getCacheInfo
-} from './utils/debug'
-import lruCache from 'lru-cache'
+} from './utils/cache-helpers';
+import { getCacheInfo } from './utils/debug';
+import lruCache from 'lru-cache';
 
 // export plugins for convenience
-import dc from './dist-expire'
-import pc from './persistence'
+import dc from './dist-expire';
+import pc from './persistence';
 
-export const distCache = dc
-export const persistentCache = pc
+export const distCache = dc;
+export const persistentCache = pc;
 
-const DEFAULT_CACHE_EXPIRE = 24 * 60 * 60 * 1000
-const DEFAULT_DELTA_WAIT = 10000
-const DEFAULT_MAX_LENGTH = 1000
+const DEFAULT_CACHE_EXPIRE = 24 * 60 * 60 * 1000;
+const DEFAULT_DELTA_WAIT = 10000;
+const DEFAULT_MAX_LENGTH = 1000;
 // max stale period
-const DEFAULT_MAX_AGE = 2 * DEFAULT_CACHE_EXPIRE
+const DEFAULT_MAX_AGE = 2 * DEFAULT_CACHE_EXPIRE;
 
-const CACHE_HIT = 'hit'
-const CACHE_MISS = 'miss'
-const CACHE_STALE = 'stale'
+const CACHE_HIT = 'hit';
+const CACHE_MISS = 'miss';
+const CACHE_STALE = 'stale';
 
 /**
  * Wrapper around LRU-cache,
@@ -41,37 +39,37 @@ const CACHE_STALE = 'stale'
  * in get-operations
  **/
 
- /**
-  * @description Creates a new in-memory cache.
-  * @param {Object} options - an options object.
-  * @param {function} options.log - logger interface. Expects standard methods: info, warn, error, debug, trace
-  * @param {Object} options.initial - initial state, key/value based.
-  * @param {number} options.maxLength - max LRU-size (object count)
-  * @param {number} options.maxAge - max LRU-age (UX timestamp)
-  * @returns {Object} facade
-  * @returns {function} object.get method
-  * @returns {function} object.set method
-  * @returns {function} object.expire method
-  * @returns {function} object.debug method
-  **/
+/**
+ * @description Creates a new in-memory cache.
+ * @param {Object} options - an options object.
+ * @param {function} options.log - logger interface. Expects standard methods: info, warn, error, debug, trace
+ * @param {Object} options.initial - initial state, key/value based.
+ * @param {number} options.maxLength - max LRU-size (object count)
+ * @param {number} options.maxAge - max LRU-age (UX timestamp)
+ * @returns {Object} facade
+ * @returns {function} object.get method
+ * @returns {function} object.set method
+ * @returns {function} object.expire method
+ * @returns {function} object.debug method
+ **/
 export default (options = {}) => {
   const {
-    log = console,  // eslint-disable-line
+    log = console, // eslint-disable-line
     initial = {},
     maxLength = DEFAULT_MAX_LENGTH,
     maxAge = DEFAULT_MAX_AGE
-  } = options
+  } = options;
 
-  let disposers = []
-  const jobs = new Map()
-  const waiting = new Map()
+  let disposers = [];
+  const jobs = new Map();
+  const waiting = new Map();
   const cache = lruCache({
     max: maxLength,
     maxAge,
     dispose: (key, value) => {
-      disposers.forEach((disposer) => disposer(key, value))
+      disposers.forEach((disposer) => disposer(key, value));
     }
-  })
+  });
 
   /**
    * @description add a callback to lruCache#dispose
@@ -79,7 +77,7 @@ export default (options = {}) => {
    * @param {function} callback - a function to be called when a cache key is evicted
    * @returns {undefined}
    **/
-  const addDisposer = (cb) => disposers.push(cb)
+  const addDisposer = (cb) => disposers.push(cb);
 
   /**
    * @description remove a callback from lruCache#dispose
@@ -87,7 +85,8 @@ export default (options = {}) => {
    * @param {function} callback - a function to be called when a cache key is evicted
    * @returns {undefined}
    **/
-  const removeDisposer = (cb) => (disposers = disposers.filter((disposer) => disposer && disposer !== cb))
+  const removeDisposer = (cb) =>
+    (disposers = disposers.filter((disposer) => disposer && disposer !== cb));
 
   /**
    * @description set value in cache
@@ -98,8 +97,8 @@ export default (options = {}) => {
    * @returns {undefined}
    **/
   const set = (key, value, ttl = DEFAULT_CACHE_EXPIRE) => {
-    cache.set(key, {...createEntry(value, ttl), cache: CACHE_HIT}, maxAge)
-  }
+    cache.set(key, { ...createEntry(value, ttl), cache: CACHE_HIT }, maxAge);
+  };
 
   /**
    * @description check if key exists in cache
@@ -108,8 +107,8 @@ export default (options = {}) => {
    * @returns {Boolean} - true|false key exists in cache
    **/
   const has = (key) => {
-    return cache.has(key)
-  }
+    return cache.has(key);
+  };
 
   /**
    * @description delete key from cache
@@ -118,8 +117,8 @@ export default (options = {}) => {
    * @returns {undefined}
    **/
   const del = (key) => {
-    cache.del(key)
-  }
+    cache.del(key);
+  };
 
   /**
    * @description removes all cache entries
@@ -127,8 +126,8 @@ export default (options = {}) => {
    * @returns {undefined}
    **/
   const clear = () => {
-    cache.reset()
-  }
+    cache.reset();
+  };
 
   /**
    * @description Create a job that subscribes to a rxJs-worker
@@ -141,26 +140,26 @@ export default (options = {}) => {
    * @param {number} deltaWait - delta wait (in ms) before retrying promise.
    * @returns {undefined}
    **/
-  const _createJob = ({key, worker, workerTimeout, ttl, deltaWait}) => {
-    const observable = createObservable(worker, workerTimeout, log)
+  const _createJob = ({ key, worker, workerTimeout, ttl, deltaWait }) => {
+    const observable = createObservable(worker, workerTimeout, log);
     const onNext = (value) => {
       // update cache
-      set(key, value, ttl)
-      waiting.delete(key)
-      jobs.delete(key)
-    }
+      set(key, value, ttl);
+      waiting.delete(key);
+      jobs.delete(key);
+    };
     const onError = (err) => {
       // handle error
-      log.error(err)
-      waiting.set(key, createWait(deltaWait))
-      jobs.delete(key)
-    }
+      log.error(err);
+      waiting.set(key, createWait(deltaWait));
+      jobs.delete(key);
+    };
     const onComplete = () => {
-      jobs.delete(key)
-    }
-    observable.subscribe(onNext, onError, onComplete)
-    return observable
-  }
+      jobs.delete(key);
+    };
+    observable.subscribe(onNext, onError, onComplete);
+    return observable;
+  };
 
   /**
    * @description Read from cache, check if stale, run promise (in a dedicated worker) or wait for other worker to complete
@@ -173,42 +172,44 @@ export default (options = {}) => {
    * @param {number} deltaWait - delta wait (in ms) before retrying promise, when stale.
    * @returns {Promise} resolves/rejects when request operation finishes
    **/
-  const _requestFromCache = ({worker, key, workerTimeout, ttl, deltaWait}) => {
-    const obj = cache.get(key)
+  const _requestFromCache = ({ worker, key, workerTimeout, ttl, deltaWait }) => {
+    const obj = cache.get(key);
     if (!worker) {
-      return (obj && isFresh(obj) && obj) ||
-              (obj && {...obj, cache: CACHE_STALE}) ||
-              null
-    } if (obj && isFresh(obj) && !waiting.get(key)) {
-      return Promise.resolve(obj)
+      return (obj && isFresh(obj) && obj) || (obj && { ...obj, cache: CACHE_STALE }) || null;
+    }
+    if (obj && isFresh(obj) && !waiting.get(key)) {
+      return Promise.resolve(obj);
     } else if (obj && isWaiting(waiting.get(key))) {
-      return Promise.resolve({...obj, cache: CACHE_STALE})
+      return Promise.resolve({ ...obj, cache: CACHE_STALE });
     } else if (isWaiting(waiting.get(key))) {
-      return Promise.reject(waitingForError(key, waiting.get(key)))
+      return Promise.reject(waitingForError(key, waiting.get(key)));
     }
 
     return new Promise((resolve, reject) => {
-      let job = jobs.get(key)
-      let cacheType = CACHE_HIT
+      let job = jobs.get(key);
+      let cacheType = CACHE_HIT;
       if (!job) {
-        cacheType = CACHE_MISS
+        cacheType = CACHE_MISS;
         job = _createJob({
           key,
           worker,
           workerTimeout,
           ttl,
           deltaWait
-        })
-        jobs.set(key, job)
+        });
+        jobs.set(key, job);
       }
-      job.subscribe((value) => {
-        resolve({value, cache: cacheType})
-      }, (err) => {
-        // serve stale object if it exists
-        obj ? resolve({...obj, cache: CACHE_STALE}) : reject(err)
-      })
-    })
-  }
+      job.subscribe(
+        (value) => {
+          resolve({ value, cache: cacheType });
+        },
+        (err) => {
+          // serve stale object if it exists
+          obj ? resolve({ ...obj, cache: CACHE_STALE }) : reject(err);
+        }
+      );
+    });
+  };
 
   /**
    * @description get key from cache (or run promise to fill)
@@ -229,29 +230,29 @@ export default (options = {}) => {
       workerTimeout = 5000,
       deltaWait = DEFAULT_DELTA_WAIT,
       worker
-    } = config
+    } = config;
     return _requestFromCache({
       worker,
       key,
       workerTimeout,
       ttl,
       deltaWait
-    })
-  }
+    });
+  };
 
   /**
    * @description get keys from cache
    * @access public
    * @returns {Array<String>} - keys
    **/
-  const keys = () => cache.keys()
+  const keys = () => cache.keys();
 
   /**
    * @description get values from cache
    * @access public
    * @returns {Array<Any>} - values
    **/
-  const values = () => cache.values()
+  const values = () => cache.values();
 
   /**
    * @description get cache entries
@@ -259,12 +260,14 @@ export default (options = {}) => {
    * @returns {Map<<String, Any>} - values
    **/
   const entries = () => {
-    const vals = values()
-    return new Map(keys().reduce((acc, key, i) => {
-      acc.push([key, vals[i]])
-      return acc
-    }, []))
-  }
+    const vals = values();
+    return new Map(
+      keys().reduce((acc, key, i) => {
+        acc.push([key, vals[i]]);
+        return acc;
+      }, [])
+    );
+  };
 
   /**
    * @description expire a cache key (ie. set TTL = 0)
@@ -275,15 +278,13 @@ export default (options = {}) => {
   const expire = (keys) => {
     keys.forEach((key) => {
       const search = createRegExp(key);
-      [...cache.keys()]
-        .filter((key) => search.test(key))
-        .forEach((key) => {
-          const obj = cache.get(key)
-          set(key, obj.value, 0)  // TTL = 0
-          waiting.delete(key)
-        })
-    })
-  }
+      [...cache.keys()].filter((key) => search.test(key)).forEach((key) => {
+        const obj = cache.get(key);
+        set(key, obj.value, 0); // TTL = 0
+        waiting.delete(key);
+      });
+    });
+  };
 
   const debug = (extraData = {}) => {
     return getCacheInfo({
@@ -294,12 +295,12 @@ export default (options = {}) => {
       cache,
       waiting,
       jobs
-    })
-  }
+    });
+  };
 
   Object.keys(initial).forEach((key) => {
-    set(key, cloneDeep(initial[key]))
-  })
+    set(key, cloneDeep(initial[key]));
+  });
 
   const buildFacade = () => {
     return {
@@ -317,16 +318,16 @@ export default (options = {}) => {
       // helpers
       debug,
       log
-    }
-  }
+    };
+  };
 
-  const facade = buildFacade()
+  const facade = buildFacade();
 
   facade.use = (middleware) => {
-    const m = middleware(buildFacade())
+    const m = middleware(buildFacade());
     Object.keys(m).forEach((key) => {
       // Keep a reference to the original function pointer
-      const prevFacade = facade[key]
+      const prevFacade = facade[key];
       // overwrite/mutate the original function
       facade[key] = (...args) => {
         // call middlware function
@@ -334,12 +335,12 @@ export default (options = {}) => {
           // add next parameter
           ...args.concat((...middlewareArgs) => {
             // call original function with args from middleware
-            return prevFacade(...middlewareArgs)
+            return prevFacade(...middlewareArgs);
           })
-        )
-      }
-    })
-  }
+        );
+      };
+    });
+  };
 
-  return facade
-}
+  return facade;
+};
