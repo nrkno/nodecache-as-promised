@@ -168,7 +168,7 @@ cache.log.info('hello world!')
 import inMemoryCache from '@nrk/nodecache-as-promised'
 const cache = inMemoryCache({ /* options */})
 
-// imiplicit set cache on miss, or use cached value
+// implicit set cache on miss, or use cached value
 cache.get('key', { worker: () => Promise.resolve({hello: 'world'}) })
   .then((data) => {
     console.log(data)
