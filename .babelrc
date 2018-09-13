@@ -1,8 +1,7 @@
 {
   "presets": [
-    "stage-3",
     [
-      "env", {
+      "@babel/env", {
         "targets": {
           "node": "current"
         }
