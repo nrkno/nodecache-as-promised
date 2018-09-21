@@ -144,7 +144,7 @@ export default (options = {}) => {
     const observable = createObservable(worker, workerTimeout, log);
     const onNext = (value) => {
       // update cache
-      set(key, value, ttl);
+      set(key, value, value.__ttl || ttl);
       waiting.delete(key);
       jobs.delete(key);
     };
