@@ -14,7 +14,7 @@ import {
   isWaiting
 } from './utils/cache-helpers';
 import { getCacheInfo } from './utils/debug';
-import lruCache from 'lru-cache';
+import LRUCache from 'lru-cache';
 
 // export plugins for convenience
 import dc from './dist-expire';
@@ -63,7 +63,7 @@ export default (options = {}) => {
   let disposers = [];
   const jobs = new Map();
   const waiting = new Map();
-  const cache = lruCache({
+  const cache = new LRUCache({
     max: maxLength,
     maxAge,
     dispose: (key, value) => {
@@ -144,7 +144,7 @@ export default (options = {}) => {
     const observable = createObservable(worker, workerTimeout, log);
     const onNext = (value) => {
       // update cache
-      set(key, value, value.__ttl || ttl);
+      set(key, value, value.__ttl || ttl);
       waiting.delete(key);
       jobs.delete(key);
     };
@@ -278,11 +278,13 @@ export default (options = {}) => {
   const expire = (keys) => {
     keys.forEach((key) => {
       const search = createRegExp(key);
-      [...cache.keys()].filter((key) => search.test(key)).forEach((key) => {
-        const obj = cache.get(key);
-        set(key, obj.value, 0); // TTL = 0
-        waiting.delete(key);
-      });
+      [...cache.keys()]
+        .filter((key) => search.test(key))
+        .forEach((key) => {
+          const obj = cache.get(key);
+          set(key, obj.value, 0); // TTL = 0
+          waiting.delete(key);
+        });
     });
   };
 
