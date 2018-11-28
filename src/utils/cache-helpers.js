@@ -1,9 +1,8 @@
 /**
  * @module
  **/
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/fromPromise';
-import 'rxjs/add/operator/timeout';
+import { from } from 'rxjs';
+import { timeout as rxjsTimeout } from 'rxjs/operators';
 
 export const createRegExp = (search) => {
   return new RegExp(
@@ -59,5 +58,5 @@ export const createObservable = (promiseCreator, timeout, logger) => {
     throw err;
   });
 
-  return Observable.fromPromise(promise).timeout(timeout);
+  return from(promise).pipe(rxjsTimeout(timeout));
 };

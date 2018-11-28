@@ -1,6 +1,6 @@
 import { getCacheInfo, buildKey } from '../debug';
 import expect from 'expect.js';
-import lruCache from 'lru-cache';
+import LRUCache from 'lru-cache';
 import { createEntry, createWait } from '../cache-helpers';
 
 describe('debug', () => {
@@ -48,7 +48,7 @@ describe('debug', () => {
   describe('getCacheInfo', () => {
     it('should print debug info from cache', () => {
       const maxAge = 10000;
-      const cache = lruCache({
+      const cache = new LRUCache({
         max: 100,
         maxAge
       });
