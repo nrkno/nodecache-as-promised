@@ -24,6 +24,7 @@ npm install @nrk/nodecache-as-promised --save
 ```
 npm install 
 npm login 
+npm run build
 
 # one of
 npm version patch -m 'Release patch %s'
