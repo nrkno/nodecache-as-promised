@@ -3,6 +3,7 @@
 > Fast and resilient cache for NodeJs targeting high-volume sites
 
 - [Installing](#installing)
+- [Publish](#publish)
 - [Features](#features)
 - [APIs](#apis)
 - [Examples](#examples)
@@ -15,6 +16,23 @@
 
 ```
 npm install @nrk/nodecache-as-promised --save
+```
+
+
+## Publish
+
+```
+npm install 
+npm login 
+
+# one of
+npm version patch -m 'Release patch %s'
+npm version minor -m 'Release minor %s'
+npm version major -m 'Release major %s'
+
+git push
+npm publish
+
 ```
 
 ## Motivation
