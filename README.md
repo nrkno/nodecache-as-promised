@@ -24,13 +24,13 @@ npm install @nrk/nodecache-as-promised --save
 ```
 npm install 
 npm login 
-npm run build
 
 # one of
 npm version patch -m 'Release patch %s'
 npm version minor -m 'Release minor %s'
 npm version major -m 'Release major %s'
 
+npm run build
 git push
 npm publish
 
