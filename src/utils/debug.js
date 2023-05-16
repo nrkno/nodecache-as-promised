@@ -10,15 +10,15 @@ export const buildKey = ({ key, value, waiting, full }) => {
     {
       key,
       created: new Date(value.created),
-      [expireKey]: new Date(expire)
+      [expireKey]: new Date(expire),
     },
     waiting
       ? {
           waiting: {
             started: new Date(waiting.started),
             wait: waiting.wait,
-            waitUntil: new Date(waiting.waitUntil)
-          }
+            waitUntil: new Date(waiting.waitUntil),
+          },
         }
       : {},
     full ? { value: value.value } : {}
@@ -39,7 +39,7 @@ export const getCacheInfo = (info) => {
   const { full, search = '*', cache, maxAge, waiting } = info;
   const keys = {
     stale: [],
-    hot: []
+    hot: [],
   };
   const matcher = createRegExp(search);
   cache.forEach((value, key) => {
@@ -58,6 +58,6 @@ export const getCacheInfo = (info) => {
     ...extractProps(info),
     maxAge: `${maxAge / (1000 * 60 * 60)}h`,
     itemCount: cache.itemCount,
-    keys
+    keys,
   };
 };

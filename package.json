@@ -50,7 +50,7 @@
     "lint-staged": "13.2.2",
     "mocha": "10.2.0",
     "nyc": "^14.1.1",
-    "prettier": "1.16.4",
+    "prettier": "2.8.8",
     "sinon": "7.2.3",
     "yargs": "17.7.2"
   },
