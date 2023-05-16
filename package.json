@@ -23,7 +23,6 @@
     "perf:cache-cluster": "node test/cache-cluster.js",
     "format": "prettier --write './{src,test}/**/*.{js,json}'",
     "lint": "eslint './{src,test}/**/*.js'",
-    "precommit": "lint-staged && npm run test",
     "prepublishOnly": "npm run build",
     "postpublish": "rm -rf lib"
   },
@@ -66,5 +65,10 @@
   "engines": {
     "node": ">=8.x",
     "npm": ">=5.x"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && npm run test"
+    }
   }
 }
